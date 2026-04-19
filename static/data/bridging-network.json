@@ -1,0 +1,77 @@
+{
+  "nodes": [
+    { "id": "ab413",            "label": "Nevada AB 413",                         "type": "event", "role": "Sagebrush Rebellion — 1979" },
+    { "id": "wise-use-1988",    "label": "Multiple Use Strategy Conference",      "type": "event", "role": "Wise Use founding — Reno, 1988" },
+    { "id": "county-supremacy", "label": "County-supremacy movement",             "type": "event", "role": "Nye, Catron, and others — 1990s" },
+    { "id": "utah-hb148",       "label": "Utah HB 148",                           "type": "event", "role": "Transfer of Public Lands Act — 2012" },
+    { "id": "bunkerville",      "label": "Bunkerville standoff",                  "type": "event", "role": "Bundy Ranch armed standoff — April 2014" },
+    { "id": "malheur",          "label": "Malheur occupation",                    "type": "event", "role": "Wildlife Refuge occupation — January 2016" },
+
+    { "id": "cliven-bundy",     "label": "Cliven Bundy",    "type": "family", "role": "Rancher; unpaid BLM grazing fees since 1989" },
+    { "id": "ammon-bundy",      "label": "Ammon Bundy",     "type": "family", "role": "Led Malheur occupation; founded Citizens for Constitutional Freedom" },
+    { "id": "ryan-bundy",       "label": "Ryan Bundy",      "type": "family", "role": "Participant at Bunkerville and Malheur" },
+
+    { "id": "dean-rhoads",      "label": "Dean Rhoads",     "type": "person", "role": "Nevada assemblyman; AB 413 sponsor (1979)" },
+    { "id": "paul-laxalt",      "label": "Paul Laxalt",     "type": "person", "role": "Nevada senator; Reagan confidant; Rebellion sympathizer" },
+    { "id": "james-watt",       "label": "James Watt",      "type": "person", "role": "MSLF co-founder; Interior Secretary 1981–83" },
+    { "id": "ron-arnold",       "label": "Ron Arnold",      "type": "person", "role": "Coined 'Wise Use' at the 1988 Reno conference" },
+    { "id": "alan-gottlieb",    "label": "Alan Gottlieb",   "type": "person", "role": "Founded Center for the Defense of Free Enterprise (1976)" },
+    { "id": "chuck-cushman",    "label": "Chuck Cushman",   "type": "person", "role": "National Inholders Association; Wise Use organizer" },
+    { "id": "richard-mack",     "label": "Richard Mack",    "type": "person", "role": "Sheriff, Graham County, AZ; founded CSPOA ~2011" },
+    { "id": "richard-carver",   "label": "Richard Carver",  "type": "person", "role": "Nye County, NV commissioner; 1994 bulldozer incident" },
+    { "id": "ken-ivory",        "label": "Ken Ivory",       "type": "person", "role": "Utah state rep; founded American Lands Council (2012)" },
+    { "id": "rob-bishop",       "label": "Rob Bishop",      "type": "person", "role": "Utah congressman; House Natural Resources chair 2015–19" },
+    { "id": "mike-lee",         "label": "Mike Lee",        "type": "person", "role": "Utah US senator since 2011; federal-transfer advocate" },
+    { "id": "ryan-payne",       "label": "Ryan Payne",      "type": "person", "role": "Militia operative; Bunkerville and Malheur; convicted both" },
+    { "id": "lavoy-finicum",    "label": "LaVoy Finicum",   "type": "person", "role": "Arizona rancher; killed at Malheur roadblock, Jan 2016" },
+    { "id": "stewart-rhodes",   "label": "Stewart Rhodes",  "type": "person", "role": "Founded Oath Keepers (2009)" },
+
+    { "id": "mslf",             "label": "Mountain States Legal Foundation", "type": "org", "role": "Conservative legal foundation; founded 1977" },
+    { "id": "cdfe",             "label": "Center for the Defense of Free Enterprise", "type": "org", "role": "Wise Use institutional hub; founded 1976" },
+    { "id": "cspoa",            "label": "Constitutional Sheriffs & Peace Officers Association", "type": "org", "role": "Sheriff-centered 10th-Amendment network; founded ~2011" },
+    { "id": "alc",              "label": "American Lands Council",           "type": "org", "role": "Federal-transfer advocacy; founded 2012" },
+    { "id": "oath-keepers",     "label": "Oath Keepers",                     "type": "org", "role": "Militia network; founded 2009" }
+  ],
+  "links": [
+    { "source": "cliven-bundy",   "target": "ammon-bundy",      "type": "parent" },
+    { "source": "cliven-bundy",   "target": "ryan-bundy",       "type": "parent" },
+
+    { "source": "dean-rhoads",    "target": "ab413",             "type": "led" },
+    { "source": "paul-laxalt",    "target": "ab413",             "type": "participant" },
+    { "source": "james-watt",     "target": "ab413",             "type": "participant" },
+
+    { "source": "ron-arnold",     "target": "wise-use-1988",     "type": "led" },
+    { "source": "alan-gottlieb",  "target": "wise-use-1988",     "type": "participant" },
+    { "source": "chuck-cushman",  "target": "wise-use-1988",     "type": "participant" },
+    { "source": "cdfe",           "target": "wise-use-1988",     "type": "affiliation" },
+
+    { "source": "richard-mack",   "target": "county-supremacy",  "type": "participant" },
+    { "source": "richard-carver", "target": "county-supremacy",  "type": "participant" },
+
+    { "source": "ken-ivory",      "target": "utah-hb148",        "type": "led" },
+    { "source": "rob-bishop",     "target": "utah-hb148",        "type": "participant" },
+    { "source": "mike-lee",       "target": "utah-hb148",        "type": "participant" },
+    { "source": "alc",            "target": "utah-hb148",        "type": "affiliation" },
+
+    { "source": "cliven-bundy",   "target": "bunkerville",       "type": "led" },
+    { "source": "ammon-bundy",    "target": "bunkerville",       "type": "participant" },
+    { "source": "ryan-bundy",     "target": "bunkerville",       "type": "participant" },
+    { "source": "ryan-payne",     "target": "bunkerville",       "type": "participant" },
+    { "source": "stewart-rhodes", "target": "bunkerville",       "type": "participant" },
+    { "source": "richard-mack",   "target": "bunkerville",       "type": "participant" },
+    { "source": "cspoa",          "target": "bunkerville",       "type": "affiliation" },
+    { "source": "oath-keepers",   "target": "bunkerville",       "type": "affiliation" },
+
+    { "source": "ammon-bundy",    "target": "malheur",           "type": "led" },
+    { "source": "ryan-bundy",     "target": "malheur",           "type": "participant" },
+    { "source": "ryan-payne",     "target": "malheur",           "type": "participant" },
+    { "source": "lavoy-finicum",  "target": "malheur",           "type": "participant" },
+
+    { "source": "james-watt",     "target": "mslf",              "type": "founded" },
+    { "source": "alan-gottlieb",  "target": "cdfe",              "type": "founded" },
+    { "source": "ron-arnold",     "target": "cdfe",              "type": "affiliation" },
+    { "source": "richard-mack",   "target": "cspoa",             "type": "founded" },
+    { "source": "ken-ivory",      "target": "alc",               "type": "founded" },
+    { "source": "stewart-rhodes", "target": "oath-keepers",      "type": "founded" }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "nodes": [
+    { "id": "cliven",   "label": "Cliven Bundy",   "type": "family", "role": "Rancher, patriarch" },
+    { "id": "carol",    "label": "Carol Bundy",    "type": "family", "role": "Rancher" },
+    { "id": "ammon",    "label": "Ammon Bundy",    "type": "family", "role": "Led Malheur occupation" },
+    { "id": "ryan",     "label": "Ryan Bundy",     "type": "family", "role": "Bunkerville & Malheur participant" },
+    { "id": "mel",      "label": "Mel Bundy",      "type": "family", "role": "Bunkerville participant" },
+    { "id": "dave",     "label": "Dave Bundy",     "type": "family", "role": "Bunkerville participant" },
+
+    { "id": "bunkerville", "label": "Bunkerville Standoff", "type": "event", "role": "April 2014, Nevada" },
+    { "id": "malheur",     "label": "Malheur Occupation",   "type": "event", "role": "January–February 2016, Oregon" },
+
+    { "id": "payne",     "label": "Ryan Payne",     "type": "associate", "role": "Militia organizer" },
+    { "id": "finicum",   "label": "LaVoy Finicum",  "type": "associate", "role": "Rancher, killed Jan 2016" },
+    { "id": "cooper",    "label": "Blaine Cooper",  "type": "associate", "role": "Malheur occupier" },
+    { "id": "ritzheimer","label": "Jon Ritzheimer", "type": "associate", "role": "Malheur occupier" },
+
+    { "id": "oathkeepers", "label": "Oath Keepers",                       "type": "org", "role": "Militia network" },
+    { "id": "ccf",         "label": "Citizens for Constitutional Freedom", "type": "org", "role": "Formed for Malheur" }
+  ],
+  "links": [
+    { "source": "cliven", "target": "carol",  "type": "spouse" },
+    { "source": "cliven", "target": "ammon",  "type": "parent" },
+    { "source": "cliven", "target": "ryan",   "type": "parent" },
+    { "source": "cliven", "target": "mel",    "type": "parent" },
+    { "source": "cliven", "target": "dave",   "type": "parent" },
+
+    { "source": "cliven", "target": "bunkerville", "type": "participant" },
+    { "source": "ammon",  "target": "bunkerville", "type": "participant" },
+    { "source": "ryan",   "target": "bunkerville", "type": "participant" },
+    { "source": "mel",    "target": "bunkerville", "type": "participant" },
+    { "source": "dave",   "target": "bunkerville", "type": "participant" },
+    { "source": "payne",  "target": "bunkerville", "type": "participant" },
+
+    { "source": "ammon",      "target": "malheur", "type": "led" },
+    { "source": "ryan",       "target": "malheur", "type": "participant" },
+    { "source": "payne",      "target": "malheur", "type": "participant" },
+    { "source": "finicum",    "target": "malheur", "type": "participant" },
+    { "source": "cooper",     "target": "malheur", "type": "participant" },
+    { "source": "ritzheimer", "target": "malheur", "type": "participant" },
+
+    { "source": "payne",    "target": "oathkeepers", "type": "affiliation" },
+    { "source": "ammon",    "target": "ccf",         "type": "founded" },
+    { "source": "finicum",  "target": "ccf",         "type": "affiliation" }
+  ]
+}
