@@ -1,0 +1,57 @@
+{{- /*
+  map — render an interactive Leaflet map inline within narrative prose.
+  For full-bleed standalone map pages, use frontmatter .Params.map and the
+  layouts/maps/single.html layout instead.
+
+  Required:
+    data     Path to a GeoJSON file
+
+  Optional (all lowercase — Hugo lowercases frontmatter keys, we follow suit):
+    id             DOM id for the figure
+    height         Pixel height (default 500)
+    center         "lat,lon"
+    zoom           Initial zoom (default 5)
+    caption        Markdown caption rendered under the map
+    style          Palette preset: sage (default), green, gold, rust, navy
+    valuefield     Feature property for the choropleth ramp + info/popup value
+    labelfield     Feature property for display label
+    valueunit      Unit suffix (e.g. "%", " acres")
+    legendtitle    Title for the legend
+    infotitle      Hover-panel default title
+    infoprompt     Hover-panel default prompt text
+    popupnote      Small note under value in click popups
+*/ -}}
+{{- $id      := .Get "id" | default (printf "map-%d" .Ordinal) -}}
+{{- $data    := .Get "data" -}}
+{{- $height  := .Get "height" | default "500" -}}
+{{- $caption := .Get "caption" -}}
+{{- $center  := .Get "center" -}}
+{{- $zoom    := .Get "zoom" | default "5" -}}
+{{- $style   := .Get "style" | default "sage" -}}
+
+{{- $layer := dict "src" $data "style" $style -}}
+{{- with .Get "labelfield"  }}{{ $layer = merge $layer (dict "labelfield"  .) }}{{ end -}}
+{{- with .Get "valuefield"  }}{{ $layer = merge $layer (dict "valuefield"  . "choropleth" true) }}{{ end -}}
+{{- with .Get "valueunit"   }}{{ $layer = merge $layer (dict "valueunit"   .) }}{{ end -}}
+{{- with .Get "popupnote"   }}{{ $layer = merge $layer (dict "popupnote"   .) }}{{ end -}}
+
+{{- $cfg := dict "layers" (slice $layer) "zoom" $zoom -}}
+{{- with $center            }}{{ $cfg = merge $cfg (dict "center"      .) }}{{ end -}}
+{{- with .Get "legendtitle" }}{{ $cfg = merge $cfg (dict "legendtitle" .) }}{{ end -}}
+{{- with .Get "infotitle"   }}{{ $cfg = merge $cfg (dict "infotitle"   .) }}{{ end -}}
+{{- with .Get "infoprompt"  }}{{ $cfg = merge $cfg (dict "infoprompt"  .) }}{{ end -}}
+
+<figure class="viz-embed viz-embed--map" id="{{ $id }}">
+  <div class="viz-embed__frame"
+       id="{{ $id }}-map"
+       data-viz="map"
+       style="height: {{ $height }}px;"
+       role="img"
+       aria-label="{{ with $caption }}{{ . }}{{ else }}Interactive map{{ end }}">
+    <noscript>This map requires JavaScript. Data source: <a href="{{ $data }}">{{ $data }}</a>.</noscript>
+  </div>
+  <script type="application/json" id="{{ $id }}-map-config">{{ $cfg | jsonify | safeJS }}</script>
+  {{- with $caption }}
+    <figcaption class="viz-embed__caption"><span class="figure__number">Map.</span> {{ . | markdownify }}</figcaption>
+  {{- end }}
+</figure>

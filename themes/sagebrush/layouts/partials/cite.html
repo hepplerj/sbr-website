@@ -1,0 +1,36 @@
+{{- /*
+  Cite-this-page partial.
+  Generates a Chicago-style note/bibliography citation for the current page.
+  Pass the page as context: {{ partial "cite.html" . }}
+
+  Author resolution, in order:
+    1. page frontmatter `authors` (list)
+    2. page frontmatter `author` (string)
+    3. site-wide `.Site.Params.author`
+*/ -}}
+{{- $page := . -}}
+{{- $authors := slice -}}
+{{- with $page.Params.authors -}}
+  {{- $authors = . -}}
+{{- else -}}
+  {{- with $page.Params.author }}{{ $authors = slice . }}
+  {{- else with $page.Site.Params.author }}{{ $authors = slice . }}
+  {{- end -}}
+{{- end -}}
+{{- $byline := delimit $authors ", " ", and " -}}
+{{- $title := $page.Title -}}
+{{- $site := $page.Site.Title -}}
+{{- $url := $page.Permalink -}}
+{{- $accessed := now.Format "January 2, 2006" -}}
+{{- $pub := or $page.Date $page.Lastmod -}}
+
+<aside class="cite-block" aria-label="Citation">
+  <p class="cite-block__label">Cite this page</p>
+  <p class="cite-block__text">
+    {{ with $byline }}{{ . }}. {{ end -}}
+    &ldquo;{{ $title }}.&rdquo;
+    <em>{{ $site }}</em>{{ with $pub }}, {{ .Format "January 2, 2006" }}{{ end }}.
+    Accessed {{ $accessed }}.
+    <a href="{{ $url }}">{{ $url }}</a>.
+  </p>
+</aside>

@@ -1,0 +1,29 @@
+{{- /*
+  network — placeholder mount point for a D3 network visualization.
+  Usage:
+    {{< network id="sagebrush-coalition"
+                data="/data/coalition.json"
+                height="600"
+                caption="Coalition ties among Sagebrush Rebellion organizations, 1979–1981." >}}
+*/ -}}
+{{- $id      := .Get "id" | default (printf "net-%d" .Ordinal) -}}
+{{- $data    := .Get "data" -}}
+{{- $height  := .Get "height" | default "600" -}}
+{{- $caption := .Get "caption" -}}
+{{- $layout  := .Get "layout" | default "force" -}}
+
+<figure class="viz-embed viz-embed--network" id="{{ $id }}">
+  <div class="viz-embed__frame"
+       data-viz="network"
+       data-src="{{ $data }}"
+       data-layout="{{ $layout }}"
+       style="min-height: {{ $height }}px;"
+       role="img"
+       aria-label="{{ with $caption }}{{ . }}{{ else }}Interactive network diagram{{ end }}">
+    <noscript>This network diagram requires JavaScript. Data source: <a href="{{ $data }}">{{ $data }}</a>.</noscript>
+    <span>Network placeholder — viz plumbing pending.</span>
+  </div>
+  {{- with $caption }}
+    <p class="viz-embed__caption"><span class="figure__number">Network.</span> {{ . | markdownify }}</p>
+  {{- end }}
+</figure>

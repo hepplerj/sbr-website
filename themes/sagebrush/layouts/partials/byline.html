@@ -1,0 +1,20 @@
+{{- /*
+  byline — renders a "By X" line for a page that has an explicit authors
+  list (via frontmatter or section cascade). Pages without explicit
+  authorship render nothing — the site-wide author is reserved for the
+  footer and cite-this-page partial.
+
+  Usage: {{ partial "byline.html" . }}
+
+  Accepts either `authors: [Name, Name]` (preferred, list) or
+  `author: Name` (singular shorthand) in frontmatter.
+*/ -}}
+{{- $authors := slice -}}
+{{- with .Params.authors -}}
+  {{- $authors = . -}}
+{{- else -}}
+  {{- with .Params.author }}{{ $authors = slice . }}{{ end -}}
+{{- end -}}
+{{- if $authors }}
+  <p class="byline">By {{ delimit $authors ", " " and " }}</p>
+{{- end -}}

@@ -1,0 +1,90 @@
+// ─────────────────────────────────────────────
+// Sagebrush — modern prairie palette
+// ─────────────────────────────────────────────
+
+:root {
+  // Core palette
+  --color-sage:        #6b7a5a;   // sagebrush green
+  --color-sage-dark:   #4a5640;
+  --color-sage-light:  #a8b394;
+  --color-cream:       #f5efe1;   // weathered paper
+  --color-cream-dark:  #ebe3cf;
+  --color-rust:        #a94b2b;   // iron oxide / rust
+  --color-rust-dark:   #7c3519;
+  --color-navy:        #1f2a44;   // deep navy (links, headings)
+  --color-navy-light:  #2f3e62;
+  --color-ink:         #1a1a1a;   // body text
+  --color-ink-soft:    #3a3a3a;
+  --color-bone:        #fbf8f0;   // page background
+  --color-dust:        #d9d2bf;   // soft divider
+  --color-shadow:      rgba(26, 26, 26, 0.08);
+
+  // Semantic
+  --color-bg:          var(--color-bone);
+  --color-bg-alt:      var(--color-cream);
+  --color-text:        var(--color-ink);
+  --color-text-muted:  var(--color-ink-soft);
+  --color-link:        var(--color-navy);
+  --color-link-hover:  var(--color-rust);
+  --color-border:      var(--color-dust);
+  --color-accent:      var(--color-rust);
+  --color-heading:     var(--color-navy);
+
+  // Typography scale (major third, 1.250)
+  --font-size-xs:   0.781rem;
+  --font-size-sm:   0.875rem;
+  --font-size-base: 1.0625rem;   // ~17px for comfortable reading
+  --font-size-md:   1.25rem;
+  --font-size-lg:   1.563rem;
+  --font-size-xl:   1.953rem;
+  --font-size-2xl:  2.441rem;
+  --font-size-3xl:  3.052rem;
+  --font-size-4xl:  3.815rem;
+
+  // Type families
+  --font-display: "Zilla Slab", "Roboto Slab", Georgia, serif;
+  --font-body:    "Source Serif 4", "Source Serif Pro", Georgia, "Iowan Old Style", serif;
+  --font-ui:      "Source Sans 3", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono:    "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  // Rhythm
+  --line-height-tight:  1.2;
+  --line-height-normal: 1.55;
+  --line-height-prose:  1.7;
+
+  // Layout
+  --measure-narrow:  32rem;   // ~512px — reading column
+  --measure:         40rem;   // ~640px — prose default
+  --measure-wide:    56rem;   // ~896px — figures, viz
+  --measure-full:    80rem;
+
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.5rem;
+  --space-6:  2rem;
+  --space-7:  3rem;
+  --space-8:  4rem;
+  --space-9:  6rem;
+
+  --radius-sm: 2px;
+  --radius:    4px;
+
+  // Motion
+  --ease:     cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 180ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root.auto-theme {
+    --color-bg:         #1a1f1a;
+    --color-bg-alt:     #242a24;
+    --color-text:       #e8e3d4;
+    --color-text-muted: #b8b3a4;
+    --color-link:       #c4d4b4;
+    --color-link-hover: #e08660;
+    --color-border:     #3a3f3a;
+    --color-heading:    #e8e3d4;
+  }
+}

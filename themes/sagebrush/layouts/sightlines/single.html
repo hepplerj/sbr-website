@@ -1,0 +1,73 @@
+{{ define "main" }}
+{{- /* Sightlines dispatcher: a single template that renders a map, network, or
+       chart page based on the page's `viz` frontmatter. Each viz type reads
+       its own config block (`map`, `network`, or `chart`) and mounts the
+       matching JS module via data-viz= on the container. */ -}}
+
+{{- $viz  := .Params.viz | default "map" -}}
+{{- $cfg  := "" -}}
+{{- $slug := .File.BaseFileName -}}
+
+{{- if   eq $viz "map"     -}}
+  {{- $cfg = merge .Params.map     (dict "fullbleed" true) -}}
+{{- else if eq $viz "network" -}}
+  {{- $cfg = .Params.network -}}
+{{- else if eq $viz "chart"   -}}
+  {{- $cfg = .Params.chart -}}
+{{- end -}}
+
+{{- $id := printf "%s-%s" $viz $slug -}}
+
+<section class="map-page sightlines-page sightlines-page--{{ $viz }}" data-viz-id="{{ $id }}">
+  <header class="map-page__bar">
+    <div class="map-page__meta">
+      <p class="map-page__eyebrow"><a href="{{ "/sightlines/" | relURL }}">Sightlines</a></p>
+      <h1 class="map-page__title">{{ .Title }}</h1>
+      {{- with .Params.lede }}<p class="map-page__lede">{{ . }}</p>{{ end }}
+    </div>
+    <div class="map-page__actions">
+      <button type="button"
+              class="map-page__btn"
+              aria-controls="{{ $id }}-about"
+              aria-expanded="false"
+              data-toggles="{{ $id }}-about">
+        About this {{ $viz }}
+      </button>
+    </div>
+  </header>
+
+  <aside class="map-page__about" id="{{ $id }}-about" aria-hidden="true" aria-label="About this {{ $viz }}">
+    <button type="button" class="map-page__about-close" aria-label="Close panel">&times;</button>
+    <div class="map-page__about-body prose">
+      {{ .Content }}
+      {{ partial "cite.html" . }}
+    </div>
+  </aside>
+
+  {{- $cls := "map-page__map" -}}
+  {{- if eq $viz "network" }}{{ $cls = printf "%s network-page__viz" $cls }}{{ end -}}
+  {{- if eq $viz "chart"   }}{{ $cls = printf "%s climate-page__viz" $cls }}{{ end -}}
+
+  <div class="{{ $cls }}"
+       id="{{ $id }}"
+       data-viz="{{ $viz }}"
+       role="img"
+       aria-label="{{ with .Params.lede }}{{ . }}{{ else }}Interactive {{ $viz }}{{ end }}">
+    <noscript>This {{ $viz }} requires JavaScript.</noscript>
+  </div>
+  <script type="application/json" id="{{ $id }}-config">{{ $cfg | jsonify | safeJS }}</script>
+</section>
+
+<script>
+  (function () {
+    var btn = document.querySelector('[data-toggles="{{ $id }}-about"]');
+    var panel = document.getElementById('{{ $id }}-about');
+    var close = panel.querySelector('.map-page__about-close');
+    function open()  { panel.classList.add('is-open');    btn.setAttribute('aria-expanded','true');  panel.setAttribute('aria-hidden','false'); }
+    function shut()  { panel.classList.remove('is-open'); btn.setAttribute('aria-expanded','false'); panel.setAttribute('aria-hidden','true');  }
+    btn.addEventListener('click', function () { panel.classList.contains('is-open') ? shut() : open(); });
+    close.addEventListener('click', shut);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
+  })();
+</script>
+{{ end }}

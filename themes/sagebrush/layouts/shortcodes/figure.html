@@ -1,0 +1,40 @@
+{{- /*
+  figure — auto-numbered figure with caption and optional credit.
+  Usage:
+    {{< figure src="images/taylor-grazing.jpg"
+               alt="Ranchers at a Taylor Grazing Act hearing, 1934"
+               caption="Grazing hearings in Elko, Nevada."
+               credit="National Archives" >}}
+*/ -}}
+{{- $src     := .Get "src" -}}
+{{- $alt     := .Get "alt" | default "" -}}
+{{- $caption := .Get "caption" -}}
+{{- $credit  := .Get "credit" -}}
+{{- $id      := .Get "id" | default (printf "fig-%d" .Ordinal) -}}
+{{- $num     := add .Ordinal 1 -}}
+
+{{- $img := "" -}}
+{{- with .Page.Resources.GetMatch $src -}}{{ $img = . }}{{- end -}}
+{{- if not $img -}}{{- with resources.Get $src -}}{{ $img = . }}{{- end -}}{{- end -}}
+
+<figure id="{{ $id }}" class="figure">
+  {{- if $img -}}
+    {{- $full := $img.Resize "1400x webp q82" -}}
+    {{- $med  := $img.Resize "900x webp q82" -}}
+    <img src="{{ $med.RelPermalink }}"
+         srcset="{{ $med.RelPermalink }} 900w, {{ $full.RelPermalink }} 1400w"
+         sizes="(min-width: 56rem) 56rem, 100vw"
+         alt="{{ $alt }}"
+         loading="lazy"
+         decoding="async">
+  {{- else -}}
+    <img src="{{ $src | relURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+  {{- end }}
+  {{- if or $caption $credit }}
+    <figcaption>
+      <span class="figure__number">Fig. {{ $num }}.</span>
+      {{- with $caption }}{{ . | markdownify }}{{ end }}
+      {{- with $credit }} <span class="figure__credit">Credit: {{ . | markdownify }}.</span>{{ end }}
+    </figcaption>
+  {{- end }}
+</figure>

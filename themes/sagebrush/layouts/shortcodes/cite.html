@@ -1,0 +1,28 @@
+{{- /*
+  cite — inline parenthetical citation (author year, pages).
+
+  Looks up the key in .Site.Data.bibliography (produced by
+  scripts/build_bibliography.py) and emits a compact author-date note
+  that also links to the full entry on /sources/#{key}.
+
+  Usage:
+    {{< cite key="cawley1993federal" >}}
+    {{< cite key="cawley1993federal" pages="42-45" >}}
+    {{< cite author="Cawley" year="1993" pages="42-45" >}}  (manual, no key)
+*/ -}}
+{{- $key    := .Get "key" -}}
+{{- $author := .Get "author" -}}
+{{- $year   := .Get "year" -}}
+{{- $pages  := .Get "pages" -}}
+
+{{- $entry := "" -}}
+{{- if $key -}}
+  {{- $entry = index .Site.Data.bibliography $key -}}
+{{- end -}}
+
+{{- if $entry -}}
+  {{- if not $author }}{{ $author = $entry.authorlast }}{{ end -}}
+  {{- if not $year   }}{{ $year   = $entry.year       }}{{ end -}}
+{{- end -}}
+
+<span class="cite"{{ with $key }} data-cite="{{ . }}"{{ end }}>(<a href="/sources/#{{ $key }}">{{ with $author }}{{ . }}{{ end }}{{ with $year }} {{ . }}{{ end }}{{ with $pages }}, {{ . }}{{ end }}</a>)</span>

@@ -1,0 +1,108 @@
+{{ define "main" }}
+{{- $bib := .Site.Data.bibliography -}}
+
+{{- /* Group configuration. Order here is the display order. Types in the
+       data that aren't listed fall into "other". */ -}}
+{{- $groups := slice
+    (dict "id" "books"         "label" "Books"                  "types" (slice "book"))
+    (dict "id" "articles"      "label" "Articles"               "types" (slice "article"))
+    (dict "id" "chapters"      "label" "Chapters"               "types" (slice "incollection"))
+    (dict "id" "theses"        "label" "Theses & dissertations" "types" (slice "mastersthesis" "phdthesis"))
+    (dict "id" "reports"       "label" "Reports"                "types" (slice "techreport" "misc"))
+-}}
+
+{{- /* Collect decades in use. */ -}}
+{{- $decades := slice -}}
+{{- range $k, $e := $bib -}}
+  {{- with $e.decade }}{{ $decades = $decades | append . }}{{ end -}}
+{{- end -}}
+{{- $decades = $decades | uniq | sort -}}
+
+<header class="section-intro">
+  <p class="section-intro__eyebrow">{{ .Title }}</p>
+  <h1 class="section-intro__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+  {{- with .Params.lede }}
+    <p class="section-intro__lede">{{ . }}</p>
+  {{- end }}
+  {{- with .Content }}
+    <div class="section-intro__body">{{ . }}</div>
+  {{- end }}
+</header>
+
+<div class="sightlines-filters">
+  <div class="sightlines-filter" role="group" aria-label="Filter by decade">
+    <span class="sightlines-filter__label">Decade</span>
+    <div class="sightlines-filter__pills">
+      <button type="button" class="sightlines-filter__pill is-active" data-decade="">All</button>
+      {{- range $decades }}
+        <button type="button" class="sightlines-filter__pill" data-decade="{{ . }}">{{ . }}</button>
+      {{- end }}
+    </div>
+  </div>
+</div>
+
+{{- range $g := $groups }}
+  {{- $entries := slice -}}
+  {{- range $k, $e := $bib -}}
+    {{- if in $g.types $e.type -}}
+      {{- $entries = $entries | append $e -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if $entries }}
+    {{- $sorted := sort $entries "authorlast" -}}
+    <section class="bibliography-group" id="{{ $g.id }}">
+      <header class="bibliography-group__header">
+        <h2 class="bibliography-group__title">{{ $g.label }}</h2>
+        <p class="bibliography-group__count">{{ len $entries }} entries</p>
+      </header>
+      <ol class="bibliography">
+        {{- range $sorted }}
+          <li class="bibliography__entry"
+              id="{{ .key }}"
+              data-key="{{ .key }}"
+              data-decade="{{ .decade }}">
+            {{ .chicago | safeHTML }}
+          </li>
+        {{- end }}
+      </ol>
+    </section>
+  {{- end }}
+{{- end }}
+
+<script>
+  (function () {
+    var pills   = document.querySelectorAll('.sightlines-filter__pill');
+    var entries = document.querySelectorAll('.bibliography__entry');
+    var groups  = document.querySelectorAll('.bibliography-group');
+    var active  = new Set();
+
+    function refresh() {
+      pills.forEach(function (p) {
+        var dec = p.dataset.decade;
+        var on = dec === '' ? active.size === 0 : active.has(dec);
+        p.classList.toggle('is-active', on);
+        p.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      entries.forEach(function (e) {
+        var dec = e.dataset.decade || '';
+        var visible = active.size === 0 || active.has(dec);
+        e.classList.toggle('is-hidden', !visible);
+      });
+      groups.forEach(function (g) {
+        var shown = g.querySelectorAll('.bibliography__entry:not(.is-hidden)').length;
+        g.classList.toggle('is-hidden', shown === 0);
+      });
+    }
+
+    pills.forEach(function (p) {
+      p.addEventListener('click', function () {
+        var dec = p.dataset.decade;
+        if (dec === '') { active.clear(); }
+        else if (active.has(dec)) { active.delete(dec); }
+        else { active.add(dec); }
+        refresh();
+      });
+    });
+  })();
+</script>
+{{ end }}

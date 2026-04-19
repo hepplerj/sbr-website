@@ -1,0 +1,32 @@
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <h3>{{ .Site.Title }}</h3>
+      <p>{{ .Site.Params.description }}</p>
+    </div>
+    <div>
+      <h3>Project</h3>
+      <ul style="list-style:none;padding:0;margin:0;">
+        <li><a href="{{ "/about/" | relURL }}">About</a></li>
+        <li><a href="{{ "/sources/" | relURL }}">Sources</a></li>
+        <li><a href="{{ "/ai/" | relURL }}">AI in this project</a></li>
+        {{- with .Site.Params.social.github }}
+          <li><a href="https://github.com/{{ . }}">Code on GitHub</a></li>
+        {{- end }}
+        {{- with .OutputFormats.Get "RSS" }}
+          <li><a href="{{ .RelPermalink }}">RSS</a></li>
+        {{- end }}
+      </ul>
+    </div>
+    <div>
+      <h3>Credit</h3>
+      <p>
+        {{- with .Site.Params.author }}By {{ . }}. {{ end }}
+        &copy; {{ now.Year }}. Content licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+      </p>
+      {{- with .Lastmod }}
+        <p><small>Last updated {{ .Format "January 2, 2006" }}.</small></p>
+      {{- end }}
+    </div>
+  </div>
+</footer>

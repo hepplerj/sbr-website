@@ -1,0 +1,26 @@
+{{ define "main" }}
+{{- $type := .Type -}}
+<article class="page page--{{ $type }}">
+  <header class="page-header">
+    <p class="page-header__eyebrow">
+      {{- with .Section }}<a href="{{ printf "/%s/" . | relURL }}">{{ humanize . }}</a>{{ end -}}
+    </p>
+    <h1 class="page-header__title">{{ .Title }}</h1>
+    {{- with or .Params.lede .Description }}
+      <p class="page-header__lede">{{ . }}</p>
+    {{- end }}
+    {{ partial "byline.html" . }}
+    <p class="page-header__meta">
+      {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
+      {{- with .Params.place }}<span>{{ . }}</span>{{ end }}
+      {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
+    </p>
+  </header>
+
+  <div class="prose {{ if eq $type "narrative" }}prose--essay{{ else if or (eq $type "maps") (eq $type "networks") }}prose--wide{{ end }}">
+    {{ .Content }}
+  </div>
+
+  {{ partial "cite.html" . }}
+</article>
+{{ end }}

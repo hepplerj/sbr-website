@@ -1,0 +1,10 @@
+name = "Sagebrush"
+license = "MIT"
+description = "A digital history theme for the Sagebrush project — modern prairie aesthetic, built for narrative scholarship with embedded interactive visualizations."
+homepage = "https://github.com/hepplerj/sagebrush"
+tags = ["digital history", "scholarship", "narrative", "slab serif"]
+features = ["maps", "networks", "footnotes", "citations"]
+min_version = "0.128.0"
+
+[author]
+  name = "Jason Heppler"

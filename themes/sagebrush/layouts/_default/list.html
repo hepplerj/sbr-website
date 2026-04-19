@@ -1,0 +1,35 @@
+{{ define "main" }}
+<header class="section-intro">
+  <p class="section-intro__eyebrow">{{ .Title }}</p>
+  <h1 class="section-intro__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+  {{- with .Params.lede }}
+    <p class="section-intro__lede">{{ . }}</p>
+  {{- end }}
+  {{- with .Content }}
+    <div class="section-intro__body">{{ . }}</div>
+  {{- end }}
+</header>
+
+{{- $pages := where .RegularPages.ByWeight "Params.draft" "!=" true }}
+{{- if $pages }}
+<ul class="entries">
+  {{- range $pages }}
+    <li class="entry">
+      <h2 class="entry__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      <p class="entry__meta">
+        {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2006" }}</time>{{ end }}
+        {{- with .Params.place }}<span>{{ . }}</span>{{ end }}
+        {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
+      </p>
+      {{- with or .Params.summary .Summary }}
+        <p class="entry__summary">{{ . | plainify | truncate 260 }}</p>
+      {{- end }}
+    </li>
+  {{- end }}
+</ul>
+{{- else }}
+<p class="prose" style="color:var(--color-text-muted);font-style:italic;">
+  No entries yet — this section is under construction.
+</p>
+{{- end }}
+{{ end }}
