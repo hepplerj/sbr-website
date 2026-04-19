@@ -1,0 +1,73 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "Between the Fences"
+theme = "sagebrush"
+enableGitInfo = false
+enableEmoji = false
+
+[params]
+  subtitle = "A century of sagebrush rebellions"
+  description = "A digital history of the sagebrush rebellions — recurring fights over land, power, and federal authority in the American West from the 1930s through 2016."
+  author = "Jason Heppler"
+  heroImage = "images/hero.webp"
+  heroCredit = "Photo by Jonathan D. Mallory / BLM Utah"
+  citationStyle = "chicago"
+
+[params.social]
+  github = "hepplerj/sagebrush"
+
+[menu]
+  [[menu.main]]
+    name = "Narrative"
+    url = "/narrative/"
+    weight = 10
+  [[menu.main]]
+    name = "Sightlines"
+    url = "/sightlines/"
+    weight = 20
+  [[menu.main]]
+    name = "Sources"
+    url = "/sources/"
+    weight = 40
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 50
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+    [markup.goldmark.extensions]
+      footnote = true
+      [markup.goldmark.extensions.typographer]
+        disable = false
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 4
+    ordered = false
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+
+[taxonomies]
+  tag = "tags"
+  theme = "themes"
+  place = "places"
+
+[build]
+  [[build.cachebusters]]
+    source = "assets/.*\\.(js|ts|jsx|tsx)"
+    target = "(js|scripts|javascript)"
+  [[build.cachebusters]]
+    source = "(postcss|tailwind)\\.config\\.js"
+    target = "css"
+  [[build.cachebusters]]
+    source = "assets/.*\\.(css|scss|sass)"
+    target = "(css|styles|scss|sass)"
+
+[module]
+  [module.hugoVersion]
+    extended = true
+    min = "0.128.0"
