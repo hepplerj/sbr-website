@@ -1,13 +1,14 @@
 // ─────────────────────────────────────────────
-// Between the Fences — charts renderer (D3)
+// Governing Ground — charts renderer (D3)
 // Hooks into elements with data-viz="chart". Config is read from
 // <script type="application/json" id="{id}-config">.
 //
-// Supports four chart types (keyed by config.type):
+// Supports five chart types (keyed by config.type):
 //   1. stripes          — climate-stripes-style annual ribbon
 //   2. stripes-stacked  — multiple stripe ribbons sharing one x-axis
 //   3. line             — annotated line chart
 //   4. bars             — vertical bar chart (e.g. annual counts)
+//   5. timeline         — categorical swim-lane timeline of events
 //
 // Config shape (lowercase keys, to match Hugo's .Params lowercasing):
 //   {
@@ -80,9 +81,15 @@
 
     d3.json(cfg.src)
       .then((raw) => {
+        const type = cfg.type || "stripes";
+        // Timeline reads both events + lane definitions from the raw JSON;
+        // every other chart type works off a single resolved array.
+        if (type === "timeline") {
+          drawTimeline(container, cfg, raw, info);
+          return;
+        }
         const series = resolvePath(raw, cfg.datapath || "data");
         if (!Array.isArray(series)) throw new Error("data path '" + (cfg.datapath || "data") + "' did not resolve to an array");
-        const type = cfg.type || "stripes";
         if      (type === "line")            drawLine(container, cfg, series, info);
         else if (type === "bars")            drawBars(container, cfg, series, info);
         else if (type === "stripes-stacked") drawStackedStripes(container, cfg, series, info);
@@ -403,6 +410,110 @@
         .attr("text-anchor", "middle")
         .text("data gap");
     });
+  }
+
+  // ── Categorical-swim-lane timeline ──────────────────────────────────
+  // Events are positioned horizontally by year and vertically by type.
+  // Each type gets a labeled lane; events render as small colored dots.
+  // Hover populates the info panel with the event's year + title + blurb.
+  const TIMELINE_COLORS = {
+    agency:       "#4a5640", // sage-dark
+    law:          "#1f2a44", // navy
+    proclamation: "#a94b2b", // rust
+    rebellion:    "#c9a978", // gold
+  };
+
+  function drawTimeline(container, cfg, raw, info) {
+    const events = (cfg.datapath ? resolvePath(raw, cfg.datapath) : raw.events) || [];
+    const lanes  = cfg.lanes || raw.lanes || [];
+    if (!events.length || !lanes.length) return;
+
+    const LANE_H = 72;
+    const W = 1200;
+    const margin = { top: 28, right: 20, bottom: 44, left: 190 };
+    const innerW = W - margin.left - margin.right;
+    const innerH = lanes.length * LANE_H;
+    const H = innerH + margin.top + margin.bottom;
+
+    const svg = d3.select(container).append("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .attr("role", "img")
+      .attr("aria-label", cfg.title || "Timeline");
+
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const years = events.map((e) => +e.year).filter((y) => !isNaN(y));
+    const xMin = Math.min.apply(null, years) - 3;
+    const xMax = Math.max.apply(null, years) + 3;
+    const xScale = d3.scaleLinear().domain([xMin, xMax]).range([0, innerW]);
+
+    const laneIndex = new Map(lanes.map((l, i) => [l.key, i]));
+    const laneY = (i) => i * LANE_H + LANE_H / 2;
+
+    // Lane backgrounds (alternating tint) + labels + guide lines
+    lanes.forEach((lane, i) => {
+      g.append("rect")
+        .attr("class", "chart-viz__timeline-lane-bg")
+        .attr("x", 0).attr("y", i * LANE_H)
+        .attr("width", innerW).attr("height", LANE_H)
+        .attr("opacity", i % 2 ? 0.35 : 0.15);
+      g.append("line")
+        .attr("class", "chart-viz__timeline-guide")
+        .attr("x1", 0).attr("x2", innerW)
+        .attr("y1", laneY(i)).attr("y2", laneY(i));
+      // Lane label (in SVG root coords — outside the translated group)
+      svg.append("text")
+        .attr("class", "chart-viz__timeline-lane-label")
+        .attr("x", margin.left - 14)
+        .attr("y", margin.top + laneY(i) + 4)
+        .attr("text-anchor", "end")
+        .text(lane.label);
+      if (lane.note) {
+        svg.append("text")
+          .attr("class", "chart-viz__timeline-lane-note")
+          .attr("x", margin.left - 14)
+          .attr("y", margin.top + laneY(i) + 20)
+          .attr("text-anchor", "end")
+          .text(lane.note);
+      }
+    });
+
+    // Event markers
+    g.selectAll("circle.chart-viz__timeline-event")
+      .data(events.filter((e) => laneIndex.has(e.type)))
+      .join("circle")
+      .attr("class", (e) => "chart-viz__timeline-event event-" + e.type)
+      .attr("cx", (e) => xScale(+e.year))
+      .attr("cy", (e) => laneY(laneIndex.get(e.type)))
+      .attr("r", 6)
+      .attr("fill", (e) => TIMELINE_COLORS[e.type] || "#888")
+      .attr("stroke", "#fbf8f0")
+      .attr("stroke-width", 1.5)
+      .on("mouseover", function (event, d) {
+        d3.select(this).attr("r", 9);
+        info.innerHTML = `
+          <h4>${d.year}</h4>
+          <div class="detail"><strong>${escapeHTML(d.title || "")}</strong></div>
+          ${d.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(d.description)}</div>` : ""}
+        `;
+      })
+      .on("mouseout", function () {
+        d3.select(this).attr("r", 6);
+        info.innerHTML = infoHTML(cfg);
+      });
+
+    // X axis (decade ticks)
+    const tickYears = d3.range(Math.ceil(xMin / 10) * 10, xMax + 1, 10);
+    g.append("g").attr("class", "chart-viz__axis")
+      .attr("transform", `translate(0,${innerH})`)
+      .call(d3.axisBottom(xScale).tickValues(tickYears).tickFormat((y) => y).tickSizeOuter(0));
+  }
+
+  function escapeHTML(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
 
   // ── Line chart ──────────────────────────────────────────────────────

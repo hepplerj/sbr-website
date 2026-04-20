@@ -1,8 +1,8 @@
 PY ?= python3
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands farm-bankruptcies cosponsorship bibliography clean-data site serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands farm-bankruptcies cosponsorship timeline bibliography clean-data site serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands farm-bankruptcies cosponsorship bibliography
+data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands farm-bankruptcies cosponsorship timeline bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -27,6 +27,9 @@ farm-bankruptcies:
 
 cosponsorship:
 	$(PY) scripts/build_cosponsorship_network.py
+
+timeline:
+	$(PY) scripts/build_timeline.py
 
 bibliography:
 	$(PY) scripts/build_bibliography.py

@@ -1,6 +1,6 @@
 baseURL = "/"
 languageCode = "en-us"
-title = "Between the Fences"
+title = "Governing Ground"
 theme = "sagebrush"
 enableGitInfo = false
 enableEmoji = false
@@ -9,12 +9,13 @@ enableEmoji = false
   subtitle = "A century of sagebrush rebellions"
   description = "A digital history of the sagebrush rebellions — recurring fights over land, power, and federal authority in the American West from the 1930s through 2016."
   author = "Jason Heppler"
-  heroImage = "images/hero.webp"
-  heroCredit = "Photo by Jonathan D. Mallory / BLM Utah"
+  heroImage = "images/hero.png"
+  heroCredit = "Photo by Leland J. Prater / U.S. Forest Service"
+  heroCreditURL = "https://www.flickr.com/photos/usforestservice/54569945072/"
   citationStyle = "chicago"
 
 [params.social]
-  github = "hepplerj/sagebrush"
+  github = "hepplerj/sbr-website"
 
 [menu]
   [[menu.main]]

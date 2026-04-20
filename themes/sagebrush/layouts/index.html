@@ -19,7 +19,13 @@
     <a class="hero__cta" href="{{ "/narrative/" | relURL }}">Read the narrative</a>
   </div>
   {{- with .Site.Params.heroCredit }}
-    <p class="hero__credit">{{ . }}</p>
+    <p class="hero__credit">
+      {{- with $.Site.Params.heroCreditURL -}}
+        <a href="{{ . }}" rel="noopener">{{ $.Site.Params.heroCredit }}</a>
+      {{- else -}}
+        {{ . }}
+      {{- end -}}
+    </p>
   {{- end }}
 </section>
 

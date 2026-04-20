@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────
-// Between the Fences — map renderer
+// Governing Ground — map renderer
 // Config is read from a <script type="application/json" id="{mapId}-config">
 // tag sitting next to the map container, bypassing the HTML minifier's
 // JS handling. Supports two shapes:
@@ -46,17 +46,20 @@
   };
 
   // Choropleth ramp for valuefield-driven layers (cream → rust).
-  // Bins resolve both Plains states (1–6 %) and the high-federal
-  // Intermountain states (60–80 %) within the same visual range.
+  // Colors at 7 stops; positions computed from layer.domain at render
+  // time so the same ramp works for percentages (federal-ownership),
+  // years (wilderness designations), counts, etc.
   const ramp = [
-    { stop:   5, color: "#f5efe1" }, // cream
-    { stop:  15, color: "#e5d6b3" },
-    { stop:  30, color: "#d1b587" },
-    { stop:  45, color: "#b88c5d" },
-    { stop:  60, color: "#9a6439" },
-    { stop:  75, color: "#7c3519" }, // rust-dark
-    { stop: 100, color: "#5a1f0a" },
+    "#f5efe1", // cream
+    "#e5d6b3",
+    "#d1b587",
+    "#b88c5d",
+    "#9a6439",
+    "#7c3519", // rust-dark
+    "#5a1f0a",
   ];
+  // Default domain kept for the existing federal-ownership map.
+  const DEFAULT_DOMAIN = [5, 100];
 
   const basemap = {
     url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -71,9 +74,23 @@
     return Number(n).toLocaleString(undefined, { maximumFractionDigits: digits ?? 1 });
   }
 
-  function rampColor(v) {
-    for (const step of ramp) if (v <= step.stop) return step.color;
-    return ramp[ramp.length - 1].color;
+  function rampColor(v, domain) {
+    const [lo, hi] = domain || DEFAULT_DOMAIN;
+    if (v == null || isNaN(v)) return ramp[0];
+    const t = Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
+    const idx = Math.min(ramp.length - 1, Math.floor(t * ramp.length));
+    return ramp[idx];
+  }
+
+  // Sqrt-scaled radius for proportional-symbol maps. domain = [min, max]
+  // on the property; range = [rmin, rmax] in pixels. Sensible defaults
+  // so a caller can just pass a value.
+  function sqrtRadius(v, domain, range) {
+    const [vmin, vmax] = domain || [0, 1e7];
+    const [rmin, rmax] = range  || [4, 18];
+    if (v == null || isNaN(v)) return rmin;
+    const t = Math.sqrt(Math.max(0, v - vmin) / Math.max(1, vmax - vmin));
+    return rmin + Math.min(1, t) * (rmax - rmin);
   }
 
   // Normalize a single-layer config to the layers-array shape.
@@ -173,13 +190,35 @@
           const isContext = preset.interactive === false;
           if (layer.choropleth) anyChoropleth = true;
 
-          const geo = L.geoJSON(data, {
+          const geoOpts = {
             style: (feat) => styleFeature(feat, layer, preset),
             interactive: !isContext,
             onEachFeature: isContext ? undefined : (feat, lyr) => {
               bindFeature(feat, lyr, { map, info, layer, preset, getLayer: () => geo });
             },
-          }).addTo(map);
+          };
+          // Point features: render as circle markers, optionally sized
+          // from a property named in `layer.pointsize`. sqrt-scaling
+          // accommodates the huge dynamic range of area-valued data.
+          if (layer.pointsize || layer.pointradius) {
+            geoOpts.pointToLayer = (feat, latlng) => {
+              const props = feat.properties || {};
+              const radius = layer.pointradius
+                || sqrtRadius(props[layer.pointsize], layer.pointdomain, layer.pointradiusrange);
+              const fillColor = layer.choropleth
+                ? rampColor(props[layer.valuefield], layer.domain)
+                : preset.style.fillColor;
+              return L.circleMarker(latlng, {
+                radius,
+                color:       preset.style.color,
+                weight:      preset.style.weight || 1,
+                opacity:     preset.style.opacity || 0.9,
+                fillColor,
+                fillOpacity: preset.style.fillOpacity || 0.6,
+              });
+            };
+          }
+          const geo = L.geoJSON(data, geoOpts).addTo(map);
           rendered.push({ layer, geo });
           if (layer.label) overlays[layer.label] = geo;
         });
@@ -210,7 +249,7 @@
   function styleFeature(feature, layer, preset) {
     const base = Object.assign({}, preset.style);
     if (layer.choropleth && layer.valuefield) {
-      base.fillColor = rampColor(feature.properties[layer.valuefield]);
+      base.fillColor = rampColor(feature.properties[layer.valuefield], layer.domain);
       base.fillOpacity = 0.7;
     }
     return base;
@@ -247,7 +286,7 @@
     lyr.on({
       mouseover: (e) => {
         e.target.setStyle(highlight);
-        e.target.bringToFront();
+        if (e.target.bringToFront) e.target.bringToFront();
         info.update(label, detail);
       },
       mouseout: (e) => {
@@ -255,7 +294,9 @@
         info.update();
       },
       click: (e) => {
-        map.fitBounds(e.target.getBounds(), { padding: [40, 40] });
+        // Polygons have getBounds(); circleMarkers use getLatLng + zoom.
+        if (e.target.getBounds)      map.fitBounds(e.target.getBounds(), { padding: [40, 40] });
+        else if (e.target.getLatLng) map.setView(e.target.getLatLng(), Math.max(map.getZoom(), 7));
       },
     });
   }
@@ -267,14 +308,21 @@
       const div = L.DomUtil.create("div", "legend");
       const title = cfg.legendtitle || (hasChoropleth ? "Legend" : "Layers");
 
-      // If any layer is a choropleth, show the ramp
+      // If any layer is a choropleth, show the ramp with per-layer domain
       if (hasChoropleth) {
         const cho = rendered.find((r) => r.layer.choropleth);
         const unit = cho?.layer.valueunit || "";
-        const items = ramp.slice(0, -1).map((step, i) => {
-          const prev = i === 0 ? "<" : ramp[i - 1].stop;
-          const label = i === 0 ? `< ${step.stop}${unit}` : `${prev}–${step.stop}${unit}`;
-          return `<div class="legend-item"><span class="legend-swatch" style="background:${step.color}"></span>${label}</div>`;
+        const domain = cho?.layer.domain || DEFAULT_DOMAIN;
+        const [lo, hi] = domain;
+        const n = ramp.length;
+        const items = ramp.map((color, i) => {
+          const a = lo + (hi - lo) * (i / n);
+          const b = lo + (hi - lo) * ((i + 1) / n);
+          // Integer-friendly formatting for years; keep decimals for percentages
+          const fmt = (x) => Number.isInteger(lo) && Number.isInteger(hi)
+            ? String(Math.round(x))
+            : x.toFixed(1);
+          return `<div class="legend-item"><span class="legend-swatch" style="background:${color}"></span>${fmt(a)}–${fmt(b)}${unit}</div>`;
         });
         div.innerHTML = `<h4>${title}</h4>${items.join("")}`;
         return div;

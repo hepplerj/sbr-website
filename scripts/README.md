@@ -34,6 +34,7 @@ All scripts write to `../static/data/` relative to the `scripts/` directory.
 | `build_us_federal_lands.py` | `fedland.topojson` | PAD-US + Census state boundaries, pre-projected to AlbersUSA (the file is 2014-vintage) |
 | `build_farm_bankruptcies.py` | `farm-bankruptcies.json` | `rdinter/historical-bankruptcies` (Stam ERS compilation + US Courts Table F-2) |
 | `build_cosponsorship_network.py` | `cosponsorship-network.json` | GPO `govinfo.gov` BILLSTATUS bulk data (free, no API key); curated bill list in the script |
+| `build_timeline.py` | `timeline.json` | Hand-curated 30-event federal-public-lands chronology (agencies + statutes + proclamations + rebellions), 1872–2024 |
 | `build_bibliography.py` | `data/bibliography.json` | `Articles.bibtex` + `Books.bibtex` at the project root (Zotero / BibDesk exports) |
 
 ## What is *not* produced by these scripts

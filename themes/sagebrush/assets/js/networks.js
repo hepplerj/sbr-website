@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────
-// Between the Fences — network renderer (D3 force layout)
+// Governing Ground — network renderer (D3 force layout)
 // Hooks into elements with data-viz="network". Config is read from
 // <script type="application/json" id="{id}-config">.
 //

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────
-// Between the Fences — D3 map renderer (AlbersUSA, TopoJSON)
+// Governing Ground — D3 map renderer (AlbersUSA, TopoJSON)
 // Sister module to maps.js. Activates on elements with
 // data-viz="map" whose config.renderer === "d3".
 //
