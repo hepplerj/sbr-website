@@ -4,9 +4,9 @@
       <h3>{{ .Site.Title }}</h3>
       <p>{{ .Site.Params.description }}</p>
     </div>
-    <div>
+    <nav aria-label="Footer">
       <h3>Project</h3>
-      <ul style="list-style:none;padding:0;margin:0;">
+      <ul class="site-footer__links">
         <li><a href="{{ "/about/" | relURL }}">About</a></li>
         <li><a href="{{ "/sources/" | relURL }}">Sources</a></li>
         <li><a href="{{ "/ai/" | relURL }}">AI in this project</a></li>
@@ -17,7 +17,7 @@
           <li><a href="{{ .RelPermalink }}">RSS</a></li>
         {{- end }}
       </ul>
-    </div>
+    </nav>
     <div>
       <h3>Credit</h3>
       <p>
