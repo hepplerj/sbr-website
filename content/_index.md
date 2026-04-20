@@ -1,5 +1,5 @@
 ---
-title: "Between the Fences"
+title: "Governing Ground"
 description: "A digital history of the sagebrush rebellions — recurring fights over land, power, and federal authority in the American West from the 1930s through 2016."
 ---
 

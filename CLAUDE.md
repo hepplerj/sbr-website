@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-*Between the Fences* — a digital history project on the sagebrush rebellions
+*Governing Ground* — a digital history project on the sagebrush rebellions
 (1930s–2016). A Hugo static site with a custom theme and a Python data
 pipeline. The content mixes long-form narrative with interactive maps,
 network graphs, and time-series charts.

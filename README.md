@@ -1,4 +1,4 @@
-# Between the Fences
+# Governing Ground
 
 A digital history of the sagebrush rebellions — recurring fights over land,
 power, and federal authority in the American West from the 1930s through

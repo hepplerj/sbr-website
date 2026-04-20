@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "static" / "data"
 
-UA = "between-the-fences-pipeline/1.0 (+https://github.com/hepplerj/sagebrush)"
+UA = "governing-ground-pipeline/1.0 (+https://github.com/hepplerj/sbr-website)"
 
 
 def fetch(url: str, dest: Path | None = None, *, binary: bool = False) -> bytes | str:

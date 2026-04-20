@@ -6,9 +6,9 @@ lede: "A digital history of the sagebrush rebellions — their origins, their co
 
 ## The project
 
-*Between the Fences* grew out of ongoing research into the politics of public lands in the American West during the second half of the twentieth century. It combines narrative history with interactive maps and network visualizations, and is intended for both scholarly and public audiences.
+*Governing Ground* grew out of ongoing research into the politics of public lands in the American West during the second half of the twentieth century. It combines narrative history with interactive maps and network visualizations, and is intended for both scholarly and public audiences.
 
-The site is published as a static site built with [Hugo](https://gohugo.io), with all content, data, and code versioned on [GitHub](https://github.com/hepplerj/sagebrush). Corrections and contributions are welcome.
+The site is published as a static site built with [Hugo](https://gohugo.io), with all content, data, and code versioned on [GitHub](https://github.com/hepplerj/sbr-website). Corrections are welcome.
 
 ## The author
 
@@ -18,7 +18,7 @@ Jason A. Heppler, Ph.D., is the Senior Developer/Scholar at the Roy Rosenzweig C
 
 Please cite individual pages using the citation block at the foot of each page, or the project as a whole as:
 
-> Heppler, Jason. *Between the Fences: A Digital History of the Sagebrush Rebellions*. {{< year >}}.
+> Heppler, Jason. *Governing Ground: A Century of Sagebrush Rebellions*. {{< year >}}.
 
 ## License
 

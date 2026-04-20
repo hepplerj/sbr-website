@@ -1,9 +1,9 @@
 ---
 title: "On Generative AI in This Project"
-lede: "Transparency about which parts of Between the Fences were produced with AI assistance — and, more importantly, which were not."
+lede: "Transparency about which parts of Governing Ground were produced with AI assistance — and, more importantly, which were not."
 ---
 
-*Between the Fences* is built with the assistance of generative AI. This page documents which components AI helped produce, which it did not, and how AI output is reviewed.
+*Governing Ground* is built with the assistance of generative AI. This page documents which components AI helped produce, which it did not, and how AI output is reviewed.
 
 ## What AI helped build
 
