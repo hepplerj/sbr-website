@@ -1,7 +1,7 @@
 ---
 title: "Farm Bankruptcies, 1899–2024"
 date: 2026-04-18
-lede: "Annual farmer bankruptcy filings across the United States over 126 years. Three distinct crises — the 1920s agricultural depression, the post-Chapter 12 filing surge of 1987, and the 2019 trade-war spike — stand out. The 1980s Farm Crisis itself is present as a data gap."
+lede: "Annual farmer bankruptcy filings across the United States over 126 years."
 weight: 35
 draft: false
 viz: chart
@@ -19,11 +19,8 @@ chart:
   infotitle: "Farmer bankruptcies"
   infoprompt: "Hover a bar for that year's filing count. Grey bands mark data gaps."
   annotations:
-    - { year: 1925, label: "1920s ag depression" }
     - { year: 1934, label: "Dust Bowl" }
     - { year: 1987, label: "Chapter 12 enacted" }
-    - { year: 2010, label: "Recession / commodity slump" }
-    - { year: 2019, label: "Trade-war spike" }
 ---
 
 ## What the chart shows
