@@ -20,8 +20,26 @@ hugo server -D          # http://localhost:1313 (drafts visible)
 hugo --gc --minify      # production build → public/
 ```
 
-Deploy is institutional — every push to `main` triggers a build and sync
-to the server.
+## Deploy
+
+The site is hosted on **Cloudflare Pages** at
+[governingground.org](https://governingground.org/). Every push to `main`
+triggers a fresh build.
+
+Cloudflare Pages build configuration:
+
+- **Build command**: `hugo --gc --minify`
+- **Output directory**: `public`
+- **Environment variable**: `HUGO_VERSION = 0.147.2` (match the version
+  pinned in `hugo.toml`'s `module.hugoVersion.min`)
+
+HTTP caching for CSS/JS/data/HTML lives in
+[`static/_headers`](static/_headers), which Cloudflare Pages reads at the
+publish root. Fingerprinted assets get a year of cache; JSON data files
+get an hour; HTML revalidates every request.
+
+The Python data-build scripts run locally (not on Cloudflare's build
+step) — rerun `make` before pushing whenever you refresh upstream data.
 
 ## Data pipeline
 
@@ -112,5 +130,5 @@ historical-research decisions are human-authored. See
 
 ## License
 
-Written content: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-Site code and theme: MIT.
+Site code and theme: [MIT](LICENSE).
+Written content, visualizations, and design: [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/).

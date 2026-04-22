@@ -114,6 +114,19 @@ Ranked in order of project relevance (Tier 1 is highest).
 - [ ] Replace the 14-state `federal-lands.geojson` state-level
       choropleth with PAD-US county-level data. Current file is a
       starter dataset.
+- [ ] **Refresh `fedland.topojson`** (US Federal Lands by Agency).
+      Current file is a 2014 PAD-US snapshot, pre-projected to 960×500
+      AlbersUSA so the D3 renderer can use a null projection. Probed a
+      "cheap" refresh via the BLM SMA LimitedScale FeatureServer — it
+      works but yields ~9 MB of GeoJSON even at 0.03° simplification
+      (vs. 3.3 MB currently) because the vendor-generalized data still
+      carries high vertex counts. Full refresh needs mapshaper (outside
+      the stdlib-only pipeline) to dissolve and re-simplify.
+      Candidate middle path: keep the 2014 base, add a current
+      National Monuments overlay from NPS + BLM NLCS services — this
+      captures the biggest post-2014 delta (Bears Ears / Grand
+      Staircase churn, Castle Mountains, etc.) at ~200 KB of
+      additional data. Noted for revisit.
 
 ## Sources / bibliography
 

@@ -1,8 +1,8 @@
 PY ?= python3
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands farm-bankruptcies cosponsorship timeline bibliography clean-data site serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation follow-the-money cosponsorship timeline bibliography clean-data site serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands farm-bankruptcies cosponsorship timeline bibliography
+data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation follow-the-money cosponsorship timeline bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -22,8 +22,24 @@ bankhead-jones:
 us-federal-lands:
 	$(PY) scripts/build_us_federal_lands.py
 
+grazing-districts:
+	$(PY) scripts/build_grazing_districts.py
+
+usfs-allotments:
+	$(PY) scripts/build_usfs_allotments.py
+
+grazing-allotments:
+	$(PY) scripts/build_grazing_allotments.py
+
 farm-bankruptcies:
 	$(PY) scripts/build_farm_bankruptcies.py
+
+follow-the-money:
+	$(PY) scripts/build_follow_the_money.py
+
+# Requires NASS_API_KEY env var (free at quickstats.nass.usda.gov/api).
+farm-consolidation:
+	$(PY) scripts/build_farm_consolidation.py
 
 cosponsorship:
 	$(PY) scripts/build_cosponsorship_network.py
