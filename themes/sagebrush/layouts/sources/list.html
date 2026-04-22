@@ -41,6 +41,26 @@
   </div>
 </div>
 
+{{- $digital := .Site.Data.digital_history -}}
+{{- if $digital }}
+  <section class="bibliography-group" id="digital-history">
+    <header class="bibliography-group__header">
+      <h2 class="bibliography-group__title">Digital history</h2>
+      <p class="bibliography-group__count">{{ len $digital }} {{ cond (eq (len $digital) 1) "project" "projects" }}</p>
+    </header>
+    <ol class="bibliography">
+      {{- range $digital }}
+        <li class="bibliography__entry">
+          {{ .authors }}. <em><a href="{{ .url }}">{{ .title }}</a></em>.
+          {{ with .publisher }}{{ . }}, {{ end }}{{ .year }}.
+          {{- with .license }} <span class="bibliography__license">{{ . }}</span>.{{ end }}
+          {{- with .note }} <span class="bibliography__note">{{ . }}</span>{{ end }}
+        </li>
+      {{- end }}
+    </ol>
+  </section>
+{{- end }}
+
 {{- range $g := $groups }}
   {{- $entries := slice -}}
   {{- range $k, $e := $bib -}}

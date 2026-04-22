@@ -90,10 +90,25 @@
         }
         const series = resolvePath(raw, cfg.datapath || "data");
         if (!Array.isArray(series)) throw new Error("data path '" + (cfg.datapath || "data") + "' did not resolve to an array");
-        if      (type === "line")            drawLine(container, cfg, series, info);
-        else if (type === "bars")            drawBars(container, cfg, series, info);
-        else if (type === "stripes-stacked") drawStackedStripes(container, cfg, series, info);
-        else                                  drawStripes(container, cfg, series, info);
+        if (type === "line") {
+          drawLine(container, cfg, series, info);
+        } else if (type === "bars") {
+          // If a selector is configured, render it and re-draw on change.
+          if (cfg.selector && Array.isArray(cfg.selector.options) && cfg.selector.options.length) {
+            attachSelector(container, cfg, (newCfg) => {
+              container.querySelectorAll("svg").forEach((s) => s.remove());
+              drawBars(container, newCfg, series, info);
+            });
+          } else {
+            drawBars(container, cfg, series, info);
+          }
+        } else if (type === "small-multiples") {
+          drawSmallMultiples(container, cfg, series, info);
+        } else if (type === "stripes-stacked") {
+          drawStackedStripes(container, cfg, series, info);
+        } else {
+          drawStripes(container, cfg, series, info);
+        }
       })
       .catch((err) => {
         container.classList.add("viz-embed__frame--error");
@@ -291,6 +306,39 @@
   }
 
   // ── Bar chart ───────────────────────────────────────────────────────
+  // ── Selector dropdown above a chart (currently used by bars) ─────────
+  // Emits a <select> above the chart and calls redraw(newCfg) on change.
+  // cfg.selector = { label, default, options: [{ value, label, ... }] }
+  // Passes through title/unit/ylabel/annotations overrides per option, so
+  // each option can relabel the axis, title, and callouts.
+  function attachSelector(container, cfg, redraw) {
+    const sel = cfg.selector;
+    const wrap = document.createElement("div");
+    wrap.className = "chart-viz__selector";
+    const labelText = sel.label || "";
+    const options = sel.options.map((o) =>
+      `<option value="${o.value}"${o.value === sel.default ? " selected" : ""}>${o.label}</option>`
+    ).join("");
+    wrap.innerHTML = `<label>${labelText}<select>${options}</select></label>`;
+    container.appendChild(wrap);
+
+    const apply = (value) => {
+      const opt = sel.options.find((o) => o.value === value) || sel.options[0];
+      // Merge per-option overrides onto a shallow copy of cfg.
+      const newCfg = Object.assign({}, cfg, {
+        field: opt.value,
+        title: opt.title || cfg.title,
+        ylabel: opt.ylabel || cfg.ylabel,
+        unitshort: opt.unit != null ? opt.unit : cfg.unitshort,
+        annotations: opt.annotations || cfg.annotations || [],
+      });
+      redraw(newCfg);
+    };
+
+    wrap.querySelector("select").addEventListener("change", (e) => apply(e.target.value));
+    apply(sel.default || sel.options[0].value);
+  }
+
   function drawBars(container, cfg, series, info) {
     const x = cfg.xfield || "year";
     const y = cfg.field  || "count";
@@ -517,16 +565,57 @@
   }
 
   // ── Line chart ──────────────────────────────────────────────────────
+  // Named colors for line-chart series — match the site's palette.
+  // Callers use short names (`cfg.series[i].color = "rust"`), or a
+  // literal CSS color which passes through.
+  const LINE_COLORS = {
+    rust:  "#a94b2b",
+    navy:  "#1f2a44",
+    sage:  "#4a5640",
+    gold:  "#c9a978",
+    green: "#4a9e5c",
+    olive: "#8aa07c",
+  };
+  const resolveColor = (name, fallback) => LINE_COLORS[name] || name || fallback;
+
   function drawLine(container, cfg, series, info) {
     const x = cfg.xfield || "year";
-    const y = cfg.field;
 
-    const data = series.map((d) => ({ x: +d[x], y: +d[y], raw: d }))
-      .filter((d) => !isNaN(d.x) && !isNaN(d.y))
-      .sort((a, b) => a.x - b.x);
+    // Normalize to a series array. Backward compat: cfg.field + cfg.label
+    // is equivalent to a single-element series config.
+    const seriesCfg = (cfg.series && cfg.series.length)
+      ? cfg.series.map((s, i) => ({
+          field: s.field,
+          label: s.label || s.field,
+          color: resolveColor(s.color, ["#a94b2b","#1f2a44","#4a5640","#c9a978"][i % 4]),
+          unit:  s.unit != null ? s.unit : (cfg.unitshort || ""),
+          rawfield: s.rawfield || null,
+          rawunit:  s.rawunit != null ? s.rawunit : "",
+          rawscale: s.rawscale != null ? Number(s.rawscale) : 1,
+          rawformat: s.rawformat || null,
+        }))
+      : [{
+          field: cfg.field,
+          label: cfg.label || "",
+          color: "#a94b2b",
+          unit:  cfg.unitshort || "",
+        }];
+
+    // Per-series data with x/y extracted.
+    seriesCfg.forEach((s) => {
+      s.data = series.map((d) => ({
+        x: +d[x],
+        y: (d[s.field] == null || d[s.field] === "") ? null : +d[s.field],
+        raw: d,
+      })).filter((d) => !isNaN(d.x)).sort((a, b) => a.x - b.x);
+    });
+
+    const allY = seriesCfg.flatMap((s) => s.data.map((d) => d.y).filter((v) => v != null && !isNaN(v)));
+    const allX = seriesCfg.flatMap((s) => s.data.map((d) => d.x));
+    if (!allY.length) return;
 
     const W = 1200, H = 420;
-    const margin = { top: 36, right: 20, bottom: 40, left: 56 };
+    const margin = { top: 52, right: 20, bottom: 40, left: 60 };
     const innerW = W - margin.left - margin.right;
     const innerH = H - margin.top - margin.bottom;
 
@@ -538,8 +627,8 @@
 
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const xScale = d3.scaleLinear().domain(d3.extent(data, (d) => d.x)).range([0, innerW]);
-    const yDomain = cfg.domain || d3.extent(data, (d) => d.y);
+    const xScale = d3.scaleLinear().domain(d3.extent(allX)).range([0, innerW]);
+    const yDomain = cfg.domain || [Math.min(0, d3.min(allY)), d3.max(allY)];
     const yScale = d3.scaleLinear().domain(yDomain).nice().range([innerH, 0]);
 
     // Zero line if domain crosses zero
@@ -547,6 +636,13 @@
       g.append("line").attr("class", "chart-viz__zero")
         .attr("x1", 0).attr("x2", innerW)
         .attr("y1", yScale(0)).attr("y2", yScale(0));
+    }
+
+    // Baseline reference line (e.g., the indexed 100)
+    if (cfg.baseline != null) {
+      g.append("line").attr("class", "chart-viz__zero")
+        .attr("x1", 0).attr("x2", innerW)
+        .attr("y1", yScale(cfg.baseline)).attr("y2", yScale(cfg.baseline));
     }
 
     // Axes
@@ -564,32 +660,310 @@
         .text(cfg.ylabel);
     }
 
-    const line = d3.line()
+    const lineGen = d3.line()
+      .defined((d) => d.y != null && !isNaN(d.y))
       .x((d) => xScale(d.x))
       .y((d) => yScale(d.y))
       .curve(d3.curveMonotoneX);
 
-    g.append("path")
-      .datum(data)
-      .attr("class", "chart-viz__line")
-      .attr("d", line);
+    // Draw one line per series.
+    seriesCfg.forEach((s) => {
+      g.append("path")
+        .datum(s.data)
+        .attr("class", "chart-viz__line")
+        .style("stroke", s.color)
+        .attr("d", lineGen);
+    });
 
-    g.selectAll("circle.chart-viz__dot")
-      .data(data)
-      .join("circle")
-      .attr("class", "chart-viz__dot")
-      .attr("cx", (d) => xScale(d.x))
-      .attr("cy", (d) => yScale(d.y))
-      .attr("r", 2.2)
-      .on("mouseover", (event, d) => updateInfo(info, cfg, d))
-      .on("mouseout", () => updateInfo(info, cfg));
+    // ── Crosshair tracker ─────────────────────────────────────────────
+    // A vertical guide + per-series highlight dots that follow the cursor
+    // and show all series' values at the hovered x simultaneously.
+    const tracker = g.append("g")
+      .attr("class", "chart-viz__tracker")
+      .style("display", "none");
+    tracker.append("line")
+      .attr("class", "chart-viz__tracker-line")
+      .attr("y1", 0).attr("y2", innerH);
+    const trackerDots = seriesCfg.map((s) =>
+      tracker.append("circle")
+        .attr("class", "chart-viz__tracker-dot")
+        .attr("r", 4)
+        .style("fill", s.color)
+    );
+
+    // Lookup by x for each series (sparse series skip years, so keyed map).
+    const byX = seriesCfg.map((s) => {
+      const m = new Map();
+      s.data.forEach((d) => { if (d.y != null) m.set(d.x, d); });
+      return m;
+    });
+    // Union of x-values present in any series, sorted.
+    const xUnion = Array.from(new Set(
+      seriesCfg.flatMap((s) => s.data.filter((d) => d.y != null).map((d) => d.x))
+    )).sort((a, b) => a - b);
+    const bisect = d3.bisector((a, b) => a - b).left;
+
+    g.append("rect")
+      .attr("class", "chart-viz__tracker-overlay")
+      .attr("width", innerW)
+      .attr("height", innerH)
+      .attr("fill", "transparent")
+      .on("mouseenter", () => tracker.style("display", null))
+      .on("mouseleave", () => {
+        tracker.style("display", "none");
+        info.innerHTML = infoHTML(cfg);
+      })
+      .on("mousemove", (event) => {
+        const [mx] = d3.pointer(event);
+        const xv = xScale.invert(mx);
+        // Snap to nearest x in the union
+        const i = bisect(xUnion, xv);
+        const candidates = [xUnion[i - 1], xUnion[i]].filter((v) => v != null);
+        const snapX = candidates.length === 1
+          ? candidates[0]
+          : (Math.abs(candidates[0] - xv) < Math.abs(candidates[1] - xv)
+              ? candidates[0] : candidates[1]);
+        const cx = xScale(snapX);
+        tracker.select("line").attr("x1", cx).attr("x2", cx);
+
+        const rows = seriesCfg.map((s, si) => {
+          const pt = byX[si].get(snapX);
+          if (!pt) {
+            trackerDots[si].style("display", "none");
+            return `<div class="detail"><strong style="color:${s.color}">${s.label}:</strong> —</div>`;
+          }
+          trackerDots[si]
+            .style("display", null)
+            .attr("cx", cx)
+            .attr("cy", yScale(pt.y));
+          // If the series config names a rawfield, show the raw value
+          // (scaled + formatted + unit'd) alongside the indexed y.
+          let valStr;
+          if (s.rawfield && pt.raw && pt.raw[s.rawfield] != null) {
+            const raw = +pt.raw[s.rawfield] / s.rawscale;
+            const fmt = s.rawformat === "int"
+              ? d3.format(",")
+              : s.rawformat === "1f"
+                ? d3.format(",.1f")
+                : d3.format(",.2f");
+            valStr = `${fmt(raw)}${s.rawunit} <span class="detail__muted">(${d3.format(",.1f")(pt.y)}${s.unit})</span>`;
+          } else {
+            valStr = `${d3.format(",")(pt.y)}${s.unit}`;
+          }
+          return `<div class="detail"><strong style="color:${s.color}">${s.label}:</strong> ${valStr}</div>`;
+        }).join("");
+
+        info.innerHTML = `<h4>${snapX}</h4>${rows}`;
+      });
+
+    // Inline legend (only when we have more than one series)
+    if (seriesCfg.length > 1) {
+      const legend = svg.append("g")
+        .attr("class", "chart-viz__inline-legend")
+        .attr("transform", `translate(${margin.left},${margin.top - 32})`);
+      let offset = 0;
+      seriesCfg.forEach((s) => {
+        const row = legend.append("g").attr("transform", `translate(${offset},0)`);
+        row.append("rect")
+          .attr("x", 0).attr("y", 6)
+          .attr("width", 18).attr("height", 3)
+          .attr("fill", s.color);
+        const label = row.append("text")
+          .attr("x", 24).attr("y", 10)
+          .attr("class", "chart-viz__legend-text")
+          .text(s.label);
+        offset += 24 + s.label.length * 6.8 + 24;
+      });
+    }
+  }
+
+  // ── Small-multiples line chart ──────────────────────────────────────
+  // Stacked panels sharing an x-axis. Each panel is its own linear line
+  // on its own y-scale — honest about unlike scales, unlike an indexed
+  // overlay. Shared crosshair across all panels.
+  //
+  // cfg.panels = [{ field, label, color, unit, scale, format }]
+  //   field:  data row key (e.g. "farms")
+  //   scale:  raw/scale is what's plotted (e.g. 1000000 for "M")
+  //   format: "int" | "1f" (default) | "2f"
+  function drawSmallMultiples(container, cfg, series, info) {
+    const x = cfg.xfield || "year";
+    const panels = (cfg.panels || []).map((p, i) => ({
+      field: p.field,
+      label: p.label || p.field,
+      color: resolveColor(p.color, ["#a94b2b","#4a5640","#1f2a44","#c9a978"][i % 4]),
+      unit:  p.unit != null ? p.unit : "",
+      scale: p.scale != null ? Number(p.scale) : 1,
+      format: p.format || "1f",
+    }));
+    if (!panels.length) return;
+
+    // Extract per-panel data
+    panels.forEach((p) => {
+      p.data = series.map((d) => ({
+        x: +d[x],
+        y: (d[p.field] == null || d[p.field] === "") ? null : +d[p.field] / p.scale,
+      })).filter((d) => !isNaN(d.x) && d.y != null).sort((a, b) => a.x - b.x);
+    });
+
+    const W = 1200;
+    const panelH = 180;
+    const panelGap = 28;
+    const margin = { top: 36, right: 20, bottom: 40, left: 70 };
+    const H = margin.top + margin.bottom
+            + panels.length * panelH
+            + (panels.length - 1) * panelGap;
+    const innerW = W - margin.left - margin.right;
+
+    const svg = d3.select(container).append("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .attr("role", "img")
+      .attr("aria-label", cfg.title || "Small-multiples line chart");
+
+    const allX = panels.flatMap((p) => p.data.map((d) => d.x));
+    const xScale = d3.scaleLinear()
+      .domain([d3.min(allX), d3.max(allX)])
+      .range([0, innerW]);
+
+    const fmtOf = (spec) => spec === "int" ? d3.format(",")
+                         : spec === "2f"  ? d3.format(",.2f")
+                         :                  d3.format(",.1f");
+
+    const lineGen = (yScale) => d3.line()
+      .defined((d) => d.y != null && !isNaN(d.y))
+      .x((d) => xScale(d.x))
+      .y((d) => yScale(d.y))
+      .curve(d3.curveMonotoneX);
+
+    // Draw each panel.
+    const panelGroups = panels.map((p, idx) => {
+      const top = margin.top + idx * (panelH + panelGap);
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${top})`);
+
+      const yMax = d3.max(p.data, (d) => d.y);
+      const yMin = d3.min(p.data, (d) => d.y);
+      const yScale = d3.scaleLinear()
+        .domain([Math.min(0, yMin), yMax]).nice()
+        .range([panelH, 0]);
+
+      // Gridlines
+      g.append("g").attr("class", "chart-viz__grid")
+        .selectAll("line")
+        .data(yScale.ticks(4))
+        .join("line")
+        .attr("x1", 0).attr("x2", innerW)
+        .attr("y1", (t) => yScale(t)).attr("y2", (t) => yScale(t));
+
+      // Line
+      g.append("path")
+        .datum(p.data)
+        .attr("class", "chart-viz__line")
+        .style("stroke", p.color)
+        .attr("d", lineGen(yScale));
+
+      // Y-axis
+      g.append("g").attr("class", "chart-viz__axis")
+        .call(d3.axisLeft(yScale).ticks(4).tickFormat(fmtOf(p.format)).tickSizeOuter(0));
+
+      // Panel label (top-left, inside panel area)
+      g.append("text")
+        .attr("class", "chart-viz__panel-label")
+        .attr("x", 0).attr("y", -10)
+        .style("fill", p.color)
+        .text(`${p.label}${p.unit ? ` (${p.unit.trim()})` : ""}`);
+
+      // X-axis only on the bottom-most panel
+      if (idx === panels.length - 1) {
+        g.append("g").attr("class", "chart-viz__axis")
+          .attr("transform", `translate(0,${panelH})`)
+          .call(d3.axisBottom(xScale).tickFormat((y) => y).tickSizeOuter(0));
+      }
+
+      return { g, yScale, p, top, panelH };
+    });
+
+    // ── Shared crosshair ─────────────────────────────────────────────
+    // One dashed guide spans the union of all panels; one highlight dot
+    // per panel; hover readout lists all panels' values at the snapped x.
+    const guideTop = margin.top;
+    const guideBottom = margin.top + panels.length * panelH + (panels.length - 1) * panelGap;
+
+    const tracker = svg.append("g")
+      .attr("class", "chart-viz__tracker")
+      .style("display", "none");
+    const trackerLine = tracker.append("line")
+      .attr("class", "chart-viz__tracker-line")
+      .attr("y1", guideTop).attr("y2", guideBottom);
+    const trackerDots = panelGroups.map((pg) =>
+      tracker.append("circle")
+        .attr("class", "chart-viz__tracker-dot")
+        .attr("r", 4)
+        .style("fill", pg.p.color)
+    );
+
+    // Per-panel lookup by x
+    const byX = panels.map((p) => {
+      const m = new Map();
+      p.data.forEach((d) => m.set(d.x, d));
+      return m;
+    });
+    const xUnion = Array.from(new Set(allX)).sort((a, b) => a - b);
+    const bisect = d3.bisector((a, b) => a - b).left;
+
+    svg.append("rect")
+      .attr("class", "chart-viz__tracker-overlay")
+      .attr("x", margin.left).attr("y", margin.top)
+      .attr("width", innerW)
+      .attr("height", guideBottom - guideTop)
+      .attr("fill", "transparent")
+      .on("mouseenter", () => tracker.style("display", null))
+      .on("mouseleave", () => {
+        tracker.style("display", "none");
+        info.innerHTML = infoHTML(cfg);
+      })
+      .on("mousemove", (event) => {
+        const [mx] = d3.pointer(event);
+        const xv = xScale.invert(mx - margin.left);
+        const i = bisect(xUnion, xv);
+        const candidates = [xUnion[i - 1], xUnion[i]].filter((v) => v != null);
+        const snapX = candidates.length === 1
+          ? candidates[0]
+          : (Math.abs(candidates[0] - xv) < Math.abs(candidates[1] - xv)
+              ? candidates[0] : candidates[1]);
+        const cx = margin.left + xScale(snapX);
+        trackerLine.attr("x1", cx).attr("x2", cx);
+
+        const rows = panelGroups.map((pg, pi) => {
+          const pt = byX[pi].get(snapX);
+          if (!pt) {
+            trackerDots[pi].style("display", "none");
+            return `<div class="detail"><strong style="color:${pg.p.color}">${pg.p.label}:</strong> —</div>`;
+          }
+          trackerDots[pi]
+            .style("display", null)
+            .attr("cx", cx)
+            .attr("cy", pg.top + pg.yScale(pt.y));
+          return `<div class="detail"><strong style="color:${pg.p.color}">${pg.p.label}:</strong> ${fmtOf(pg.p.format)(pt.y)}${pg.p.unit}</div>`;
+        }).join("");
+
+        info.innerHTML = `<h4>${snapX}</h4>${rows}`;
+      });
   }
 
   // ── Shared helpers ──────────────────────────────────────────────────
   function updateInfo(info, cfg, d) {
     if (!d) { info.innerHTML = infoHTML(cfg); return; }
     const unit = cfg.unitshort || "";
-    const val = (d.y > 0 ? "+" : "") + d.y.toFixed(2) + unit;
+    // Anomaly charts want a +/- sign prefix; count/dollar charts don't.
+    let val;
+    if (cfg.anomaly) {
+      val = (d.y > 0 ? "+" : "") + d.y.toFixed(2) + unit;
+    } else if (Number.isInteger(d.y)) {
+      val = d3.format(",")(d.y) + unit;
+    } else {
+      val = d3.format(",.1f")(d.y) + unit;
+    }
     info.innerHTML = `<h4>${d.x}</h4><div class="detail">${val}</div>${
       cfg.infodetail ? `<div class="detail">${cfg.infodetail}</div>` : ""
     }`;

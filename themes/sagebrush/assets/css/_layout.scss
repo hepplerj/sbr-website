@@ -158,7 +158,8 @@ img, svg, video, canvas {
   display: grid;
   gap: var(--space-5);
   grid-template-columns: 1fr;
-  @media (min-width: 48rem) { grid-template-columns: 2fr 1fr 1fr; }
+  @media (min-width: 36rem) { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 64rem) { grid-template-columns: 2fr 1fr 1fr 1fr; }
 }
 .site-footer h3 {
   font-family: var(--font-ui);
@@ -179,6 +180,16 @@ img, svg, video, canvas {
   margin: 0;
 }
 .site-footer__links li { padding: 0.15em 0; }
+.site-footer__sublinks {
+  list-style: none;
+  padding: 0.15em 0 0.2em var(--space-4);
+  margin: 0;
+  font-size: var(--font-size-xs);
+}
+.site-footer__sublinks li { padding: 0.1em 0; }
+.site-footer__sublinks a {
+  letter-spacing: 0.04em;
+}
 
 // ── Hero ─────────────────────────────────────
 .hero {
@@ -274,14 +285,22 @@ img, svg, video, canvas {
   position: absolute;
   bottom: var(--space-3);
   right: var(--space-4);
+  max-width: 32rem;
   margin: 0;
   z-index: 2;
+  text-align: right;
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
+  line-height: 1.35;
   color: var(--color-cream);
   opacity: 0.72;
   letter-spacing: 0.04em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  // On narrow viewports let the credit stretch left without clipping.
+  @media (max-width: 40rem) {
+    left: var(--space-4);
+    max-width: none;
+  }
   a {
     color: inherit;
     text-decoration-color: rgba(245, 239, 225, 0.4);
@@ -612,6 +631,11 @@ img, svg, video, canvas {
   flex-direction: column;
   position: relative;
   background: var(--color-bg);
+  // Ensure the flex container stretches to at least the viewport so the
+  // slide-out "About this…" panel (anchored to .map-page with bottom: 0)
+  // always reaches the bottom of the screen — even when the chart/network
+  // inside doesn't fill the viewport on its own.
+  min-height: calc(100vh - 96px);
 }
 
 .map-page__bar {
@@ -1111,30 +1135,35 @@ img, svg, video, canvas {
   flex-wrap: wrap;
   gap: var(--space-2);
 }
+// Styled to match the "About this Map / Network / Chart" button
+// (.map-page__btn) — square corners, small uppercase UI type, same
+// cream-hover / rust-active treatment. Taller (min-height 44px) than
+// the About button because there are many of them in a row and
+// tap-friendliness matters more for filters.
 .sightlines-filter__pill {
   font-family: var(--font-ui);
   font-size: var(--font-size-sm);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   background: var(--color-bg);
   color: var(--color-ink);
-  // Darker default border than other UI — needs 3:1 contrast on bg for
-  // WCAG 1.4.11 (non-text UI component contrast).
-  border: 1.5px solid var(--color-sage-dark);
-  padding: 0.55em 1em;
-  min-height: 44px;  // WCAG 2.5.5 target size (best-practice, AAA level)
-  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  padding: 0.5em 1em;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  white-space: nowrap;
   transition: background var(--duration) var(--ease),
               border-color var(--duration) var(--ease),
               color var(--duration) var(--ease);
 }
 .sightlines-filter__pill:hover {
   background: var(--color-cream);
-  border-color: var(--color-rust);
+  border-color: var(--color-sage);
 }
-.sightlines-filter__pill.is-active {
+.sightlines-filter__pill.is-active,
+.sightlines-filter__pill[aria-pressed="true"] {
   background: var(--color-rust);
-  border-color: var(--color-rust-dark);
+  border-color: var(--color-rust);
   color: var(--color-cream);
 }
 
@@ -1304,6 +1333,11 @@ img, svg, video, canvas {
   box-shadow: -4px 0 0 var(--color-rust);
 }
 .bibliography__entry em { color: var(--color-ink); }
+.bibliography__license,
+.bibliography__note {
+  color: var(--color-text-muted);
+  font-size: 0.92em;
+}
 .bibliography__entry a {
   color: var(--color-link);
   word-break: break-word;
@@ -1447,8 +1481,40 @@ img, svg, video, canvas {
 .chart-viz__line {
   fill: none;
   stroke: var(--color-rust);
-  stroke-width: 1.6px;
+  stroke-width: 1.8px;
   stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.chart-viz__tracker-line {
+  stroke: var(--color-ink);
+  stroke-width: 1px;
+  stroke-dasharray: 3 3;
+  opacity: 0.5;
+}
+.chart-viz__tracker-dot {
+  stroke: var(--color-bg);
+  stroke-width: 2px;
+  pointer-events: none;
+}
+.chart-viz__tracker-overlay {
+  cursor: crosshair;
+}
+
+.chart-viz__panel-label {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+// Inline multi-series legend above line chart.
+.chart-viz__legend-text {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  fill: var(--color-ink);
+  alignment-baseline: middle;
 }
 .chart-viz__dot {
   fill: var(--color-rust-dark);
@@ -1477,6 +1543,33 @@ img, svg, video, canvas {
   right: var(--space-3);
   max-width: 260px;
   pointer-events: none;
+}
+
+.chart-viz__selector {
+  padding: 0.75em 1em 0.25em;
+  font-family: var(--font-ui);
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--font-size-xs);
+  }
+  select {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    padding: 0.35em 0.6em;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    min-height: 36px;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: normal;
+  }
 }
 
 .chart-viz__legend {
@@ -1535,6 +1628,137 @@ img, svg, video, canvas {
   color: var(--color-text-muted);
   margin-top: 0.35em;
   letter-spacing: 0.03em;
+}
+.map-popup__rows {
+  margin-top: 0.4em;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2em 0.75em;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+}
+.map-popup__key {
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.map-popup__val {
+  color: var(--color-ink);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.map-payments-ctl {
+  background: var(--color-bg);
+  padding: 0.75em 1em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 10px var(--color-shadow);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  min-width: 320px;
+  width: 520px;
+  max-width: 90vw;
+}
+.map-payments-ctl__row {
+  display: flex;
+  gap: 0.75em;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.map-payments-ctl__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  flex: 1 1 auto;
+  min-width: 150px;
+
+  > span {
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--font-size-xs);
+  }
+  select,
+  input[type="range"] {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.3em 0.5em;
+    min-height: 36px;
+    cursor: pointer;
+  }
+  input[type="range"] {
+    padding: 0 0.3em;
+    accent-color: var(--color-rust);
+  }
+  strong {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+}
+.map-payments-ctl__field--year {
+  flex: 2 1 220px;
+}
+.map-payments-ctl__legend {
+  margin-top: 0.6em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 0.75em;
+  h4 {
+    width: 100%;
+    margin: 0 0 0.2em;
+    font-size: var(--font-size-xs);
+    font-family: var(--font-ui);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+  }
+}
+
+.map-stateselector {
+  background: var(--color-bg);
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 10px var(--color-shadow);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--font-size-xs);
+  }
+  select {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    padding: 0.3em 0.5em;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    min-height: 36px;
+    cursor: pointer;
+  }
 }
 
 .info-panel {

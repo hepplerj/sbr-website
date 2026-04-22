@@ -239,6 +239,31 @@
 
         // Legend
         renderLegend(map, cfg, rendered, anyChoropleth);
+
+        // Optional state-selector: swaps the data src of a designated
+        // layer when the user picks a different state. Config:
+        //   cfg.stateselector = {
+        //     label, default, layerindex, srctemplate,
+        //     options: [{ code, name }], centers: { CODE: [lat, lon, zoom] }
+        //   }
+        if (cfg.stateselector) {
+          attachStateSelector(map, cfg, rendered, overlays, info);
+        }
+
+        // Optional program-selector + year-slider for the Follow-the-Money
+        // map: a choropleth that swaps what field is plotted based on
+        // (program, year). Config:
+        //   cfg.paymentsviz = {
+        //     layerindex,  // which layer in cfg.layers carries the county polygons
+        //     manifesturl, // manifest with { programs: [...], years: [lo, hi] }
+        //     srctemplate, // per-program JSON url, with {slug} token
+        //     default,     // program code to show initially
+        //     year,        // initial year
+        //     fipsfield,   // property name on county feature that holds the FIPS
+        //   }
+        if (cfg.paymentsviz) {
+          attachPaymentsViz(map, cfg, rendered, info);
+        }
       })
       .catch((err) => {
         container.classList.add("viz-embed__frame--error");
@@ -267,16 +292,36 @@
     return `${fmt(v)}${unit}`;
   }
 
+  // Render a key/value block in the popup from layer.popupfields.
+  // Each entry: { field, label?, unit?, format? } — format "int" adds
+  // thousands separators; anything else is shown as-is.
+  function popupRows(props, layer) {
+    const fields = layer.popupfields;
+    if (!Array.isArray(fields) || !fields.length) return "";
+    const rows = fields.map((f) => {
+      const raw = props[f.field];
+      if (raw == null || raw === "") return "";
+      let val = raw;
+      if (f.format === "int") val = Number(raw).toLocaleString();
+      const unit = f.unit ? ` ${f.unit}` : "";
+      const label = f.label || f.field;
+      return `<div class="map-popup__row"><span class="map-popup__key">${label}</span><span class="map-popup__val">${val}${unit}</span></div>`;
+    }).filter(Boolean).join("");
+    return rows ? `<div class="map-popup__rows">${rows}</div>` : "";
+  }
+
   function bindFeature(feature, lyr, ctx) {
     const { map, info, layer, preset, getLayer } = ctx;
     const p = feature.properties || {};
     const label = featureLabel(p, layer);
     const detail = featureDetail(p, layer);
+    const rows = popupRows(p, layer);
 
     const popup = `
       <div class="map-popup">
         <h3>${label}</h3>
         ${detail ? `<div class="map-popup__value">${detail}</div>` : ""}
+        ${rows}
         ${layer.popupnote ? `<div class="map-popup__note">${layer.popupnote}</div>` : ""}
       </div>
     `;
@@ -340,6 +385,251 @@
       return div;
     };
     legend.addTo(map);
+  }
+
+  // ─── State-selector control ─────────────────────────────────────────
+  // A top-left Leaflet control that offers a dropdown of states; on
+  // change, the target layer's src swaps to the per-state file and the
+  // map pans to that state's center.
+  function attachStateSelector(map, cfg, rendered, overlays, info) {
+    const ss = cfg.stateselector;
+    const idx = ss.layerindex != null ? Number(ss.layerindex) : 0;
+    const target = rendered[idx];
+    if (!target) return;
+
+    const ctl = L.control({ position: "topleft" });
+    ctl.onAdd = function () {
+      const div = L.DomUtil.create("div", "map-stateselector leaflet-bar");
+      const label = ss.label || "State";
+      const options = (ss.options || []).map((o) =>
+        `<option value="${o.code}"${o.code === ss.default ? " selected" : ""}>${o.name}</option>`
+      ).join("");
+      div.innerHTML = `<label>${label}<select>${options}</select></label>`;
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
+      div.querySelector("select").addEventListener("change", (e) => {
+        swapState(e.target.value);
+      });
+      return div;
+    };
+    ctl.addTo(map);
+
+    function swapState(code) {
+      const src = ss.srctemplate.replace("{state}", code.toLowerCase());
+      const layer = Object.assign({}, target.layer, { src });
+      const preset = presets[layer.style] || presets.sage;
+
+      fetch(src)
+        .then((r) => r.json())
+        .then((data) => {
+          // Remove old, add new
+          map.removeLayer(target.geo);
+          if (target.layer.label && overlays[target.layer.label]) {
+            delete overlays[target.layer.label];
+          }
+          const geoOpts = {
+            style: (feat) => styleFeature(feat, layer, preset),
+            onEachFeature: (feat, lyr) => {
+              bindFeature(feat, lyr, { map, info, layer, preset, getLayer: () => target.geo });
+            },
+          };
+          const geo = L.geoJSON(data, geoOpts).addTo(map);
+          target.geo = geo;
+          target.layer = layer;
+          if (layer.label) overlays[layer.label] = geo;
+
+          // Pan to the state's center, if provided
+          const center = ss.centers && ss.centers[code];
+          if (Array.isArray(center) && center.length >= 2) {
+            const [lat, lon, z] = center;
+            map.setView([lat, lon], z != null ? z : map.getZoom());
+          } else {
+            try { map.fitBounds(geo.getBounds(), { padding: [30, 30] }); } catch (_) {}
+          }
+        })
+        .catch((err) => console.error("State swap failed:", err));
+    }
+  }
+
+  // ─── Payments-viz (Follow the Money county choropleth) ─────────────
+  // A dedicated controller for the FTM county-choropleth sightline.
+  // Renders a bottom control bar with: program <select>, year <input
+  // type=range>, year-label, and a compact legend built from the
+  // selected program's max value. On program change we lazy-fetch
+  // /data/ftm-payments-<slug>.json (~5–150 KB each) and re-style the
+  // county layer; on year change we re-style in place (no fetch).
+  function attachPaymentsViz(map, cfg, rendered, info) {
+    const pv = cfg.paymentsviz;
+    const idx = pv.layerindex != null ? Number(pv.layerindex) : 0;
+    const target = rendered[idx];
+    if (!target) return;
+    const fipsfield = pv.fipsfield || "fips";
+    const layer = target.layer;
+
+    // Per-program payments cache. key = program code.
+    const cache = new Map();
+    // Active state
+    let program = pv.default;
+    let year    = pv.year;
+    let manifest = null;
+    let maxVal = 1;   // per-program global max (for fixed color domain)
+
+    // Build the bottom control bar as a Leaflet control so it sits over
+    // the map cleanly; we rely on panning being via wheel+pinch, so a
+    // bottom-anchored panel is OK.
+    const ctl = L.control({ position: "bottomleft" });
+    ctl.onAdd = function () {
+      const div = L.DomUtil.create("div", "map-payments-ctl leaflet-bar");
+      div.innerHTML = `
+        <div class="map-payments-ctl__row">
+          <label class="map-payments-ctl__field">
+            <span>Program</span>
+            <select class="map-payments-ctl__program"></select>
+          </label>
+          <label class="map-payments-ctl__field map-payments-ctl__field--year">
+            <span>Year <strong class="map-payments-ctl__year-label"></strong></span>
+            <input type="range" class="map-payments-ctl__year" />
+          </label>
+        </div>
+        <div class="map-payments-ctl__legend"></div>
+      `;
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
+      return div;
+    };
+    ctl.addTo(map);
+
+    const ctlEl = map.getContainer().querySelector(".map-payments-ctl");
+    const selProgram = ctlEl.querySelector(".map-payments-ctl__program");
+    const rngYear = ctlEl.querySelector(".map-payments-ctl__year");
+    const lblYear = ctlEl.querySelector(".map-payments-ctl__year-label");
+    const legendEl = ctlEl.querySelector(".map-payments-ctl__legend");
+
+    // ── Helpers ─────────────────────────────────────────────────────
+    function loadProgram(code) {
+      if (cache.has(code)) return Promise.resolve(cache.get(code));
+      const slug = code.replace(/\//g, "-").replace(/ /g, "_");
+      const url = pv.srctemplate.replace("{slug}", slug);
+      return fetch(url).then((r) => r.json()).then((pj) => {
+        // Expand interleaved [year, v, year, v, ...] into a year→value map
+        const out = { program: pj.program, label: pj.label, unit: pj.unit,
+                      year_range: pj.year_range, max_value: pj.max_value,
+                      counties: {} };
+        for (const [fips, pairs] of Object.entries(pj.counties || {})) {
+          const m = {};
+          for (let i = 0; i < pairs.length; i += 2) m[pairs[i]] = pairs[i + 1];
+          out.counties[fips] = m;
+        }
+        cache.set(code, out);
+        return out;
+      });
+    }
+
+    // Four-stop sequential ramp (cream → rust), bucketed on sqrt scale
+    // so small/medium counties don't vanish under one big spike.
+    const paymentRamp = ramp; // reuse module-level ramp
+    function paymentColor(v, vmax) {
+      // No-payment tone: warm bone, warm enough to read against Positron
+      // grey but muted enough that it reads as a "below threshold" signal.
+      if (v == null || v <= 0) return "#d9d2c4";
+      const t = Math.sqrt(Math.max(0, v)) / Math.sqrt(Math.max(1, vmax));
+      const idx = Math.min(paymentRamp.length - 1, Math.floor(t * paymentRamp.length));
+      return paymentRamp[idx];
+    }
+
+    // Style a county for the current (program, year). Extracted so both
+    // the initial draw and mouseout can use it — Leaflet's resetStyle
+    // only knows the layer's preset default, not our choropleth color.
+    function styleCounty(feat) {
+      const data = cache.get(program);
+      if (!data) return (presets[layer.style] || presets.sage).style;
+      const p = feat.properties || {};
+      const fips = p[fipsfield];
+      const v = fips && data.counties[fips] ? data.counties[fips][year] : 0;
+      return {
+        fillColor: paymentColor(v, maxVal),
+        fillOpacity: v > 0 ? 0.85 : 0.55,
+        weight: 0.5,
+        color: "#8a8076",   // warm tan border, legible on Positron
+        opacity: 0.9,
+      };
+    }
+
+    function restyle() {
+      const data = cache.get(program);
+      if (!data) return;
+      maxVal = data.max_value || 1;
+      target.geo.setStyle(styleCounty);
+
+      target.geo.eachLayer((lyr) => {
+        const f = lyr.feature;
+        const p = f.properties || {};
+        const fips = p[fipsfield];
+        const v = fips && data.counties[fips] ? data.counties[fips][year] : 0;
+        const name = p.name || p.NAME || fips || "County";
+        const formatted = v > 0 ? `$${(v).toLocaleString()}K (2020 dollars)` : "no payment reported";
+        lyr.unbindPopup();
+        lyr.bindPopup(
+          `<div class="map-popup"><h3>${name}</h3>` +
+          `<div class="map-popup__value">${data.label}, ${year}</div>` +
+          `<div class="map-popup__note">${formatted}</div></div>`
+        );
+        lyr.off("mouseover").off("mouseout");
+        lyr.on("mouseover", (e) => {
+          e.target.setStyle({ weight: 1.8, color: "#2a2a2a" });
+          if (e.target.bringToFront) e.target.bringToFront();
+          info.update(name, `${data.label}, ${year}: ${formatted}`);
+        });
+        lyr.on("mouseout", (e) => {
+          e.target.setStyle(styleCounty(e.target.feature));
+          info.update();
+        });
+      });
+      renderPaymentsLegend(data, maxVal);
+    }
+
+    function renderPaymentsLegend(data, vmax) {
+      const nBuckets = paymentRamp.length;
+      const label = data.label || program;
+      // Sqrt-buckets from 0 → vmax
+      const items = paymentRamp.map((color, i) => {
+        const lo = Math.round(Math.pow((i)     / nBuckets, 2) * vmax);
+        const hi = Math.round(Math.pow((i + 1) / nBuckets, 2) * vmax);
+        return `<div class="legend-item"><span class="legend-swatch" style="background:${color}"></span>$${lo.toLocaleString()}–$${hi.toLocaleString()}K</div>`;
+      });
+      legendEl.innerHTML = `<h4>${label}</h4>${items.join("")}`;
+    }
+
+    function bootstrap() {
+      // 1) Get manifest → fill the program <select>
+      fetch(pv.manifesturl).then((r) => r.json()).then((mf) => {
+        manifest = mf;
+        selProgram.innerHTML = mf.programs.map((pr) =>
+          `<option value="${pr.code}"${pr.code === program ? " selected" : ""}>${pr.label}</option>`
+        ).join("");
+        const [yrLo, yrHi] = mf.years;
+        rngYear.min = String(yrLo);
+        rngYear.max = String(yrHi);
+        rngYear.value = String(year);
+        lblYear.textContent = String(year);
+
+        // 2) Load initial program + restyle
+        loadProgram(program).then(() => restyle());
+
+        // 3) Wire events
+        selProgram.addEventListener("change", (e) => {
+          program = e.target.value;
+          loadProgram(program).then(() => restyle());
+        });
+        rngYear.addEventListener("input", (e) => {
+          year = +e.target.value;
+          lblYear.textContent = String(year);
+          restyle();
+        });
+      }).catch((err) => console.error("Payments viz init failed:", err));
+    }
+
+    bootstrap();
   }
 
   // ─── Boot ───────────────────────────────────────────────────────────

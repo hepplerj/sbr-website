@@ -80,6 +80,19 @@ blockquote {
 }
 blockquote p:last-child { margin-bottom: 0; }
 
+.prose-aside {
+  margin: 2em 0;
+  padding: 1em 1.25em;
+  background: var(--color-bg-alt);
+  border-left: 3px solid var(--color-sage);
+  border-radius: 0 4px 4px 0;
+  font-size: var(--font-size-sm);
+
+  p { margin: 0; }
+  a { color: var(--color-sage-dark, var(--color-sage)); }
+  strong { font-weight: 600; }
+}
+
 code, pre, kbd, samp {
   font-family: var(--font-mono);
   font-size: 0.9em;
