@@ -20,6 +20,10 @@ Please cite individual pages using the citation block at the foot of each page, 
 
 > Heppler, Jason. *Governing Ground: A Century of Sagebrush Rebellions*. {{< year >}}.
 
+## Updates
+
+A [changelog](/updates/) records additions, revisions, and corrections as the project develops.
+
 ## License
 
 Written content is licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Site code is released under the MIT license. Archival images are reproduced under fair use or with permission; each image's source and rights are noted in its caption.
