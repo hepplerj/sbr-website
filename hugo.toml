@@ -1,4 +1,4 @@
-baseURL = "/"
+baseURL = "https://governingground.org/"
 languageCode = "en-us"
 title = "Governing Ground"
 theme = "sagebrush"
@@ -9,9 +9,9 @@ enableEmoji = false
   subtitle = "A century of sagebrush rebellions"
   description = "A digital history of the sagebrush rebellions — recurring fights over land, power, and federal authority in the American West from the 1930s through 2016."
   author = "Jason Heppler"
-  heroImage = "images/hero.png"
-  heroCredit = "Photo by Leland J. Prater / U.S. Forest Service"
-  heroCreditURL = "https://www.flickr.com/photos/usforestservice/54569945072/"
+  heroImage = "images/hero.jpg"
+  heroCredit = "Wikimedia Commons (CC BY-SA 3.0)"
+  heroCreditURL = "https://commons.wikimedia.org/wiki/File:Sagebrush_Rebellion_July_4th,_1980_Grand_County_Utah.JPG"
   citationStyle = "chicago"
 
 [params.social]
@@ -19,7 +19,7 @@ enableEmoji = false
 
 [menu]
   [[menu.main]]
-    name = "Narrative"
+    name = "Essays"
     url = "/narrative/"
     weight = 10
   [[menu.main]]
@@ -27,7 +27,11 @@ enableEmoji = false
     url = "/sightlines/"
     weight = 20
   [[menu.main]]
-    name = "Sources"
+    name = "Data"
+    url = "/data/"
+    weight = 30
+  [[menu.main]]
+    name = "Bibliography"
     url = "/sources/"
     weight = 40
   [[menu.main]]

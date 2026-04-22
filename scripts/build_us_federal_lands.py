@@ -11,7 +11,7 @@ path because of that pre-projection.
 
 Underlying data: Protected Areas Database of the US (PAD-US), compiled
 circa 2014, with each feature tagged by managing agency (FS, BLM, FWS,
-NPS, BOR, DOD, BIA, …).
+NPS, BOR, DOD, BIA, …). A refresh is tracked in TODO.md.
 
 Run: ``python scripts/build_us_federal_lands.py``
 """
