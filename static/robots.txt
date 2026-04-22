@@ -1,0 +1,114 @@
+# Governing Ground — https://governingground.org/
+#
+# This project's written content, visualizations, and site design are
+# licensed CC BY-ND 4.0 — attribution required, no derivative works.
+# Consistent with that posture, AI/LLM training and retrieval crawlers
+# are disallowed. Normal search engine crawlers remain welcome.
+#
+# Compliance with this file is honor-system; it does not block
+# non-compliant scrapers. The list below aggregates identifiers
+# published by the operators (see https://darkvisitors.com/ for a
+# running catalog).
+
+User-agent: *
+Allow: /
+
+# ── OpenAI ─────────────────────────────────────
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+# ── Anthropic ──────────────────────────────────
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+# ── Google (Gemini / Bard training) ────────────
+# Googlebot for search remains allowed above. Google-Extended is the
+# separate opt-out token for generative-AI training specifically.
+User-agent: Google-Extended
+Disallow: /
+
+# ── Common Crawl (used by many LLM training pipelines) ──
+User-agent: CCBot
+Disallow: /
+
+# ── Meta ───────────────────────────────────────
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: Meta-ExternalFetcher
+Disallow: /
+
+# ── ByteDance ──────────────────────────────────
+User-agent: Bytespider
+Disallow: /
+
+# ── Perplexity ─────────────────────────────────
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Perplexity-User
+Disallow: /
+
+# ── You.com ────────────────────────────────────
+User-agent: YouBot
+Disallow: /
+
+# ── Amazon ─────────────────────────────────────
+User-agent: Amazonbot
+Disallow: /
+
+# ── Apple ──────────────────────────────────────
+# Applebot (search) remains allowed above. Applebot-Extended is the
+# separate opt-out for Apple Intelligence training.
+User-agent: Applebot-Extended
+Disallow: /
+
+# ── DuckDuckGo (DuckAssist) ────────────────────
+User-agent: DuckAssistBot
+Disallow: /
+
+# ── Cohere ─────────────────────────────────────
+User-agent: cohere-ai
+Disallow: /
+
+# ── Miscellaneous AI data collectors ───────────
+User-agent: Diffbot
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: Omgili
+Disallow: /
+
+User-agent: Timpibot
+Disallow: /
+
+User-agent: Kangaroo Bot
+Disallow: /
+
+User-agent: PanguBot
+Disallow: /
+
+User-agent: Scrapy
+Disallow: /
+
+Sitemap: https://governingground.org/sitemap.xml

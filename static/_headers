@@ -1,0 +1,33 @@
+# Cloudflare Pages headers file (served at publish root).
+#
+# Hugo fingerprints CSS/JS asset URLs with a content hash, so those files
+# can be cached forever — a new deploy produces new filenames. Data files
+# and HTML use shorter lifetimes.
+
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# JSON / GeoJSON / TopoJSON served to the viz modules at runtime. These
+# are refreshed by the scripts/build_*.py pipeline on each deploy; an
+# hour of browser cache is a reasonable default.
+/data/*
+  Cache-Control: public, max-age=3600
+
+# HTML always revalidates — cheap check, always current.
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Security headers everywhere.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: interest-cohort=()

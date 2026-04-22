@@ -19,6 +19,11 @@
 .DS_Store
 Thumbs.db
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
 # Node (if we add tooling later)
 node_modules/
 npm-debug.log*
