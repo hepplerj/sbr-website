@@ -29,36 +29,38 @@
   {{- end }}
 </section>
 
-{{- with .Content }}
-  <section class="home-intro">
-    <div class="home-intro__inner">{{ . }}</div>
-  </section>
-{{- end }}
+<div class="home-grid">
+  {{- with .Content }}
+    <section class="home-intro">
+      <div class="home-intro__inner">{{ . }}</div>
+    </section>
+  {{- end }}
 
-<section class="home-sections" aria-label="Sections">
-  <article class="home-card">
-    <p class="home-card__eyebrow">Narrative</p>
-    <h2 class="home-card__title"><a href="{{ "/narrative/" | relURL }}">Essays &amp; chapters</a></h2>
-    <p class="home-card__body">The long-form history of public-lands politics, from the Taylor Grazing Act through the Clinton-era monuments.</p>
-    <a class="home-card__cta" href="{{ "/narrative/" | relURL }}">Begin reading</a>
-  </article>
-  <article class="home-card">
-    <p class="home-card__eyebrow">Maps</p>
-    <h2 class="home-card__title"><a href="{{ "/sightlines/" | relURL }}#maps">Geographies</a></h2>
-    <p class="home-card__body">Interactive maps of federal land, grazing allotments, wilderness designations, and the flashpoints of rural resistance.</p>
-    <a class="home-card__cta" href="{{ "/sightlines/" | relURL }}#maps">Explore maps</a>
-  </article>
-  <article class="home-card">
-    <p class="home-card__eyebrow">Networks</p>
-    <h2 class="home-card__title"><a href="{{ "/sightlines/" | relURL }}#networks">People &amp; organizations</a></h2>
-    <p class="home-card__body">The coalitions that made the sagebrush rebellions — ranchers, legislators, militia networks, think tanks, and the ties between them.</p>
-    <a class="home-card__cta" href="{{ "/sightlines/" | relURL }}#networks">Explore networks</a>
-  </article>
-  <article class="home-card">
-    <p class="home-card__eyebrow">Charts</p>
-    <h2 class="home-card__title"><a href="{{ "/sightlines/" | relURL }}#charts">Conditions over time</a></h2>
-    <p class="home-card__body">A century of temperature, drought, farm stress, and aridification — the environmental and economic conditions that shaped each federal-land fight.</p>
-    <a class="home-card__cta" href="{{ "/sightlines/" | relURL }}#charts">Explore charts</a>
-  </article>
-</section>
+  <section class="home-sections" aria-label="Sections">
+    <article class="home-card">
+      <p class="home-card__eyebrow">Narrative</p>
+      <h2 class="home-card__title"><a href="{{ "/narrative/" | relURL }}">Essays &amp; chapters</a></h2>
+      <p class="home-card__body">The long-form history of public-lands politics, from the Taylor Grazing Act through the Clinton-era monuments.</p>
+      <a class="home-card__cta" href="{{ "/narrative/" | relURL }}">Begin reading</a>
+    </article>
+    <article class="home-card">
+      <p class="home-card__eyebrow">Maps</p>
+      <h2 class="home-card__title"><a href="{{ "/sightlines/" | relURL }}#maps">Geographies</a></h2>
+      <p class="home-card__body">Interactive maps of federal land, grazing allotments, wilderness designations, and the flashpoints of rural resistance.</p>
+      <a class="home-card__cta" href="{{ "/sightlines/" | relURL }}#maps">Explore maps</a>
+    </article>
+    <article class="home-card">
+      <p class="home-card__eyebrow">Networks</p>
+      <h2 class="home-card__title"><a href="{{ "/sightlines/" | relURL }}#networks">People &amp; organizations</a></h2>
+      <p class="home-card__body">The coalitions that made the sagebrush rebellions — ranchers, legislators, militia networks, think tanks, and the ties between them.</p>
+      <a class="home-card__cta" href="{{ "/sightlines/" | relURL }}#networks">Explore networks</a>
+    </article>
+    <article class="home-card">
+      <p class="home-card__eyebrow">Charts</p>
+      <h2 class="home-card__title"><a href="{{ "/sightlines/" | relURL }}#charts">Conditions over time</a></h2>
+      <p class="home-card__body">A century of temperature, drought, farm stress, and aridification — the environmental and economic conditions that shaped each federal-land fight.</p>
+      <a class="home-card__cta" href="{{ "/sightlines/" | relURL }}#charts">Explore charts</a>
+    </article>
+  </section>
+</div>
 {{ end }}
