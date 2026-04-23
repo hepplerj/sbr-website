@@ -5,8 +5,8 @@ lede: "Twenty-eight people, events, and organizations across four decades of fed
 weight: 6
 draft: true 
 viz: network
-themes: [sagebrush-rebellion-1979, public-lands]
-regions: [great-plains, intermountain-west, pacific]
+themes: [sagebrush-rebellion-1979, bundy-family, malheur, bunkerville, public-lands]
+regions: [northern-plains, southern-plains, intermountain-west, rocky-mountain, southwest, pacific-northwest, pacific-southwest]
 network:
   src: /data/bridging-network.json
   infotitle: "Bridging the rebellions"

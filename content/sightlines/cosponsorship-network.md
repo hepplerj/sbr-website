@@ -6,7 +6,7 @@ weight: 8
 draft: false
 viz: network
 themes: [public-lands, sagebrush-rebellion-1979]
-regions: [intermountain-west, great-plains, pacific, national]
+regions: [national, northern-plains, southern-plains, intermountain-west, rocky-mountain, southwest, pacific-northwest, pacific-southwest]
 network:
   src: /data/cosponsorship-network.json
   infotitle: "Cosponsorship network"

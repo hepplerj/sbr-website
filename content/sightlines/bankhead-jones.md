@@ -5,8 +5,8 @@ lede: "National Grasslands and Land Utilization Projects — the federal lands a
 weight: 20
 draft: false
 viz: map
-themes: [public-lands, dust-bowl]
-regions: [great-plains]
+themes: [public-lands, bankhead-jones, dust-bowl]
+regions: [northern-plains, southern-plains]
 map:
   center: [44.08, -103.23]
   zoom: 7

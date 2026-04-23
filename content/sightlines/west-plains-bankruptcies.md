@@ -6,7 +6,7 @@ weight: 50
 draft: false
 viz: chart
 themes: [farm-crisis, rural-economy]
-regions: [great-plains, intermountain-west, pacific]
+regions: [northern-plains, southern-plains, intermountain-west, rocky-mountain, southwest, pacific-northwest, pacific-southwest]
 chart:
   src: /data/farm-bankruptcies.json
   type: stripes-stacked

@@ -6,7 +6,7 @@ weight: 35
 draft: false
 viz: chart
 themes: [farm-crisis, rural-economy]
-regions: [national, great-plains]
+regions: [national, northern-plains, southern-plains]
 chart:
   src: /data/farm-bankruptcies.json
   type: bars

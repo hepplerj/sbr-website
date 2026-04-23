@@ -6,7 +6,7 @@ weight: 5
 draft: true
 viz: network
 themes: [bundy-family, malheur, bunkerville]
-regions: [intermountain-west, pacific]
+regions: [intermountain-west, pacific-northwest]
 network:
   src: /data/bundy-network.json
   infotitle: "Bundy network"

@@ -6,7 +6,7 @@ weight: 45
 draft: false
 viz: chart
 themes: [climate, dust-bowl, farm-crisis]
-regions: [great-plains, intermountain-west, pacific, national]
+regions: [national, northern-plains, southern-plains, intermountain-west, pacific-northwest]
 chart:
   src: /data/regions-precipitation.json
   type: stripes-stacked

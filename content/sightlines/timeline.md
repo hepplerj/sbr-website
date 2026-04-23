@@ -5,8 +5,8 @@ lede: "Thirty events across four lanes — land-managing agencies, statutes, pre
 weight: 2
 draft: false
 viz: chart
-themes: [public-lands, sagebrush-rebellion-1979, dust-bowl]
-regions: [national, great-plains, intermountain-west, pacific]
+themes: [public-lands, sagebrush-rebellion-1979, bankhead-jones, malheur, bunkerville, dust-bowl]
+regions: [national]
 chart:
   src: /data/timeline.json
   type: timeline

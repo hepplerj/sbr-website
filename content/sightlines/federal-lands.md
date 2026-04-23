@@ -6,7 +6,7 @@ weight: 10
 draft: false
 viz: map
 themes: [public-lands]
-regions: [great-plains, intermountain-west]
+regions: [northern-plains, intermountain-west, rocky-mountain, southwest]
 map:
   center: [43.0, -104.0]
   zoom: 5

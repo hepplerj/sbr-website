@@ -6,7 +6,7 @@ weight: 15
 draft: true
 viz: network
 themes: [sagebrush-rebellion-1979, public-lands]
-regions: [intermountain-west]
+regions: [intermountain-west, rocky-mountain, southwest]
 ---
 
 This network maps organizational ties among ranching associations, state legislative caucuses, conservative legal foundations, and the industry groups that joined the Sagebrush cause between the passage of Nevada AB 413 (June 1979) and the inauguration of Ronald Reagan (January 1981).
