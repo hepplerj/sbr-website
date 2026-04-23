@@ -70,15 +70,6 @@
     legend.className = "legend network-viz__legend";
     container.appendChild(legend);
 
-    const hint = document.createElement("div");
-    hint.className = "network-viz__zoom-hint";
-    hint.setAttribute("aria-hidden", "true");
-    hint.innerHTML = `
-      <span class="network-viz__zoom-hint-off">Click to enable scroll-zoom</span>
-      <span class="network-viz__zoom-hint-on">Scroll to zoom · drag to pan</span>
-    `;
-    container.appendChild(hint);
-
     // Modal scaffolding — populated on node click, shown/hidden via class.
     const modal = document.createElement("div");
     modal.className = "network-viz__modal";
@@ -115,21 +106,12 @@
     const gNodes  = gRoot.append("g").attr("class", "network-viz__nodes");
     const gLabels = gRoot.append("g").attr("class", "network-viz__labels");
 
-    // Wheel-zoom is opt-in: hovering the graph shouldn't hijack page scroll.
-    // Click on the SVG to enable; mouse-leave disables. Drag-to-pan and
-    // touch pinch-to-zoom are always on.
-    let wheelZoomEnabled = false;
     const zoom = d3.zoom()
       .scaleExtent([0.3, 5])
-      .filter((event) => {
-        if (event.type === "wheel") return wheelZoomEnabled;
-        return !event.ctrlKey && !event.button;
-      })
+      .filter((event) => !event.ctrlKey && !event.button)
       .on("zoom", (event) => gRoot.attr("transform", event.transform));
 
     svg.call(zoom).on("dblclick.zoom", null);
-    container.addEventListener("click",      () => { wheelZoomEnabled = true;  container.classList.add("network-viz--zoom-active"); });
-    container.addEventListener("mouseleave", () => { wheelZoomEnabled = false; container.classList.remove("network-viz--zoom-active"); });
 
     // Category filter state — set of active category strings.
     // Empty = no filter (all nodes full opacity).
