@@ -7,11 +7,10 @@ enableEmoji = false
 
 [params]
   subtitle = "A century of sagebrush rebellions"
-  description = "A digital history of the sagebrush rebellions — recurring fights over land, power, and federal authority in the American West from the 1930s through 2016."
-  author = "Jason Heppler"
-  heroImage = "images/hero.jpg"
-  heroCredit = "Wikimedia Commons (CC BY-SA 3.0)"
-  heroCreditURL = "https://commons.wikimedia.org/wiki/File:Sagebrush_Rebellion_July_4th,_1980_Grand_County_Utah.JPG"
+  description = "A history of the sagebrush rebellions — recurring fights over land, power, and federal authority in the American West from the 1930s to the 2020s."
+  author = "Jason A. Heppler"
+  heroImage = "images/cliven-bundy-bunkerville-nevada.webp"
+  heroCredit = "Jim Urquhart—Reuters"
   citationStyle = "chicago"
 
 [params.social]

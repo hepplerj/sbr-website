@@ -40,7 +40,7 @@ Feeds the [Federal Payments to Western Counties](/sightlines/federal-payments/) 
 
 ## Politics and law
 
-`cosponsorship-network.json`: Bill-cosponsorship network for a curated set of 32 federal public-lands bills across the 108th–118th Congresses, fetched from the [GPO govinfo.gov BILLSTATUS](https://www.govinfo.gov/bulkdata/BILLSTATUS) bulk-XML feed (free, no API key). Each node is a legislator who cosponsored at least two bills; each edge is a bill-level cosponsorship tie. Feeds the [Cosponsorship Network](/sightlines/cosponsorship-network/) visualization.
+`cosponsorship-network.json`: Bill-cosponsorship network for a curated set of 41 federal public-lands bills across the 96th–118th Congresses (1979–2024). Bills from the 108th Congress onward are fetched from the [GPO govinfo.gov BILLSTATUS](https://www.govinfo.gov/bulkdata/BILLSTATUS) bulk-XML feed (free, no key); earlier bills use the [Congress.gov API v3](https://api.congress.gov/) (free key). Each node is a legislator who cosponsored at least two bills in the set; each edge is a shared-cosponsorship tie. Feeds the [Cosponsorship Network](/sightlines/cosponsorship-network/) visualization.
 
 `timeline.json`: Hand-curated 33-event chronology of federal public-lands governance, 1872–2024, organized into four swim lanes (agencies, laws, proclamations, rebellions). Not drawn from any single source; references are in [`scripts/build_timeline.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_timeline.py). Feeds the [Federal Public-Lands Timeline](/sightlines/timeline/) visualization.
 
