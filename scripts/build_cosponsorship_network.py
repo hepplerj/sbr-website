@@ -51,9 +51,29 @@ API_KEY     = os.environ.get("CONGRESS_API_KEY", "")
 # Each entry: (congress, chamber-type, number, short-label, category).
 # Categories: "disposal" | "grazing" | "antiquities" | "wilderness" | "esa"
 BILLS = [
-    # ── Pre-108th: Sagebrush Rebellion era ──────────────────────────────────
+    # ── 96th: Sagebrush Rebellion founding bills ────────────────────────────
     (96,  "s",  1680,  "Western Lands Distribution & Regional Equalization (96th, Laxalt)", "disposal"),
     (96,  "s",  2762,  "Federal Lands Disposal — Nevada (96th, Laxalt)",                   "disposal"),
+
+    # ── 97th–104th: Watt / Chenoweth / Hansen era ───────────────────────────
+    (97,  "hr", 3655,  "Public Land Reform Act (97th)",                                    "disposal"),
+    (97,  "s",  1245,  "Public Land Reform Act (97th, Senate)",                            "disposal"),
+    (98,  "hr", 3305,  "Disposal of Certain Federal Lands (98th)",                         "disposal"),
+    (99,  "hr", 4713,  "Public Rangelands Fee Act (99th)",                                 "grazing"),
+    (100, "hr", 1481,  "Public Rangelands Fee Act (100th)",                                "grazing"),
+    (101, "hr", 775,   "Public Rangelands Fee Act (101st)",                                "grazing"),
+    (102, "hr", 481,   "Public Rangelands Fee Act (102nd)",                                "grazing"),
+    (102, "hr", 767,   "State Threshold Federal Lands Transfer (102nd)",                   "disposal"),
+    (102, "hr", 944,   "Fair Market Grazing for Public Rangelands Act (102nd)",            "grazing"),
+    (103, "hr", 4157,  "BLM Land Transfer to States (103rd)",                              "disposal"),
+    (104, "hr", 676,   "Free Market Grazing Fees Act (104th)",                             "grazing"),
+    (104, "hr", 1713,  "Livestock Grazing Act (104th)",                                    "grazing"),
+    (104, "hr", 1745,  "Utah Public Lands Management Act (104th)",                         "disposal"),
+    (104, "hr", 2032,  "BLM Land Transfer to States (104th)",                              "disposal"),
+    (104, "hr", 2745,  "Restoration of Natural Resources Laws on Public Lands (104th)",    "disposal"),
+    (104, "hr", 4242,  "Antiquities Act Reform (104th)",                                   "antiquities"),
+
+    # ── 107th ────────────────────────────────────────────────────────────────
     (107, "hr", 3808,  "Consistent Public Land Laws Enforcement (107th)",                   "disposal"),
 
     # ── 108th–109th — the Pombo Natural Resources chair years ───────────────

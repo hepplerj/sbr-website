@@ -28,36 +28,53 @@ network:
 
 > This is a draft network under active development. The bill set will grow as additional pre-2003 bills are compiled from historical records. Follow the [changelog](/updates/) for notices when this network changes.
 
-Forty-one bills introduced in the 96th through 118th Congresses (1979–2024) on federal-public-lands matters — transfer of federal lands to states, disposal of "excess" federal acreage, Antiquities Act reform and rollback, grazing administration, monument-designation review, sage-grouse / ESA flexibility, wilderness-study-area release. Legislators appear as nodes if they cosponsored at least **two** bills in the set. Edges connect pairs who cosponsored **two or more** of the same bills.
+Fifty-seven bills introduced in the 96th through 118th Congresses (1979–2024) on federal-public-lands matters — transfer of federal lands to states, disposal of "excess" federal acreage, Antiquities Act reform and rollback, grazing administration, monument-designation review, sage-grouse / ESA flexibility, wilderness-study-area release. Legislators appear as nodes if they cosponsored at least **two** bills in the set. Edges connect pairs who cosponsored **two or more** of the same bills.
 
-113 legislators meet the threshold. 814 edges connect them. The graph is dense by design: it shows the full caucus across four decades.
+246 legislators meet the threshold. 2,249 edges connect them. The graph is dense by design: it shows the full caucus across four decades.
 
 **Click any legislator** to open a modal with their complete bill list from the dataset — sponsor versus cosponsor role, Congress, bill number, full title, and a link out to the Congress.gov page.
 
 ## What to read off the graph
 
-- **Node size encodes bill count.** Legislators sized largest are on the most bills across the two decades. Rob Bishop and Jason Chaffetz tie at eight each; Mike Lee and Tom McClintock at seven; Wally Herger, Steve Pearce, and Don Young at six.
-- **The core caucus persists across chairmanships.** Republicans who chaired the House Natural Resources Committee during this period — Richard Pombo (108th–109th), Doc Hastings (112th–113th), Rob Bishop (114th–115th), Bruce Westerman (118th) — form a through-line. When the chair changed, the caucus's bills changed format but not its membership.
-- **The Intermountain spine, widened.** With the 108th–112th era included, California, Idaho, Wyoming, and Alaska all gain prominence. Mike Simpson (R-ID), who was rarely leading but consistently cosponsoring across the full window, now emerges clearly. Don Young — Alaska's lone representative from 1973 to 2022 — appears on six bills in the set, spanning the entire window.
-- **The partisan shape holds.** Eighty-two Republicans and eight Democrats at the two-bill threshold. The Democrats present are almost entirely the "narrow grounds" pattern: individual cross-aisle sign-ons to specific bills with regional or procedural angles (grazing-fee reform, state-transfer provisions), not consistent caucus membership.
+- **Node size encodes bill count.** The 97th–104th bills significantly shift who is largest. Members who bridged the original Sagebrush Rebellion era into the Pombo/Bishop years — Don Young (R-AK), James Hansen (R-UT), and others who signed onto the recurring Rangelands Fee Act series — now emerge prominently alongside the post-2003 caucus.
+- **The grazing thread is now visible.** The Public Rangelands Fee Act appeared in four consecutive Congresses (99th–102nd) with 28–43 cosponsors each time. Members who signed all four form a distinct cluster connecting the Reagan-era resistance to the current caucus.
+- **The 104th Congress hub.** H.R. 2745 ("Restoration of Natural Resources Laws on Public Lands," 1995–96) carries 149 cosponsors — the largest single bill in the dataset by far. It creates a dense sub-graph representing the Contract with America–era legislative moment, the closest Congress came to a wholesale rollback of federal land law.
+- **The core caucus persists across chairmanships.** Republicans who chaired the House Natural Resources Committee — Richard Pombo (108th–109th), Doc Hastings (112th–113th), Rob Bishop (114th–115th), Bruce Westerman (118th) — form a through-line. When the chair changed, the caucus's bills changed format but not its membership.
+- **The partisan shape holds.** The overwhelming majority of nodes are Republican. Democrats present are almost entirely the "narrow grounds" pattern: individual cross-aisle sign-ons to specific bills with regional or procedural angles (grazing-fee reform, state-transfer provisions), not consistent caucus membership.
 
 ## What to read off the *absences*
 
-- **John Barrasso (R-WY)** now appears on the graph because the 112th Congress Wilderness and Roadless Area Release Act (S. 1087) is in the set alongside his later Ranching Without Red Tape bill. The Senate-chamber bias is partially corrected.
-- **Dean Heller (R-NV), Cory Gardner (R-CO), Steve Daines (R-MT)** — all Senate caucus members — are still absent. Senate bills remain under-represented; adding 4–5 more Senate bills from the 108th–116th era would pull them into the graph.
+- **The 105th–106th gap (1997–2002) remains.** The Chenoweth/Hansen years are partially captured through the 104th, but the late Clinton era is still thin. The Congress.gov API has the data; the limiting factor is identifying the right bills.
+- **Senate representation is still uneven.** The Rangelands Fee Act series and the 104th disposal bills are all House bills. Senate caucus members from that era — and later ones like Heller, Gardner, and Daines — are under-represented relative to their actual legislative activity.
 
 ## What the graph does not say
 
-Cosponsorship is *declared alignment*, not authorship or policy outcome. A legislator can cosponsor for regional signaling, caucus loyalty, constituent favor, or genuine commitment — and the graph cannot distinguish among them. None of the 32 bills in the set became law. The graph measures legislative *coordination* — who agreed to be seen cosponsoring transfer-friendly bills — which is a distinct and narrower measurement than policy power.
+Cosponsorship is *declared alignment*, not authorship or policy outcome. A legislator can cosponsor for regional signaling, caucus loyalty, constituent favor, or genuine commitment — and the graph cannot distinguish among them. None of the 57 bills in the set became law. The graph measures legislative *coordination* — who agreed to be seen cosponsoring transfer-friendly bills — which is a distinct and narrower measurement than policy power.
 
 ## Bills in the set
 
-Forty-one bills, 96th–118th Congresses. Curated to represent the transfer, disposal, grazing, wilderness-release, and Antiquities-Act-reform lineage that sits in the Sagebrush-rebellion policy space. 96th–107th Congress bills are sourced from the Congress.gov API; 108th onward from GPO `govinfo.gov` BILLSTATUS.
+Fifty-seven bills, 96th–118th Congresses. Curated to represent the transfer, disposal, grazing, wilderness-release, and Antiquities-Act-reform lineage that sits in the Sagebrush-rebellion policy space. 96th–107th Congress bills are sourced from the Congress.gov API; 108th onward from GPO `govinfo.gov` BILLSTATUS.
 
 | Congress | Bill | Short label |
 |---|---|---|
 | 96th | S. 1680 | Western Lands Distribution & Regional Equalization (Laxalt) |
 | 96th | S. 2762 | Federal Lands Disposal — Nevada (Laxalt) |
+| 97th | H.R. 3655 | Public Land Reform Act |
+| 97th | S. 1245 | Public Land Reform Act (Senate) |
+| 98th | H.R. 3305 | Disposal of Certain Federal Lands |
+| 99th | H.R. 4713 | Public Rangelands Fee Act |
+| 100th | H.R. 1481 | Public Rangelands Fee Act |
+| 101st | H.R. 775 | Public Rangelands Fee Act |
+| 102nd | H.R. 481 | Public Rangelands Fee Act |
+| 102nd | H.R. 767 | State Threshold Federal Lands Transfer |
+| 102nd | H.R. 944 | Fair Market Grazing for Public Rangelands Act |
+| 103rd | H.R. 4157 | BLM Land Transfer to States |
+| 104th | H.R. 676 | Free Market Grazing Fees Act |
+| 104th | H.R. 1713 | Livestock Grazing Act |
+| 104th | H.R. 1745 | Utah Public Lands Management Act |
+| 104th | H.R. 2032 | BLM Land Transfer to States |
+| 104th | H.R. 2745 | Restoration of Natural Resources Laws on Public Lands |
+| 104th | H.R. 4242 | Antiquities Act Reform |
 | 107th | H.R. 3808 | Consistent Public Land Laws Enforcement |
 | 108th | H.R. 1153 | America's Wilderness Protection (Otter) |
 | 108th | H.R. 2966 | Right-to-Ride Livestock on Federal Lands |
@@ -101,7 +118,7 @@ Forty-one bills, 96th–118th Congresses. Curated to represent the transfer, dis
 ## Data and method
 
 - **Source**: GPO `govinfo.gov` BILLSTATUS bulk data for 108th Congress onward (no auth required); Congress.gov API v3 for pre-108th bills (free key). Each bill's sponsor and cosponsor list (bioguide ID, name, party, state, district) fetched and parsed.
-- **Coverage floor**: The 96th Congress (1979) is the current lower bound, anchored by the two Laxalt bills at the heart of the original Sagebrush Rebellion. The 97th–106th era (1981–2001) — Pombo's predecessors, Chenoweth, Hansen, Cubin, Cannon — remains sparse; extending into that period requires identifying the specific bills through archival research.
+- **Coverage floor**: The 96th Congress (1979) is the current lower bound. The 97th–104th era (1981–1996) is now partially covered — disposal, grazing-fee, and Antiquities Act bills identified through the GovTrack subject-tag scan. The 105th–106th Congresses (1997–2002) remain sparse; filling them requires identifying the right bills through archival research.
 - **Nodes**: legislators who appear on **two or more** bills, or who primary-sponsored any bill. Primary sponsors are always retained.
 - **Edges**: pairs of kept legislators who cosponsored **two or more** of the same bills. Edge weight = count. Isolated nodes (no qualifying edges) are dropped.
 - **Sizing**: circle *area* is sqrt-proportional to a legislator's bill count in the set.
@@ -114,7 +131,7 @@ Forty-one bills, 96th–118th Congresses. Curated to represent the transfer, dis
 
 ## Extensions
 
-- **Senate expansion**: adding 4–5 more Senate bills from 108th–116th would pull missing Senate caucus members into the graph (Heller, Gardner, Daines, Flake).
-- **97th–106th gap**: the Chenoweth/Hansen/Pombo-early-career era (1981–2001) is the next frontier. The Congress.gov API has the data; the limiting factor is identifying the right bills through archival research.
+- **Senate expansion**: adding 4–5 more Senate bills from the 97th–104th and 108th–116th eras would pull missing caucus members into the graph (Heller, Gardner, Daines, and Senate-side Watt-era sponsors).
+- **105th–106th gap**: the late Chenoweth/early Pombo era (1997–2002) remains thin. The Congress.gov API has the data; the limiting factor is identifying the right bills.
 - **Weight edges by temporal proximity**: cosponsorships on bills in the same Congress indicate tighter alliance than cosponsorships spread across twenty years.
 - **Committee-membership layer**: House Natural Resources and Senate Energy & Natural Resources memberships as a parallel edge type.
