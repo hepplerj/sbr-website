@@ -9,8 +9,9 @@ enableEmoji = false
   subtitle = "A century of sagebrush rebellions"
   description = "A history of the sagebrush rebellions — recurring fights over land, power, and federal authority in the American West from the 1930s to the 2020s."
   author = "Jason A. Heppler"
-  heroImage = "images/cliven-bundy-bunkerville-nevada.webp"
-  heroCredit = "Jim Urquhart—Reuters"
+  heroImage = "images/hero_mt.jpg"
+  heroCredit = "John Kakuk / Unsplash"
+  heroCreditURL = "https://unsplash.com/@lensatic"
   citationStyle = "chicago"
 
 [params.social]

@@ -2,6 +2,6 @@
 // Sagebrush — main stylesheet
 // ─────────────────────────────────────────────
 
-@import "variables";
-@import "typography";
-@import "layout";
+@use "variables";
+@use "typography";
+@use "layout";

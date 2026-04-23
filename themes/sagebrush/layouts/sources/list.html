@@ -1,5 +1,5 @@
 {{ define "main" }}
-{{- $bib := .Site.Data.bibliography -}}
+{{- $bib := hugo.Data.bibliography -}}
 
 {{- /* Group configuration. Order here is the display order. Types in the
        data that aren't listed fall into "other". */ -}}
@@ -41,7 +41,7 @@
   </div>
 </div>
 
-{{- $digital := .Site.Data.digital_history -}}
+{{- $digital := hugo.Data.digital_history -}}
 {{- if $digital }}
   <section class="bibliography-group" id="digital-history">
     <header class="bibliography-group__header">
