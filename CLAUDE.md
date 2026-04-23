@@ -71,7 +71,7 @@ like:
 ```yaml
 viz: map            # map | network | chart
 themes: [public-lands, dust-bowl]
-regions: [great-plains, intermountain-west]
+regions: [intermountain-west, rocky-mountain, southwest]
 map:                # or network: / chart: depending on viz
   renderer: leaflet  # leaflet (default) or d3
   src: /data/federal-lands.geojson
@@ -90,6 +90,9 @@ map:                # or network: / chart: depending on viz
 - `d3-maps.js` + D3 + topojson-client — when `.Params.map.renderer: d3`
 - `networks.js` + D3 — when `.Params.network` is set
 - `charts.js` + D3 — when `.Params.chart` is set
+- `sightlines-map.js` + D3 + topojson-client — on the sightlines section
+  list page (`$hasSightlinesList`, detected via
+  `and (eq .Section "sightlines") .IsSection`)
 
 Narrative pages with no viz ship zero viz JS.
 
@@ -98,7 +101,7 @@ Narrative pages with no viz ship zero viz JS.
 - **`static/data/*.json`** — served at `/data/...` URL. Fetched at
   runtime by viz JS modules. Most build scripts write here.
 - **`data/*.json`** — Hugo data files, read at build time via
-  `.Site.Data.*`. Currently only `bibliography.json` lives here (the
+  `hugo.Data.*`. Currently only `bibliography.json` lives here (the
   `{{< cite >}}` shortcode and Sources page render from it server-side).
 
 This distinction matters when extending the pipeline. If a build script
@@ -107,7 +110,7 @@ wants Hugo to render its output into HTML at build time, put it in
 
 ## JS viz modules
 
-All four modules follow the same pattern: scan for
+The four single-page viz modules follow the same pattern: scan for
 `[data-viz="{kind}"]` containers, read config from the
 `<script type="application/json" id="{id}-config">` sibling, fetch the
 data file, render into the container.
@@ -120,8 +123,8 @@ data file, render into the container.
   `fedland.topojson` is pre-projected to 960×500 AlbersUSA coordinates.
   Applying another projection to it produces chaos. Documented in the
   header comment.
-- **`networks.js`** — D3 force layout. Supports pan + zoom (click to
-  enable scroll-zoom). Node click opens a modal when the node has a
+- **`networks.js`** — D3 force layout. Supports pan + zoom (always-on
+  scroll-zoom). Node click opens a modal when the node has a
   `cosponsored` (or similar detail) field. Node radius is sqrt-scaled
   from `bills` or `weight` field when present. Center-pull via
   `forceX` + `forceY` (strength configurable via
@@ -132,6 +135,14 @@ data file, render into the container.
   (`temp` cool→rust, `precip` brown→navy, `rust` sequential for
   counts). `scale: "sequential"` vs default diverging controls color
   domain mapping.
+- **`sightlines-map.js`** — loaded only on the sightlines list page.
+  Handles theme-pill filtering and the mini AlbersUSA region-filter map.
+  Uses `static/data/states.json` (us-atlas states-10m, 112KB) with
+  `d3.geoAlbersUsa()` projection. Seven region slugs: `northern-plains`,
+  `southern-plains`, `intermountain-west`, `rocky-mountain`, `southwest`,
+  `pacific-northwest`, `pacific-southwest`. FIPS→region lookup lives in
+  `FIPS_REGION`; clicking a state (or its legend chip) toggles that
+  region in the active filter set.
 
 ## Data pipeline
 
@@ -147,8 +158,9 @@ Sources currently wired up:
   jasonheppler.org mirror)
 - Dinterman's `historical-bankruptcies` repo (Stam ERS + US Courts
   Table F-2)
-- GPO `govinfo.gov` BILLSTATUS bulk feed (cosponsorship, 108th
-  Congress forward — earlier 404s)
+- GPO `govinfo.gov` BILLSTATUS bulk feed (cosponsorship, 108th Congress
+  forward) + Congress.gov API v3 for pre-108th bills (96th–107th);
+  requires `CONGRESS_API_KEY` env var (free key at congress.gov/sign-up)
 - Two local BibTeX files at repo root (bibliography)
 
 When upstream URLs change, edit the source URL at the top of the
@@ -172,15 +184,20 @@ affected script.
 
 ## SCSS notes
 
-Hugo transpiles SCSS via **libsass** (bundled), not Dart Sass. Two
-consequences:
+Hugo transpiles SCSS via **Dart Sass** (not the bundled libsass). Dart
+Sass 1.99+ is required — install with:
 
-- `min(440px, 92vw)` and other mixed-unit CSS functions don't compile
-  — libsass tries to evaluate them as Sass. Use separate
-  `width: 440px; max-width: 92vw;` declarations instead.
-- If a developer wants Dart Sass for modern features, they install it
-  (`brew install sass/sass/sass`) and flip the `transpiler` option
-  from `libsass` to `dartsass` in `themes/sagebrush/layouts/partials/head.html`.
+```sh
+brew tap dart-lang/dart
+brew install sass/sass/sass
+```
+
+The `transpiler` option in `themes/sagebrush/layouts/partials/head.html`
+is set to `"dartsass"`. Use `@use` (not `@import`) in `main.scss` — Dart
+Sass deprecates `@import` and will error on it in future versions. This
+is safe here because all three partials (`variables`, `typography`,
+`layout`) use CSS custom properties and share no Sass variables across
+files.
 
 ## AI disclosure
 
