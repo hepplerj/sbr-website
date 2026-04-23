@@ -442,13 +442,14 @@ img, svg, video, canvas {
   max-width: none;
   margin: 0;
   font-family: var(--font-body);
-  font-size: 1.25rem;
+  font-size: var(--font-size-base);
   line-height: 1.65;
   color: var(--color-ink);
   border-bottom: 1px solid var(--color-border);
   padding-bottom: var(--space-6);
 }
 .home-intro__inner p { margin: 0 0 1em; }
+.home-intro__inner p:first-child { font-size: 1.25rem; }
 .home-intro__inner p:last-child {
   margin-bottom: 0;
   font-size: var(--font-size-base);
