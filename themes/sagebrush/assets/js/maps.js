@@ -223,13 +223,16 @@
           if (layer.label) overlays[layer.label] = geo;
         });
 
-        // Fit to the topmost non-context layer, or all thematic bounds
-        const thematic = rendered.filter((r) => (presets[r.layer.style] || presets.sage).interactive !== false);
-        if (thematic.length) {
-          try {
-            const group = L.featureGroup(thematic.map((r) => r.geo));
-            map.fitBounds(group.getBounds(), { padding: [30, 30] });
-          } catch (_) {}
+        // Fit to the topmost non-context layer, or all thematic bounds —
+        // but only when the config doesn't supply an explicit center/zoom.
+        if (!cfg.center) {
+          const thematic = rendered.filter((r) => (presets[r.layer.style] || presets.sage).interactive !== false);
+          if (thematic.length) {
+            try {
+              const group = L.featureGroup(thematic.map((r) => r.geo));
+              map.fitBounds(group.getBounds(), { padding: [30, 30] });
+            } catch (_) {}
+          }
         }
 
         // Layer control if more than one interactive layer (or explicit opt-in)

@@ -784,6 +784,20 @@ img, svg, video, canvas {
 .map-page__about-body h3 { font-size: var(--font-size-md); margin-top: 1.2em; }
 .map-page__about-body .cite-block { margin-top: var(--space-5); }
 
+.map-page__about-body blockquote {
+  margin: 1.25em 0;
+  padding: 0.75em 1em;
+  background: var(--color-bg-alt);
+  border: 2px solid var(--color-sage);
+  border-radius: 0;
+  font-size: var(--font-size-sm);
+  font-style: normal;
+  color: inherit;
+
+  p { margin: 0; }
+  a { color: var(--color-sage-dark, var(--color-sage)); }
+}
+
 // On the map page, drop the global footer margin so the map sits flush
 .page--maps .site-footer { margin-top: 0; }
 
@@ -1543,6 +1557,10 @@ img, svg, video, canvas {
   right: var(--space-3);
   max-width: 260px;
   pointer-events: none;
+}
+
+.chart-viz--timeline .chart-viz__info {
+  display: none;
 }
 
 .chart-viz__selector {

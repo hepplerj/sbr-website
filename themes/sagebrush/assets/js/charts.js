@@ -545,10 +545,15 @@
           <div class="detail"><strong>${escapeHTML(d.title || "")}</strong></div>
           ${d.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(d.description)}</div>` : ""}
         `;
+        info.style.display = "block";
+        placeTimelineCard(info, container, event);
+      })
+      .on("mousemove", function (event) {
+        placeTimelineCard(info, container, event);
       })
       .on("mouseout", function () {
         d3.select(this).attr("r", 6);
-        info.innerHTML = infoHTML(cfg);
+        info.style.display = "none";
       });
 
     // X axis (decade ticks)
@@ -556,6 +561,18 @@
     g.append("g").attr("class", "chart-viz__axis")
       .attr("transform", `translate(0,${innerH})`)
       .call(d3.axisBottom(xScale).tickValues(tickYears).tickFormat((y) => y).tickSizeOuter(0));
+  }
+
+  function placeTimelineCard(card, container, event) {
+    const rect = container.getBoundingClientRect();
+    const gap  = 14;
+    const cardW = 264;
+    let x = event.clientX - rect.left + gap;
+    let y = event.clientY - rect.top  + gap;
+    if (x + cardW > rect.width - gap) x = event.clientX - rect.left - cardW - gap;
+    card.style.left  = x + "px";
+    card.style.top   = y + "px";
+    card.style.right = "auto";
   }
 
   function escapeHTML(s) {
