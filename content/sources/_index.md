@@ -1,6 +1,6 @@
 ---
 title: "Bibliography"
-heading: "Bibliography"
+heading: "Historical scholarship"
 lede: "The published scholarship underlying this project."
 ---
 

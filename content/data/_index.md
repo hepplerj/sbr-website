@@ -1,6 +1,6 @@
 ---
 title: "Data"
-heading: "Data"
+heading: "Data behind the project"
 lede: "The datasets that feed every map, chart, and network on this site — what they are, where they come from, and how to cite them if you use them yourself."
 ---
 
