@@ -41,13 +41,14 @@
 {{- end }}
 
 {{/* Viz: map + network libraries. Loaded per renderer used on the page. */}}
-{{- $renderer    := "" -}}
+{{- $renderer         := "" -}}
 {{- with .Params.map.renderer }}{{ $renderer = . }}{{ end -}}
-{{- $hasD3Map    := eq $renderer "d3" -}}
-{{- $hasNetwork  := or (.HasShortcode "network") .Params.network -}}
-{{- $hasChart    := or (.HasShortcode "chart") .Params.chart -}}
-{{- $hasD3       := or $hasD3Map $hasNetwork $hasChart -}}
-{{- $hasLeaflet  := or (.HasShortcode "map") (and .Params.map (not $hasD3Map)) -}}
+{{- $hasD3Map         := eq $renderer "d3" -}}
+{{- $hasNetwork       := or (.HasShortcode "network") .Params.network -}}
+{{- $hasChart         := or (.HasShortcode "chart") .Params.chart -}}
+{{- $hasSightlinesList := and (eq .Section "sightlines") .IsSection -}}
+{{- $hasD3            := or $hasD3Map $hasNetwork $hasChart $hasSightlinesList -}}
+{{- $hasLeaflet       := or (.HasShortcode "map") (and .Params.map (not $hasD3Map)) -}}
 
 {{- if $hasLeaflet }}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -63,8 +64,10 @@
 
 {{- if $hasD3 }}
   <script defer src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-  {{- if $hasD3Map }}
+  {{- if or $hasD3Map $hasSightlinesList }}
     <script defer src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  {{- end }}
+  {{- if $hasD3Map }}
     {{- with resources.Get "js/d3-maps.js" | fingerprint }}
       <script defer src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
     {{- end }}
@@ -76,6 +79,11 @@
   {{- end }}
   {{- if $hasChart }}
     {{- with resources.Get "js/charts.js" | fingerprint }}
+      <script defer src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
+    {{- end }}
+  {{- end }}
+  {{- if $hasSightlinesList }}
+    {{- with resources.Get "js/sightlines-map.js" | fingerprint }}
       <script defer src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
     {{- end }}
   {{- end }}

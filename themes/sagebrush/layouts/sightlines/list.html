@@ -1,18 +1,14 @@
 {{ define "main" }}
 {{- $all := where .RegularPages "Params.draft" "!=" true -}}
 
-{{- /* Collect the two filter dimensions in use across the section. */ -}}
-{{- $themes  := slice -}}
-{{- $regions := slice -}}
+{{- /* Collect theme filter dimension. */ -}}
+{{- $themes := slice -}}
 {{- range $all -}}
-  {{- range .Params.themes  }}{{ $themes  = $themes  | append . }}{{ end -}}
-  {{- range .Params.regions }}{{ $regions = $regions | append . }}{{ end -}}
+  {{- range .Params.themes }}{{ $themes = $themes | append . }}{{ end -}}
 {{- end -}}
-{{- $themes  = $themes  | uniq | sort -}}
-{{- $regions = $regions | uniq | sort -}}
+{{- $themes = $themes | uniq | sort -}}
 
-{{- /* Display labels — proper casing, region order overridden for a sensible
-       geographic sweep rather than alphabetical (Plains first, National last). */ -}}
+{{- /* Display labels — proper casing. */ -}}
 {{- $themeLabel := dict
     "bankhead-jones"           "Bankhead-Jones"
     "bundy-family"             "Bundy family"
@@ -25,13 +21,18 @@
     "rural-economy"            "Rural economy"
     "sagebrush-rebellion-1979" "Sagebrush Rebellion (1979)"
 -}}
+
+{{- /* New 7-region taxonomy (Forest Service groupings). Used for card region tags. */ -}}
 {{- $regionLabel := dict
-    "great-plains"       "Great Plains"
+    "northern-plains"    "Northern Plains"
+    "southern-plains"    "Southern Plains"
     "intermountain-west" "Intermountain West"
-    "pacific"            "Pacific"
+    "rocky-mountain"     "Rocky Mountain"
+    "southwest"          "Southwest"
+    "pacific-northwest"  "Pacific Northwest"
+    "pacific-southwest"  "Pacific Southwest"
     "national"           "National"
 -}}
-{{- $regionOrder := slice "great-plains" "intermountain-west" "pacific" "national" -}}
 
 <header class="section-intro">
   <p class="section-intro__eyebrow">{{ .Title }}</p>
@@ -44,130 +45,82 @@
   {{- end }}
 </header>
 
-<div class="sightlines-filters">
-  {{- if $regions }}
-    <div class="sightlines-filter" role="group" aria-label="Filter by region">
-      <span class="sightlines-filter__label">Region</span>
-      <div class="sightlines-filter__pills" data-dimension="region">
-        <button type="button" class="sightlines-filter__pill is-active" data-value="">All</button>
-        {{- range $regionOrder }}
-          {{- if in $regions . }}
-            {{- $label := index $regionLabel . | default (humanize .) }}
-            <button type="button" class="sightlines-filter__pill" data-value="{{ . }}">{{ $label }}</button>
-          {{- end }}
-        {{- end }}
-        {{- /* Any region slugs not in our ordered list — emit at the end */ -}}
-        {{- range $regions }}
-          {{- if not (in $regionOrder .) }}
-            {{- $label := index $regionLabel . | default (humanize .) }}
-            <button type="button" class="sightlines-filter__pill" data-value="{{ . }}">{{ $label }}</button>
-          {{- end }}
-        {{- end }}
-      </div>
+<div class="sightlines-layout">
+
+  {{- /* ── Left rail: region map + theme pills ───────────────────────────── */ -}}
+  <aside class="sightlines-rail" aria-label="Filter visualizations">
+
+    <div class="sightlines-rail__section">
+      <p class="sightlines-rail__label">Region</p>
+      <div class="sightlines-minimap" id="sightlines-region-map"
+           aria-label="Click a region to filter"></div>
+      <div class="sightlines-region-legend" id="sightlines-region-legend"
+           role="group" aria-label="Region filters"></div>
     </div>
-  {{- end }}
 
-  {{- if $themes }}
-    <div class="sightlines-filter" role="group" aria-label="Filter by theme">
-      <span class="sightlines-filter__label">Theme</span>
-      <div class="sightlines-filter__pills" data-dimension="theme">
-        <button type="button" class="sightlines-filter__pill is-active" data-value="">All</button>
-        {{- range $themes }}
-          {{- $label := index $themeLabel . | default (humanize .) }}
-          <button type="button" class="sightlines-filter__pill" data-value="{{ . }}">{{ $label }}</button>
-        {{- end }}
+    {{- if $themes }}
+      <div class="sightlines-rail__section">
+        <p class="sightlines-rail__label">Theme</p>
+        <div class="sightlines-filter__pills" data-dimension="theme"
+             role="group" aria-label="Filter by theme">
+          <button type="button" class="sightlines-filter__pill is-active"
+                  data-value="" aria-pressed="true">All</button>
+          {{- range $themes }}
+            {{- $label := index $themeLabel . | default (humanize .) }}
+            <button type="button" class="sightlines-filter__pill"
+                    data-value="{{ . }}" aria-pressed="false">{{ $label }}</button>
+          {{- end }}
+        </div>
       </div>
-    </div>
-  {{- end }}
-</div>
+    {{- end }}
 
-{{- $groups := slice
-    (dict "viz" "map"     "id" "maps"     "label" "Maps"     "desc" "Spatial views — where federal land sits, how the rebellions' geographies cluster.")
-    (dict "viz" "network" "id" "networks" "label" "Networks" "desc" "Relational views — the people, organizations, and events that tie coalitions together.")
-    (dict "viz" "chart"   "id" "charts"   "label" "Charts"   "desc" "Time-series views — climate, farm stress, and other conditions that shaped the politics.")
--}}
+  </aside>
 
-{{- range $g := $groups }}
-  {{- $pages := where $all "Params.viz" $g.viz }}
-  {{- if $pages }}
-    <section class="sightlines-group" id="{{ $g.id }}">
-      <header class="sightlines-group__header">
-        <h2 class="sightlines-group__title">{{ $g.label }}</h2>
-        <p class="sightlines-group__desc">{{ $g.desc }}</p>
-      </header>
-      <ul class="sightlines-grid">
-        {{- range $pages.ByTitle }}
-          <li class="sightlines-card"
-              data-themes="{{ delimit .Params.themes "," }}"
-              data-regions="{{ delimit .Params.regions "," }}">
-            <a class="sightlines-card__link" href="{{ .RelPermalink }}">
-              <p class="sightlines-card__type">{{ $g.label | singularize }}</p>
-              <h3 class="sightlines-card__title">{{ .Title }}</h3>
-              {{- with .Params.lede }}
-                <p class="sightlines-card__lede">{{ . | plainify | truncate 180 }}</p>
-              {{- end }}
-              <ul class="sightlines-card__themes">
-                {{- range .Params.regions }}
-                  <li class="sightlines-card__region">{{ index $regionLabel . | default (humanize .) }}</li>
-                {{- end }}
-                {{- range .Params.themes }}
-                  <li>{{ index $themeLabel . | default (humanize .) }}</li>
-                {{- end }}
-              </ul>
-            </a>
-          </li>
-        {{- end }}
-      </ul>
-    </section>
-  {{- end }}
-{{- end }}
+  {{- /* ── Right content: viz groups ─────────────────────────────────────── */ -}}
+  <div class="sightlines-content">
 
-<script>
-  (function () {
-    var pillGroups = document.querySelectorAll('.sightlines-filter__pills');
-    var cards      = document.querySelectorAll('.sightlines-card');
-    var groups     = document.querySelectorAll('.sightlines-group');
+    {{- $groups := slice
+        (dict "viz" "map"     "id" "maps"     "label" "Maps"     "desc" "Spatial views — where federal land sits, how the rebellions' geographies cluster.")
+        (dict "viz" "network" "id" "networks" "label" "Networks" "desc" "Relational views — the people, organizations, and events that tie coalitions together.")
+        (dict "viz" "chart"   "id" "charts"   "label" "Charts"   "desc" "Time-series views — climate, farm stress, and other conditions that shaped the politics.")
+    -}}
 
-    // Active sets, one per dimension
-    var active = { theme: new Set(), region: new Set() };
+    {{- range $g := $groups }}
+      {{- $pages := where $all "Params.viz" $g.viz }}
+      {{- if $pages }}
+        <section class="sightlines-group" id="{{ $g.id }}">
+          <header class="sightlines-group__header">
+            <h2 class="sightlines-group__title">{{ $g.label }}</h2>
+            <p class="sightlines-group__desc">{{ $g.desc }}</p>
+          </header>
+          <ul class="sightlines-grid">
+            {{- range $pages.ByWeight }}
+              <li class="sightlines-card"
+                  data-themes="{{ delimit .Params.themes "," }}"
+                  data-regions="{{ delimit .Params.regions "," }}">
+                <a class="sightlines-card__link" href="{{ .RelPermalink }}">
+                  <p class="sightlines-card__type">{{ $g.label | singularize }}</p>
+                  <h3 class="sightlines-card__title">{{ .Title }}</h3>
+                  {{- with .Params.lede }}
+                    <p class="sightlines-card__lede">{{ . | plainify | truncate 180 }}</p>
+                  {{- end }}
+                  {{- with .Params.themes }}
+                  <ul class="sightlines-card__themes">
+                    {{- range . }}
+                      <li>{{ index $themeLabel . | default (humanize .) }}</li>
+                    {{- end }}
+                  </ul>
+                  {{- end }}
+                </a>
+              </li>
+            {{- end }}
+          </ul>
+        </section>
+      {{- end }}
+    {{- end }}
 
-    function refresh() {
-      pillGroups.forEach(function (pg) {
-        var dim = pg.dataset.dimension;
-        pg.querySelectorAll('.sightlines-filter__pill').forEach(function (p) {
-          var v = p.dataset.value;
-          var on = v === '' ? active[dim].size === 0 : active[dim].has(v);
-          p.classList.toggle('is-active', on);
-          p.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
-      });
+  </div>{{- /* .sightlines-content */ -}}
 
-      cards.forEach(function (c) {
-        var cardThemes  = (c.dataset.themes  || '').split(',').filter(Boolean);
-        var cardRegions = (c.dataset.regions || '').split(',').filter(Boolean);
-        var themeOK  = active.theme.size  === 0 || cardThemes.some(function (t) { return active.theme.has(t); });
-        var regionOK = active.region.size === 0 || cardRegions.some(function (r) { return active.region.has(r); });
-        c.classList.toggle('is-hidden', !(themeOK && regionOK));
-      });
+</div>{{- /* .sightlines-layout */ -}}
 
-      groups.forEach(function (g) {
-        var shown = g.querySelectorAll('.sightlines-card:not(.is-hidden)').length;
-        g.classList.toggle('is-hidden', shown === 0);
-      });
-    }
-
-    pillGroups.forEach(function (pg) {
-      var dim = pg.dataset.dimension;
-      pg.querySelectorAll('.sightlines-filter__pill').forEach(function (p) {
-        p.addEventListener('click', function () {
-          var v = p.dataset.value;
-          if (v === '') { active[dim].clear(); }
-          else if (active[dim].has(v)) { active[dim].delete(v); }
-          else { active[dim].add(v); }
-          refresh();
-        });
-      });
-    });
-  })();
-</script>
 {{ end }}
