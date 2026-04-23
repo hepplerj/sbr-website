@@ -1,7 +1,7 @@
 ---
 title: "Cosponsorship on Federal Public-Lands Bills"
 date: 2026-04-19
-lede: "A network of legislators who cosponsored federal-public-lands legislation across the 108th through 118th Congresses (2003–2024). Nodes colored by party, sized by how many bills in the set each cosponsored."
+lede: "A network of legislators who cosponsored federal-public-lands legislation across the 96th through 118th Congresses (1979–2024). Nodes colored by party, sized by how many bills in the set each cosponsored."
 weight: 8
 draft: false
 viz: network
@@ -26,11 +26,11 @@ network:
     other:       "Other / unaffiliated"
 ---
 
-> This is a draft network. The graph was built on open data, which ends in 2003. As data is compiled from historical records this network will be updated. Follow the [changelog](/updates/) for notices when this network changes. 
+> This is a draft network under active development. The bill set will grow as additional pre-2003 bills are compiled from historical records. Follow the [changelog](/updates/) for notices when this network changes.
 
-Thirty-two bills introduced in the 108th through 118th Congresses (2003–2024) on federal-public-lands matters — transfer of federal lands to states, disposal of "excess" federal acreage, Antiquities Act reform and rollback, grazing administration, monument-designation review, sage-grouse / ESA flexibility, wilderness-study-area release. Legislators appear as nodes if they cosponsored at least **two** bills in the set. Edges connect pairs who cosponsored **two or more** of the same bills.
+Forty-one bills introduced in the 96th through 118th Congresses (1979–2024) on federal-public-lands matters — transfer of federal lands to states, disposal of "excess" federal acreage, Antiquities Act reform and rollback, grazing administration, monument-designation review, sage-grouse / ESA flexibility, wilderness-study-area release. Legislators appear as nodes if they cosponsored at least **two** bills in the set. Edges connect pairs who cosponsored **two or more** of the same bills.
 
-Ninety legislators meet the threshold. Four hundred seventy-five edges connect them. The graph is dense by design: it shows the full caucus across two decades.
+113 legislators meet the threshold. 814 edges connect them. The graph is dense by design: it shows the full caucus across four decades.
 
 **Click any legislator** to open a modal with their complete bill list from the dataset — sponsor versus cosponsor role, Congress, bill number, full title, and a link out to the Congress.gov page.
 
@@ -52,14 +52,23 @@ Cosponsorship is *declared alignment*, not authorship or policy outcome. A legis
 
 ## Bills in the set
 
-Thirty-two bills, 108th–118th Congresses. Curated to represent the transfer, disposal, grazing, wilderness-release, and Antiquities-Act-reform lineage that sits in the Sagebrush-rebellion policy space. Extending coverage *further* back is limited by data: GPO `govinfo.gov` BILLSTATUS coverage effectively begins at the 108th Congress (2003); earlier bills return 404.
+Forty-one bills, 96th–118th Congresses. Curated to represent the transfer, disposal, grazing, wilderness-release, and Antiquities-Act-reform lineage that sits in the Sagebrush-rebellion policy space. 96th–107th Congress bills are sourced from the Congress.gov API; 108th onward from GPO `govinfo.gov` BILLSTATUS.
 
 | Congress | Bill | Short label |
 |---|---|---|
+| 96th | S. 1680 | Western Lands Distribution & Regional Equalization (Laxalt) |
+| 96th | S. 2762 | Federal Lands Disposal — Nevada (Laxalt) |
+| 107th | H.R. 3808 | Consistent Public Land Laws Enforcement |
 | 108th | H.R. 1153 | America's Wilderness Protection (Otter) |
+| 108th | H.R. 2966 | Right-to-Ride Livestock on Federal Lands |
+| 108th | H.R. 3324 | Voluntary Grazing Permit Buyout |
+| 109th | H.R. 1370 | Federal Land Asset Inventory Reform (Pearce) |
 | 109th | H.R. 3463 | Action Plan for Public Lands & Education (Bishop) |
+| 109th | S. 781 | Right-to-Ride Livestock on Federal Land |
 | 109th | S. 2569 | Action Plan for Public Lands & Education (Hatch) |
 | 109th | H.R. 3824 | ESA Recovery Collaboration (Pombo) |
+| 110th | H.R. 3614 | Action Plan for Public Lands & Education (Bishop) |
+| 110th | S. 3133 | Responsible Ownership of Public Land |
 | 110th | H.R. 6300 | Dona Ana County Rangeland Preservation (Pearce) |
 | 111th | H.R. 5339 | Disposal of Excess Federal Lands (Chaffetz) |
 | 112th | S. 635 | Disposal of Excess Federal Lands (Lee) |
@@ -91,8 +100,8 @@ Thirty-two bills, 108th–118th Congresses. Curated to represent the transfer, d
 
 ## Data and method
 
-- **Source**: GPO `govinfo.gov` BILLSTATUS bulk data. Each bill's sponsor and cosponsor list (bioguide ID, name, party, state, district, sponsorship date) fetched as XML and parsed. No API key; no auth.
-- **Coverage floor**: The 108th Congress (2003) is the effective lower bound. Earlier bills are not available in this feed in a consistent machine-readable form. The 1980s–early-2000s sagebrush caucus — Pombo's predecessors, Chenoweth, Hansen, Cubin, Cannon — is therefore not represented here. That era's legislative history needs a different data source (congressional archives, not the BILLSTATUS bulk feed).
+- **Source**: GPO `govinfo.gov` BILLSTATUS bulk data for 108th Congress onward (no auth required); Congress.gov API v3 for pre-108th bills (free key). Each bill's sponsor and cosponsor list (bioguide ID, name, party, state, district) fetched and parsed.
+- **Coverage floor**: The 96th Congress (1979) is the current lower bound, anchored by the two Laxalt bills at the heart of the original Sagebrush Rebellion. The 97th–106th era (1981–2001) — Pombo's predecessors, Chenoweth, Hansen, Cubin, Cannon — remains sparse; extending into that period requires identifying the specific bills through archival research.
 - **Nodes**: legislators who appear on **two or more** bills, or who primary-sponsored any bill. Primary sponsors are always retained.
 - **Edges**: pairs of kept legislators who cosponsored **two or more** of the same bills. Edge weight = count. Isolated nodes (no qualifying edges) are dropped.
 - **Sizing**: circle *area* is sqrt-proportional to a legislator's bill count in the set.
@@ -106,6 +115,6 @@ Thirty-two bills, 108th–118th Congresses. Curated to represent the transfer, d
 ## Extensions
 
 - **Senate expansion**: adding 4–5 more Senate bills from 108th–116th would pull missing Senate caucus members into the graph (Heller, Gardner, Daines, Flake).
-- **Pre-2003 caucus**: the Chenoweth/Hansen/Pombo-early-career era (103rd–107th Congresses) needs archival-quality data not present in the BILLSTATUS bulk feed. Possible routes: congressional archival records, or the Congress.gov API (which has deeper coverage but requires a free key).
+- **97th–106th gap**: the Chenoweth/Hansen/Pombo-early-career era (1981–2001) is the next frontier. The Congress.gov API has the data; the limiting factor is identifying the right bills through archival research.
 - **Weight edges by temporal proximity**: cosponsorships on bills in the same Congress indicate tighter alliance than cosponsorships spread across twenty years.
 - **Committee-membership layer**: House Natural Resources and Senate Energy & Natural Resources memberships as a parallel edge type.
