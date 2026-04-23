@@ -131,6 +131,18 @@
     container.addEventListener("click",      () => { wheelZoomEnabled = true;  container.classList.add("network-viz--zoom-active"); });
     container.addEventListener("mouseleave", () => { wheelZoomEnabled = false; container.classList.remove("network-viz--zoom-active"); });
 
+    // Category filter state — set of active category strings.
+    // Empty = no filter (all nodes full opacity).
+    const activeCategories = new Set();
+
+    const CAT_LABELS = {
+      disposal:   "Disposal & Transfer",
+      grazing:    "Grazing & Range",
+      antiquities:"Antiquities & Monuments",
+      wilderness: "Wilderness & Roadless",
+      esa:        "ESA & Wildlife",
+    };
+
     d3.json(cfg.src)
       .then(render)
       .catch((err) => {
@@ -247,6 +259,53 @@
       }
 
       renderLegend(nodes);
+
+      function nodeMatchesFilter(d) {
+        if (activeCategories.size === 0) return true;
+        return (d.cosponsored || []).some((b) => activeCategories.has(b.category));
+      }
+
+      function applyFilter() {
+        const on = activeCategories.size > 0;
+        node.style("opacity",  on ? (d) => nodeMatchesFilter(d) ? 1 : 0.08 : null);
+        label.style("opacity", on ? (d) => nodeMatchesFilter(d) ? 1 : 0.08 : null);
+        link.style("opacity",  on ? (l) => {
+          const sm = nodeMatchesFilter(l.source);
+          const tm = nodeMatchesFilter(l.target);
+          return (sm && tm) ? 0.6 : 0.04;
+        } : null);
+      }
+
+      renderFilter(graph, applyFilter);
+    }
+
+    function renderFilter(graph, applyFilter) {
+      const cats = [...new Set((graph.bills || []).map((b) => b.category).filter(Boolean))];
+      if (cats.length === 0) return;
+
+      const bar = document.createElement("div");
+      bar.className = "network-viz__filter";
+      bar.setAttribute("aria-label", "Highlight by bill category");
+      bar.innerHTML = `<span class="network-viz__filter-label">Highlight:</span>` +
+        cats.map((c) =>
+          `<button class="network-viz__filter-btn" data-cat="${c}">${CAT_LABELS[c] || c}</button>`
+        ).join("");
+
+      bar.querySelectorAll(".network-viz__filter-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const cat = btn.dataset.cat;
+          if (activeCategories.has(cat)) {
+            activeCategories.delete(cat);
+            btn.classList.remove("is-active");
+          } else {
+            activeCategories.add(cat);
+            btn.classList.add("is-active");
+          }
+          applyFilter();
+        });
+      });
+
+      container.insertBefore(bar, legend.nextSibling);
     }
 
     function hasDetail(d) {

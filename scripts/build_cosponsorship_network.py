@@ -48,67 +48,59 @@ API_KEY     = os.environ.get("CONGRESS_API_KEY", "")
 #
 # Routing: congress >= 108 → govinfo BILLSTATUS XML (no key needed)
 #          congress <  108 → api.congress.gov JSON (requires CONGRESS_API_KEY)
+# Each entry: (congress, chamber-type, number, short-label, category).
+# Categories: "disposal" | "grazing" | "antiquities" | "wilderness" | "esa"
 BILLS = [
     # ── Pre-108th: Sagebrush Rebellion era ──────────────────────────────────
-    # These use api.congress.gov (requires CONGRESS_API_KEY).
-    # Both confirmed via API — 17 and 18 cosponsors respectively.
-    (96,  "s",  1680,  "Western Lands Distribution & Regional Equalization (96th, Laxalt)"),
-    (96,  "s",  2762,  "Federal Lands Disposal — Nevada (96th, Laxalt)"),
-    #
-    # Add more pre-108th bills here as you identify them from research.
-    # To look up a bill: https://api.congress.gov/v3/bill/{congress}/{type}/{number}/cosponsors?api_key=...
-    # Key periods to extend into:
-    #   95th–97th: PRIA/grazing-fee fights, early Sagebrush Rebellion bills
-    #   99th–103rd: Wallop/Craig/Hatfield rangeland reform era
-    #   104th–107th: Gingrich-era transfer attempts
-    #
-    (107, "hr", 3808,  "Consistent Public Land Laws Enforcement (107th)"),
+    (96,  "s",  1680,  "Western Lands Distribution & Regional Equalization (96th, Laxalt)", "disposal"),
+    (96,  "s",  2762,  "Federal Lands Disposal — Nevada (96th, Laxalt)",                   "disposal"),
+    (107, "hr", 3808,  "Consistent Public Land Laws Enforcement (107th)",                   "disposal"),
 
     # ── 108th–109th — the Pombo Natural Resources chair years ───────────────
-    (108, "hr", 1153,  "America's Wilderness Protection (108th, Otter)"),
-    (108, "hr", 2966,  "Right-to-Ride Livestock on Federal Lands (108th)"),
-    (108, "hr", 3324,  "Voluntary Grazing Permit Buyout (108th)"),
-    (109, "hr", 1370,  "Federal Land Asset Inventory Reform (109th, Pearce)"),
-    (109, "hr", 3463,  "Action Plan for Public Lands & Education (109th, Bishop)"),
-    (109, "s",  781,   "Right-to-Ride Livestock on Federal Land (109th)"),
-    (109, "s",  2569,  "Action Plan for Public Lands & Education (109th, Hatch)"),
-    (109, "hr", 3824,  "ESA Recovery Collaboration (109th, Pombo)"),
+    (108, "hr", 1153,  "America's Wilderness Protection (108th, Otter)",                    "wilderness"),
+    (108, "hr", 2966,  "Right-to-Ride Livestock on Federal Lands (108th)",                  "grazing"),
+    (108, "hr", 3324,  "Voluntary Grazing Permit Buyout (108th)",                           "grazing"),
+    (109, "hr", 1370,  "Federal Land Asset Inventory Reform (109th, Pearce)",               "disposal"),
+    (109, "hr", 3463,  "Action Plan for Public Lands & Education (109th, Bishop)",          "disposal"),
+    (109, "s",  781,   "Right-to-Ride Livestock on Federal Land (109th)",                   "grazing"),
+    (109, "s",  2569,  "Action Plan for Public Lands & Education (109th, Hatch)",           "disposal"),
+    (109, "hr", 3824,  "ESA Recovery Collaboration (109th, Pombo)",                         "esa"),
 
     # ── 110th–113th — early transfer-advocacy lineage ───────────────────────
-    (110, "hr", 3614,  "Action Plan for Public Lands & Education (110th, Bishop)"),
-    (110, "s",  3133,  "Responsible Ownership of Public Land (110th)"),
-    (110, "hr", 6300,  "Dona Ana County Rangeland Preservation (110th, Pearce)"),
-    (111, "hr", 5339,  "Disposal of Excess Federal Lands (111th, Chaffetz)"),
-    (112, "s",  635,   "Disposal of Excess Federal Lands (112th, Lee)"),
-    (112, "hr", 1126,  "Disposal of Excess Federal Lands (112th, Chaffetz)"),
-    (112, "hr", 1581,  "Wilderness & Roadless Area Release (112th, McCarthy)"),
-    (112, "s",  1087,  "Wilderness & Roadless Area Release (112th, Barrasso)"),
-    (113, "hr", 1459,  "Antiquities transparency (113th, Bishop)"),
-    (113, "hr", 2657,  "Disposal of Excess Federal Lands (113th, Chaffetz)"),
+    (110, "hr", 3614,  "Action Plan for Public Lands & Education (110th, Bishop)",          "disposal"),
+    (110, "s",  3133,  "Responsible Ownership of Public Land (110th)",                      "disposal"),
+    (110, "hr", 6300,  "Dona Ana County Rangeland Preservation (110th, Pearce)",            "grazing"),
+    (111, "hr", 5339,  "Disposal of Excess Federal Lands (111th, Chaffetz)",                "disposal"),
+    (112, "s",  635,   "Disposal of Excess Federal Lands (112th, Lee)",                     "disposal"),
+    (112, "hr", 1126,  "Disposal of Excess Federal Lands (112th, Chaffetz)",                "disposal"),
+    (112, "hr", 1581,  "Wilderness & Roadless Area Release (112th, McCarthy)",              "wilderness"),
+    (112, "s",  1087,  "Wilderness & Roadless Area Release (112th, Barrasso)",              "wilderness"),
+    (113, "hr", 1459,  "Antiquities transparency (113th, Bishop)",                          "antiquities"),
+    (113, "hr", 2657,  "Disposal of Excess Federal Lands (113th, Chaffetz)",                "disposal"),
 
     # ── 114th–115th — post-Bunkerville legislative push ─────────────────────
-    (114, "hr", 5780,  "Utah Public Lands Initiative (114th, Bishop)"),
-    (114, "hr", 3650,  "State National Forest Management (114th, Young)"),
-    (114, "hr", 2316,  "Wildlife Management Reform (114th)"),
-    (114, "s",  361,   "Disposal of Excess Federal Lands (114th, Lee)"),
-    (115, "hr", 621,   "Disposal of Excess Federal Lands (115th, Chaffetz)"),
-    (115, "hr", 622,   "Local Enforcement for Local Lands (115th, Chaffetz)"),
-    (115, "hr", 2284,  "National Monument Designation Transparency (115th, Labrador)"),
-    (115, "hr", 2230,  "Grazing Improvement Act (115th)"),
-    (115, "hr", 3990,  "National Monument Creation & Protection (115th, Bishop)"),
-    (115, "s",  132,   "National Monument Designation Transparency (115th, Crapo)"),
-    (115, "s",  273,   "Greater Sage-Grouse Protection (115th, Risch)"),
+    (114, "hr", 5780,  "Utah Public Lands Initiative (114th, Bishop)",                      "disposal"),
+    (114, "hr", 3650,  "State National Forest Management (114th, Young)",                   "disposal"),
+    (114, "hr", 2316,  "Wildlife Management Reform (114th)",                                "esa"),
+    (114, "s",  361,   "Disposal of Excess Federal Lands (114th, Lee)",                     "disposal"),
+    (115, "hr", 621,   "Disposal of Excess Federal Lands (115th, Chaffetz)",                "disposal"),
+    (115, "hr", 622,   "Local Enforcement for Local Lands (115th, Chaffetz)",               "disposal"),
+    (115, "hr", 2284,  "National Monument Designation Transparency (115th, Labrador)",      "antiquities"),
+    (115, "hr", 2230,  "Grazing Improvement Act (115th)",                                   "grazing"),
+    (115, "hr", 3990,  "National Monument Creation & Protection (115th, Bishop)",           "antiquities"),
+    (115, "s",  132,   "National Monument Designation Transparency (115th, Crapo)",         "antiquities"),
+    (115, "s",  273,   "Greater Sage-Grouse Protection (115th, Risch)",                     "esa"),
 
     # ── 116th–118th — the Trump/Biden/post-Trump era ─────────────────────────
-    (116, "hr", 3225,  "Antiquities Act amendments (116th)"),
-    (116, "hr", 1664,  "National Monument CAP Act (116th, Bishop)"),
-    (117, "hr", 3113,  "State Land Management (117th)"),
-    (117, "s",  1264,  "Resiliency for Ranching (117th, Barrasso)"),
-    (118, "hr", 1435,  "State Transfer Reaffirmation (118th)"),
-    (118, "hr", 7430,  "Public Lands in Public Hands (118th, Zinke)"),
-    (118, "hr", 5499,  "Congressional Oversight of Antiquities Act (118th)"),
-    (118, "s",  2820,  "Congressional Oversight of Antiquities Act (118th, Lee)"),
-    (118, "s",  3322,  "Ranching Without Red Tape (118th, Barrasso)"),
+    (116, "hr", 3225,  "Antiquities Act amendments (116th)",                                "antiquities"),
+    (116, "hr", 1664,  "National Monument CAP Act (116th, Bishop)",                         "antiquities"),
+    (117, "hr", 3113,  "State Land Management (117th)",                                     "disposal"),
+    (117, "s",  1264,  "Resiliency for Ranching (117th, Barrasso)",                         "grazing"),
+    (118, "hr", 1435,  "State Transfer Reaffirmation (118th)",                              "disposal"),
+    (118, "hr", 7430,  "Public Lands in Public Hands (118th, Zinke)",                       "disposal"),
+    (118, "hr", 5499,  "Congressional Oversight of Antiquities Act (118th)",                "antiquities"),
+    (118, "s",  2820,  "Congressional Oversight of Antiquities Act (118th, Lee)",           "antiquities"),
+    (118, "s",  3322,  "Ranching Without Red Tape (118th, Barrasso)",                       "grazing"),
 ]
 
 # Minimum shared-cosponsorship count for an edge to appear in the viz.
@@ -203,13 +195,14 @@ def fetch_bill_api(congress: int, btype: str, number: int) -> dict:
 # ── Main pipeline ─────────────────────────────────────────────────────────────
 
 def main() -> None:
-    legislator:   dict[str, dict]        = {}
-    bill_cosps:   dict[tuple, list[str]] = {}
-    bill_title:   dict[tuple, str]       = {}
-    bill_primary: dict[tuple, str | None] = {}
-    leg_bills:    dict[str, list[tuple]] = {}
+    legislator:    dict[str, dict]        = {}
+    bill_cosps:    dict[tuple, list[str]] = {}
+    bill_title:    dict[tuple, str]       = {}
+    bill_category: dict[tuple, str]       = {}
+    bill_primary:  dict[tuple, str | None] = {}
+    leg_bills:     dict[str, list[tuple]] = {}
 
-    for congress, btype, number, label in BILLS:
+    for congress, btype, number, label, category in BILLS:
         try:
             if congress >= 108:
                 body   = fetch(govinfo_url(congress, btype, number))
@@ -227,7 +220,8 @@ def main() -> None:
             sys.exit(1)
 
         bkey = (congress, btype, number, label)
-        bill_title[bkey]   = (parsed.get("title") or "").strip()
+        bill_title[bkey]    = (parsed.get("title") or "").strip()
+        bill_category[bkey] = category
         primary_people     = parsed["primary"]
         cosponsors         = parsed["cosponsors"]
         bill_primary[bkey] = primary_people[0]["bioguide"] if primary_people else None
@@ -278,8 +272,9 @@ def main() -> None:
                                    key=lambda x: (x[0][0], x[0][1], x[0][2])):
             c, t, n, lbl = bkey
             cosponsored.append({
-                "congress": c, "type": t, "number": n,
-                "label": lbl, "title": bill_title.get(bkey, ""), "role": role,
+                "congress": c, "type": t, "number": n, "label": lbl,
+                "title": bill_title.get(bkey, ""), "role": role,
+                "category": bill_category.get(bkey, ""),
             })
         nodes.append({
             **leg,
@@ -308,9 +303,10 @@ def main() -> None:
         "bills": [
             {
                 "congress": c, "type": t, "number": n, "label": lbl,
+                "category": cat,
                 "cosponsor_count": len(bill_cosps.get((c, t, n, lbl), [])),
             }
-            for (c, t, n, lbl) in [(b[0], b[1], b[2], b[3]) for b in BILLS]
+            for (c, t, n, lbl, cat) in BILLS
         ],
         "nodes": nodes,
         "links": links,

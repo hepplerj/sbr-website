@@ -909,6 +909,47 @@ img, svg, video, canvas {
   overflow-y: auto;
 }
 
+// ── Category filter bar ──────────────────────────────────────────────
+.network-viz__filter {
+  position: absolute;
+  bottom: var(--space-3);
+  left: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35em;
+  font-size: var(--font-size-xs, 0.72rem);
+  font-family: var(--font-ui);
+  pointer-events: auto;
+}
+.network-viz__filter-label {
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: 0.15em;
+}
+.network-viz__filter-btn {
+  padding: 0.2em 0.6em;
+  border: 1px solid var(--color-border);
+  border-radius: 2em;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.4;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  &:hover {
+    border-color: var(--color-sage);
+    color: var(--color-ink);
+  }
+  &.is-active {
+    background: var(--color-sage);
+    border-color: var(--color-sage);
+    color: #fff;
+  }
+}
+
 // ── Node click modal (network-level) ────────────────────────────────
 .network-viz__node.is-clickable { cursor: pointer; }
 
