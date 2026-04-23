@@ -25,8 +25,8 @@
   "use strict";
   if (typeof d3 === "undefined") return;
 
-  const VIEW_W = 960;
-  const VIEW_H = 560;
+  const DEFAULT_VIEW_W = 960;
+  const DEFAULT_VIEW_H = 560;
 
   const DEFAULT_PALETTE = {
     family:    "#a94b2b", // rust — the Bundys are the project's conceptual center
@@ -44,6 +44,8 @@
   };
 
   function initNetwork(container) {
+    const VIEW_W = container.clientWidth  || DEFAULT_VIEW_W;
+    const VIEW_H = container.clientHeight || DEFAULT_VIEW_H;
     const id = container.id;
     const configEl = document.getElementById(id + "-config");
     if (!configEl) return;
@@ -385,17 +387,28 @@
     `;
   }
 
+  const CAT_CHIP_LABELS = {
+    disposal:   "Disposal & Transfer",
+    grazing:    "Grazing & Range",
+    antiquities:"Antiquities & Monuments",
+    wilderness: "Wilderness & Roadless",
+    esa:        "ESA & Wildlife",
+  };
+
   function renderBillRow(b) {
     const roleChip = b.role === "sponsor"
       ? `<span class="network-viz__bill-role network-viz__bill-role--sponsor">Sponsor</span>`
       : `<span class="network-viz__bill-role">Cosponsor</span>`;
+    const catChip = b.category
+      ? `<span class="network-viz__bill-cat network-viz__bill-cat--${b.category}">${CAT_CHIP_LABELS[b.category] || b.category}</span>`
+      : "";
     const ordinal = ordinalCongress(b.congress);
     const billNo = `${b.type.toUpperCase()} ${b.number}`;
     const url = congressGovURL(b.congress, b.type, b.number);
     const title = escapeHTML(b.title || b.label || "");
     return `
       <li class="network-viz__bill">
-        ${roleChip}
+        ${roleChip}${catChip}
         <div class="network-viz__bill-body">
           <div class="network-viz__bill-id">
             ${ordinal} Congress · <a href="${url}" target="_blank" rel="noopener">${billNo}</a>

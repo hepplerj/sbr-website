@@ -1085,6 +1085,24 @@ img, svg, video, canvas {
   background: var(--color-rust);
   color: var(--color-cream);
 }
+.network-viz__bill-cat {
+  align-self: start;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25em 0.6em;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+}
+.network-viz__bill-cat--disposal    { color: #7a5230; border-color: #c9a978; background: #f9f3e8; }
+.network-viz__bill-cat--grazing     { color: #3a5e30; border-color: #7aaa6a; background: #edf4eb; }
+.network-viz__bill-cat--antiquities { color: #1f2a44; border-color: #6b8ab0; background: #edf1f7; }
+.network-viz__bill-cat--wilderness  { color: #2e4a3e; border-color: #5a9080; background: #eaf3f0; }
+.network-viz__bill-cat--esa         { color: #5a3060; border-color: #9a70a8; background: #f4eef6; }
 .network-viz__bill-id {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
