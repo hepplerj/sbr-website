@@ -23,10 +23,6 @@ chart:
   infoprompt: "Hover a stripe for a region's year-over-year anomaly."
   annotations:
     - { year: 1934, label: "Dust Bowl" }
-    - { year: 1956, label: "Plains drought" }
-    - { year: 1977, label: "Western drought" }
-    - { year: 2002, label: "Millennium drought" }
-    - { year: 2012, label: "Megadrought" }
 ---
 
 ## What the chart shows

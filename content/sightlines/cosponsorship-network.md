@@ -1,7 +1,7 @@
 ---
 title: "Cosponsorship on Federal Public-Lands Bills"
 date: 2026-04-19
-lede: "A network of legislators who cosponsored federal-public-lands legislation across the 108th through 118th Congresses (2003–2024). Thirty-two bills in the set; ninety legislators appear on two or more. Nodes colored by party, sized by how many bills in the set each cosponsored."
+lede: "A network of legislators who cosponsored federal-public-lands legislation across the 108th through 118th Congresses (2003–2024). Nodes colored by party, sized by how many bills in the set each cosponsored."
 weight: 8
 draft: false
 viz: network
@@ -10,10 +10,10 @@ regions: [intermountain-west, great-plains, pacific, national]
 network:
   src: /data/cosponsorship-network.json
   infotitle: "Cosponsorship network"
-  infoprompt: "Hover a node for party, state, and bills cosponsored. Click a legislator to open their full bill list. Drag to rearrange; thicker edges = more shared cosponsorships."
+  infoprompt: "Hover a node for party, state, and bills cosponsored. Click a legislator to open their full bill list. Drag to rearrange."
   legendtitle: "Party"
   chargestrength: -180
-  linkdistance: 55
+  linkdistance: 155
   palette:
     republican:  "#a94b2b"
     democrat:    "#1f2a44"
@@ -26,7 +26,7 @@ network:
     other:       "Other / unaffiliated"
 ---
 
-## What the graph shows
+> This is a draft network. The graph was built on open data, which ends in 2003. As data is compiled from historical records this network will be updated. Follow the [changelog](/updates/) for notices when this network changes. 
 
 Thirty-two bills introduced in the 108th through 118th Congresses (2003–2024) on federal-public-lands matters — transfer of federal lands to states, disposal of "excess" federal acreage, Antiquities Act reform and rollback, grazing administration, monument-designation review, sage-grouse / ESA flexibility, wilderness-study-area release. Legislators appear as nodes if they cosponsored at least **two** bills in the set. Edges connect pairs who cosponsored **two or more** of the same bills.
 

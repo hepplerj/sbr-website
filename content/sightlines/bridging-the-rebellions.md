@@ -3,9 +3,9 @@ title: "Bridging the Rebellions"
 date: 2026-04-18
 lede: "Twenty-eight people, events, and organizations across four decades of federal-lands conflict. The graph makes one argument visible: the sagebrush rebellions are not a sequence of separate incidents but a recurring form — and the bridges are legible as specific people and specific institutions."
 weight: 6
-draft: false
+draft: true 
 viz: network
-themes: [sagebrush-rebellion-1979, bundy-family, malheur, bunkerville, public-lands]
+themes: [sagebrush-rebellion-1979, public-lands]
 regions: [great-plains, intermountain-west, pacific]
 network:
   src: /data/bridging-network.json

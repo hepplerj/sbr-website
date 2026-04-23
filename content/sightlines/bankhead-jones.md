@@ -5,11 +5,11 @@ lede: "National Grasslands and Land Utilization Projects — the federal lands a
 weight: 20
 draft: false
 viz: map
-themes: [public-lands, bankhead-jones, dust-bowl]
+themes: [public-lands, dust-bowl]
 regions: [great-plains]
 map:
-  center: [44.87, -104.11]
-  zoom: 6
+  center: [44.08, -103.23]
+  zoom: 7
   legendtitle: "Bankhead-Jones Lands"
   infotitle: "Bankhead-Jones Lands"
   infoprompt: "Hover a unit for name and acreage."
@@ -36,15 +36,11 @@ map:
 
 ## The Bankhead-Jones Farm Tenant Act
 
-The **Bankhead-Jones Farm Tenant Act**, signed into law on July 22, 1937, was one of the New Deal's major responses to the Dust Bowl crisis. Title III of the act authorized the federal government to acquire "submarginal" farmland — land that could not sustain productive agriculture — and repurpose it for conservation, recreation, and managed grazing.
+The **Bankhead-Jones Farm Tenant Act**, signed into law on July 22, 1937, was one of the New Deal's major responses to the Dust Bowl. Title III of the act authorized the federal government to acquire "submarginal" farmland (land considered unable to sustain productive agriculture) and repurpose it.
 
-Through the Land Utilization Program, the government ultimately acquired approximately **11.3 million acres** across the Great Plains and elsewhere. These lands were initially managed by the Soil Conservation Service, then transferred between several agencies before roughly 5.5 million acres came under the USDA Forest Service in 1954. In 1960, Secretary of Agriculture Ezra Taft Benson designated 3.8 million of those acres as **National Grasslands** — the 20 units shown in green on this map.
+Through the Land Utilization Program, the government ultimately acquired approximately 11.3 million acres across the Great Plains. Managed initially by the Soil Conservation Service, these lands were eventually transferred to the Forest Service in 1954. In 1960, Secretary of Agriculture Ezra Taft Benson designated 3.8 million of those acres as National Grasslands. Those are visible in green on this map.
 
-The remaining Forest Service lands not designated as National Grasslands persist as **Land Utilization Projects**, shown in gold. Other Bankhead-Jones lands were transferred to the Bureau of Land Management, Fish and Wildlife Service, Bureau of Indian Affairs, and National Park Service, and are not depicted here.
-
-## Why this map matters to the sagebrush rebellions
-
-The Bankhead-Jones lands are not usually framed as a sagebrush-rebellion story, but they are central to it. They are the most visible surviving result of the federal government's Dust Bowl-era claim that it could buy out failing agriculture and keep the land in permanent public trust. Every subsequent argument about whether the federal government *should* own the Western range — in 1934, in 1979, in 2016 — runs in part against the precedent this acreage established.
+All federal lands are shown in the purple shading on the map to give a sense of context where the grasslands are in relation to all other federal public land.
 
 ## Sources
 

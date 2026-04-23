@@ -1,7 +1,7 @@
 ---
 title: "West & Plains Farm Bankruptcies, by State, 1996–2024"
 date: 2026-04-18
-lede: "Chapter 12 (family farmer) bankruptcy filings for the fifteen Western and Plains states, each state a row, each year a stripe. Cream for quiet years, rust for peak distress."
+lede: "Chapter 12 (family farmer) bankruptcy filings for the fifteen Western and Plains states, each state a row, each year a stripe."
 weight: 50
 draft: false
 viz: chart
@@ -26,7 +26,6 @@ chart:
   annotations:
     - { year: 1998, label: "Late-1990s commodity crash" }
     - { year: 2009, label: "Great Recession" }
-    - { year: 2019, label: "Trade-war spike" }
 ---
 
 ## What the chart shows

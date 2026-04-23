@@ -14,12 +14,12 @@ chart:
   xfield: year
   title: "U.S. number of farms and average farm size, 1910–2025"
   infotitle: "Consolidation"
-  infoprompt: "Two panels, shared x-axis. Hover to see both values at a year."
+  infoprompt: "Hover to see both values at a year."
   panels:
     - field: farms
       label: "Number of farms"
       color: rust
-      unit: "M"
+      unit: "millions"
       scale: 1000000
       format: "1f"
     - field: avg_size

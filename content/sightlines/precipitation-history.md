@@ -22,9 +22,6 @@ chart:
   annotations:
     - { year: 1910, label: "Driest year on record" }
     - { year: 1934, label: "Dust Bowl" }
-    - { year: 1956, label: "Plains drought" }
-    - { year: 1988, label: "Plains drought" }
-    - { year: 2012, label: "Megadrought" }
 ---
 
 ## What the chart shows
