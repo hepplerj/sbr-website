@@ -6,11 +6,19 @@ public-lands bills across recent Congresses. Two legislators connect if
 they cosponsored the same bill; the edge weight is the count of shared
 cosponsorships across the full set.
 
-Data source: GPO ``govinfo.gov`` BILLSTATUS bulk data (free, public, no
-API key). URL pattern:
+Data sources:
 
-    https://www.govinfo.gov/bulkdata/BILLSTATUS/{congress}/{type}/
-    BILLSTATUS-{congress}{type}{number}.xml
+  108th Congress and later (2003–present):
+    GPO ``govinfo.gov`` BILLSTATUS bulk data (free, no key required).
+    URL pattern:
+      https://www.govinfo.gov/bulkdata/BILLSTATUS/{congress}/{type}/
+      BILLSTATUS-{congress}{type}{number}.xml
+
+  Pre-108th Congress (through 93rd Congress, 1973):
+    ``api.congress.gov`` v3 JSON API (free, requires API key).
+    Set the key in the environment:
+      export CONGRESS_API_KEY=your_key_here
+    Keys are available at https://api.congress.gov/sign-up/
 
 Curated bill list focuses on the transfer, disposal, grazing, and
 Antiquities-Act-reform bills that sit in the Sagebrush-rebellion policy
@@ -21,31 +29,54 @@ Run: ``python scripts/build_cosponsorship_network.py``
 
 from __future__ import annotations
 
+import json
+import os
 import sys
+import time
 import urllib.error
 import xml.etree.ElementTree as ET
 from collections import Counter, defaultdict
 
 from _common import DATA_DIR, fetch, write_json
 
-BULK = "https://www.govinfo.gov/bulkdata/BILLSTATUS"
+BULK        = "https://www.govinfo.gov/bulkdata/BILLSTATUS"
+API_BASE    = "https://api.congress.gov/v3"
+API_KEY     = os.environ.get("CONGRESS_API_KEY", "")
 
 # Bills included. Each entry: (congress, chamber-type, number, short-label).
 # Chamber types: "hr" (House bill), "s" (Senate bill), "hjres"/"sjres" (joint res).
 #
-# Curated for the transfer, disposal, grazing, Antiquities-reform, and
-# sage-grouse/ESA-flexibility lineage — the legislative face of the
-# sagebrush-rebellion policy space across 110th–118th Congresses (2007–2024).
-# Labels are editorial; titles come from the fetched data. Expanding this
-# list is the primary way to extend the network.
+# Routing: congress >= 108 → govinfo BILLSTATUS XML (no key needed)
+#          congress <  108 → api.congress.gov JSON (requires CONGRESS_API_KEY)
 BILLS = [
-    # 108th–109th — the Pombo Natural Resources chair years
+    # ── Pre-108th: Sagebrush Rebellion era ──────────────────────────────────
+    # These use api.congress.gov (requires CONGRESS_API_KEY).
+    # Both confirmed via API — 17 and 18 cosponsors respectively.
+    (96,  "s",  1680,  "Western Lands Distribution & Regional Equalization (96th, Laxalt)"),
+    (96,  "s",  2762,  "Federal Lands Disposal — Nevada (96th, Laxalt)"),
+    #
+    # Add more pre-108th bills here as you identify them from research.
+    # To look up a bill: https://api.congress.gov/v3/bill/{congress}/{type}/{number}/cosponsors?api_key=...
+    # Key periods to extend into:
+    #   95th–97th: PRIA/grazing-fee fights, early Sagebrush Rebellion bills
+    #   99th–103rd: Wallop/Craig/Hatfield rangeland reform era
+    #   104th–107th: Gingrich-era transfer attempts
+    #
+    (107, "hr", 3808,  "Consistent Public Land Laws Enforcement (107th)"),
+
+    # ── 108th–109th — the Pombo Natural Resources chair years ───────────────
     (108, "hr", 1153,  "America's Wilderness Protection (108th, Otter)"),
+    (108, "hr", 2966,  "Right-to-Ride Livestock on Federal Lands (108th)"),
+    (108, "hr", 3324,  "Voluntary Grazing Permit Buyout (108th)"),
+    (109, "hr", 1370,  "Federal Land Asset Inventory Reform (109th, Pearce)"),
     (109, "hr", 3463,  "Action Plan for Public Lands & Education (109th, Bishop)"),
+    (109, "s",  781,   "Right-to-Ride Livestock on Federal Land (109th)"),
     (109, "s",  2569,  "Action Plan for Public Lands & Education (109th, Hatch)"),
     (109, "hr", 3824,  "ESA Recovery Collaboration (109th, Pombo)"),
 
-    # 110th–113th — early transfer-advocacy lineage
+    # ── 110th–113th — early transfer-advocacy lineage ───────────────────────
+    (110, "hr", 3614,  "Action Plan for Public Lands & Education (110th, Bishop)"),
+    (110, "s",  3133,  "Responsible Ownership of Public Land (110th)"),
     (110, "hr", 6300,  "Dona Ana County Rangeland Preservation (110th, Pearce)"),
     (111, "hr", 5339,  "Disposal of Excess Federal Lands (111th, Chaffetz)"),
     (112, "s",  635,   "Disposal of Excess Federal Lands (112th, Lee)"),
@@ -55,7 +86,7 @@ BILLS = [
     (113, "hr", 1459,  "Antiquities transparency (113th, Bishop)"),
     (113, "hr", 2657,  "Disposal of Excess Federal Lands (113th, Chaffetz)"),
 
-    # 114th–115th — post-Bunkerville legislative push
+    # ── 114th–115th — post-Bunkerville legislative push ─────────────────────
     (114, "hr", 5780,  "Utah Public Lands Initiative (114th, Bishop)"),
     (114, "hr", 3650,  "State National Forest Management (114th, Young)"),
     (114, "hr", 2316,  "Wildlife Management Reform (114th)"),
@@ -68,7 +99,7 @@ BILLS = [
     (115, "s",  132,   "National Monument Designation Transparency (115th, Crapo)"),
     (115, "s",  273,   "Greater Sage-Grouse Protection (115th, Risch)"),
 
-    # 116th–118th — the Trump/Biden/post-Trump era
+    # ── 116th–118th — the Trump/Biden/post-Trump era ─────────────────────────
     (116, "hr", 3225,  "Antiquities Act amendments (116th)"),
     (116, "hr", 1664,  "National Monument CAP Act (116th, Bishop)"),
     (117, "hr", 3113,  "State Land Management (117th)"),
@@ -81,23 +112,20 @@ BILLS = [
 ]
 
 # Minimum shared-cosponsorship count for an edge to appear in the viz.
-# Filters out incidental single-bill pairings and keeps the graph legible.
 EDGE_MIN_WEIGHT = 2
 
 # Only keep legislators who cosponsored at least this many bills in the set.
-# Two-bill threshold shows the full caucus — anyone who appears more than
-# once, which includes the recurring core plus the wider ring of
-# cross-aisle and one-issue signatories whose pattern is itself revealing.
 NODE_MIN_BILLS = 2
 
 
-def bill_url(congress: int, btype: str, number: int) -> str:
+# ── govinfo (108th+) ─────────────────────────────────────────────────────────
+
+def govinfo_url(congress: int, btype: str, number: int) -> str:
     return f"{BULK}/{congress}/{btype}/BILLSTATUS-{congress}{btype}{number}.xml"
 
 
-def parse_bill(xml_text: str) -> dict:
-    """Parse BILLSTATUS XML. Return title plus primary sponsor and
-    cosponsor lists separately so we can track sponsor role per legislator."""
+def parse_bill_xml(xml_text: str) -> dict:
+    """Parse BILLSTATUS XML → {title, primary, cosponsors}."""
     root = ET.fromstring(xml_text)
     def g(el, tag):
         child = el.find(tag)
@@ -114,52 +142,110 @@ def parse_bill(xml_text: str) -> dict:
         }
     primary    = [record(i) for i in root.findall(".//sponsors/item")]
     cosponsors = [record(i) for i in root.findall(".//cosponsors/item")]
-    title_el = root.find(".//title")
-    title = title_el.text if title_el is not None and title_el.text else ""
+    title_el   = root.find(".//title")
+    title      = title_el.text if title_el is not None and title_el.text else ""
     return {"title": title, "primary": primary, "cosponsors": cosponsors}
 
 
+# ── Congress.gov API (pre-108th) ─────────────────────────────────────────────
+
+def fetch_bill_api(congress: int, btype: str, number: int) -> dict:
+    """Fetch bill data from api.congress.gov → {title, primary, cosponsors}.
+
+    Returns the same structure as parse_bill_xml() so both sources feed the
+    same downstream pipeline.
+    """
+    if not API_KEY:
+        raise RuntimeError(
+            "CONGRESS_API_KEY env var not set — required for pre-108th bills. "
+            "Get a free key at https://api.congress.gov/sign-up/"
+        )
+
+    base = f"{API_BASE}/bill/{congress}/{btype}/{number}"
+
+    # Primary sponsor lives on the bill record itself
+    bill_data = json.loads(fetch(f"{base}?api_key={API_KEY}&format=json"))
+    bill      = bill_data.get("bill", {})
+    title     = bill.get("title", "")
+
+    def norm(s: dict, is_sponsor: bool = False) -> dict:
+        district = s.get("district")
+        return {
+            "bioguide": s.get("bioguideId", ""),
+            "name":     s.get("fullName", ""),
+            "first":    s.get("firstName", ""),
+            "last":     s.get("lastName", ""),
+            "party":    s.get("party", ""),
+            "state":    s.get("state", ""),
+            "district": str(district) if district is not None else "",
+        }
+
+    primary = [norm(s, is_sponsor=True) for s in bill.get("sponsors", [])]
+
+    # Cosponsors are paginated; fetch all pages
+    cosponsors: list[dict] = []
+    limit, offset = 250, 0
+    while True:
+        url  = f"{base}/cosponsors?api_key={API_KEY}&format=json&limit={limit}&offset={offset}"
+        data = json.loads(fetch(url))
+        for s in data.get("cosponsors", []):
+            if not s.get("sponsorshipWithdrawnDate"):
+                cosponsors.append(norm(s))
+        total  = data.get("pagination", {}).get("count", 0)
+        offset += limit
+        if offset >= total:
+            break
+        time.sleep(0.2)  # gentle rate-limiting
+
+    return {"title": title, "primary": primary, "cosponsors": cosponsors}
+
+
+# ── Main pipeline ─────────────────────────────────────────────────────────────
+
 def main() -> None:
-    legislator: dict[str, dict] = {}                  # bioguide → attrs
-    bill_cosps: dict[tuple, list[str]] = {}           # bill_key → list[bioguide (all participants)]
-    bill_title: dict[tuple, str] = {}                 # bill_key → cleaned title
-    bill_primary: dict[tuple, str | None] = {}        # bill_key → primary-sponsor bioguide
-    leg_bills: dict[str, list[tuple]] = {}            # bioguide → list of (bill_key, role)
+    legislator:   dict[str, dict]        = {}
+    bill_cosps:   dict[tuple, list[str]] = {}
+    bill_title:   dict[tuple, str]       = {}
+    bill_primary: dict[tuple, str | None] = {}
+    leg_bills:    dict[str, list[tuple]] = {}
 
     for congress, btype, number, label in BILLS:
-        url = bill_url(congress, btype, number)
         try:
-            body = fetch(url)
-        except urllib.error.HTTPError as err:
-            print(f"  skip {label!s:50s} [{err.code}]", file=sys.stderr)
+            if congress >= 108:
+                body   = fetch(govinfo_url(congress, btype, number))
+                parsed = parse_bill_xml(body)
+            else:
+                parsed = fetch_bill_api(congress, btype, number)
+        except (urllib.error.HTTPError, urllib.error.URLError) as err:
+            print(f"  skip {label!s:50s} [{err}]", file=sys.stderr)
             continue
-        try:
-            parsed = parse_bill(body)
         except ET.ParseError as err:
             print(f"  skip {label!s:50s} [parse error: {err}]", file=sys.stderr)
             continue
+        except RuntimeError as err:
+            print(f"  ERROR: {err}", file=sys.stderr)
+            sys.exit(1)
+
         bkey = (congress, btype, number, label)
-        bill_title[bkey] = (parsed.get("title") or "").strip()
-        primary_people = parsed["primary"]
-        cosponsors = parsed["cosponsors"]
+        bill_title[bkey]   = (parsed.get("title") or "").strip()
+        primary_people     = parsed["primary"]
+        cosponsors         = parsed["cosponsors"]
         bill_primary[bkey] = primary_people[0]["bioguide"] if primary_people else None
-        total = len(primary_people) + len(cosponsors)
-        print(f"  {congress}-{btype}-{number}: {total:3d} (co)sponsors  [{label}]", file=sys.stderr)
+        total              = len(primary_people) + len(cosponsors)
+        src = "api" if congress < 108 else "govinfo"
+        print(f"  [{src}] {congress}-{btype}-{number}: {total:3d} (co)sponsors  [{label}]",
+              file=sys.stderr)
 
         bioguide_ids: list[str] = []
-        # Track primary sponsor first
         for s in primary_people:
             bid = s["bioguide"]
-            if not bid:
-                continue
+            if not bid: continue
             bioguide_ids.append(bid)
             _ensure_leg(legislator, bid, s)
             leg_bills.setdefault(bid, []).append((bkey, "sponsor"))
-        # Then cosponsors
         for s in cosponsors:
             bid = s["bioguide"]
-            if not bid:
-                continue
+            if not bid: continue
             bioguide_ids.append(bid)
             _ensure_leg(legislator, bid, s)
             leg_bills.setdefault(bid, []).append((bkey, "cosponsor"))
@@ -172,11 +258,10 @@ def main() -> None:
         for b in set(bids):
             bill_count[b] += 1
 
-    # Keep the active caucus
     kept_ids = {b for b, n in bill_count.items() if n >= NODE_MIN_BILLS}
-    kept_ids |= {sponsors[0] for sponsors in bill_cosps.values() if sponsors}  # always keep primary sponsors
+    kept_ids |= {sponsors[0] for sponsors in bill_cosps.values() if sponsors}
 
-    # Build pairwise shared-cosponsorship counts, restricted to kept legislators
+    # Pairwise shared-cosponsorship edges
     shared: Counter = Counter()
     for bids in bill_cosps.values():
         kept = sorted(b for b in set(bids) if b in kept_ids)
@@ -184,23 +269,17 @@ def main() -> None:
             for j in range(i + 1, len(kept)):
                 shared[(kept[i], kept[j])] += 1
 
-    # Assemble nodes + links
     nodes = []
     for bid in sorted(kept_ids):
         leg = legislator.get(bid)
-        if not leg:
-            continue
-        # Per-legislator bill list, ordered by congress then bill number
+        if not leg: continue
         cosponsored = []
-        for (bkey, role) in sorted(leg_bills.get(bid, []), key=lambda x: (x[0][0], x[0][1], x[0][2])):
+        for (bkey, role) in sorted(leg_bills.get(bid, []),
+                                   key=lambda x: (x[0][0], x[0][1], x[0][2])):
             c, t, n, lbl = bkey
             cosponsored.append({
-                "congress": c,
-                "type":     t,
-                "number":   n,
-                "label":    lbl,
-                "title":    bill_title.get(bkey, ""),
-                "role":     role,
+                "congress": c, "type": t, "number": n,
+                "label": lbl, "title": bill_title.get(bkey, ""), "role": role,
             })
         nodes.append({
             **leg,
@@ -215,19 +294,16 @@ def main() -> None:
         for (a, b), w in shared.items() if w >= EDGE_MIN_WEIGHT
     ]
 
-    # Drop nodes that aren't touched by any edge (isolated legislators only
-    # cosponsored bills whose other cosponsors didn't cross our threshold)
     in_edges = {n for e in links for n in (e["source"], e["target"])}
-    nodes = [n for n in nodes if n["id"] in in_edges]
+    nodes    = [n for n in nodes if n["id"] in in_edges]
 
     out = {
         "title": "Cosponsorship network on federal public-lands bills",
         "source": (
-            "GPO govinfo.gov BILLSTATUS bulk data. Nodes are legislators who "
-            f"cosponsored at least {NODE_MIN_BILLS} bills in the curated set; "
-            f"edges connect pairs sharing {EDGE_MIN_WEIGHT} or more "
-            "cosponsorships. See scripts/build_cosponsorship_network.py for "
-            "the bill list."
+            "GPO govinfo.gov BILLSTATUS (108th Congress+) and api.congress.gov "
+            f"(pre-108th). Nodes: legislators cosponsoring ≥{NODE_MIN_BILLS} "
+            f"bills; edges: pairs sharing ≥{EDGE_MIN_WEIGHT} cosponsorships. "
+            "See scripts/build_cosponsorship_network.py for the bill list."
         ),
         "bills": [
             {
@@ -240,16 +316,12 @@ def main() -> None:
         "links": links,
     }
     write_json(DATA_DIR / "cosponsorship-network.json", out)
-
     print(f"\n{len(nodes)} legislators, {len(links)} edges "
           f"(weights ≥ {EDGE_MIN_WEIGHT})", file=sys.stderr)
 
 
 def clean_name(full: str, first: str, last: str) -> str:
-    """Render as "J. Bishop" — shorter than the full govinfo form. Some
-    bulk records use ALL CAPS for the last name; fix that."""
     def tc(s: str) -> str:
-        # Title-case but preserve punctuation like "O'Rourke" or "Mc-"
         return s[:1].upper() + s[1:].lower() if s.isupper() else s
     initial = (first[:1].upper() + ".") if first else ""
     return f"{initial} {tc(last)}".strip()
@@ -272,11 +344,11 @@ def party_to_type(party: str) -> str:
 
 
 def describe_legislator(leg: dict, n_bills: int) -> str:
-    state = leg["state"]
+    state    = leg["state"]
     district = leg["district"]
-    chamber = "Sen." if not district else f"Rep., {state}-{district}"
-    party = {"R": "R", "D": "D", "I": "I"}.get(leg["party"], "")
-    tail = f"{party}-{state}" if party else state
+    chamber  = "Sen." if not district else f"Rep., {state}-{district}"
+    party    = {"R": "R", "D": "D", "I": "I"}.get(leg["party"], "")
+    tail     = f"{party}-{state}" if party else state
     return f"{chamber} ({tail}) · {n_bills} bills in set"
 
 
