@@ -25,19 +25,9 @@
       <h1 class="map-page__title">{{ .Title }}</h1>
       {{- with .Params.lede }}<p class="map-page__lede">{{ . }}</p>{{ end }}
     </div>
-    <div class="map-page__actions">
-      <button type="button"
-              class="map-page__btn"
-              aria-controls="{{ $id }}-about"
-              aria-expanded="false"
-              data-toggles="{{ $id }}-about">
-        About this {{ $viz }}
-      </button>
-    </div>
   </header>
 
-  <aside class="map-page__about" id="{{ $id }}-about" aria-hidden="true" aria-label="About this {{ $viz }}">
-    <button type="button" class="map-page__about-close" aria-label="Close panel">&times;</button>
+  <aside class="map-page__about" id="{{ $id }}-about" aria-label="About this {{ $viz }}">
     <div class="map-page__about-body prose">
       {{ .Content }}
       {{ partial "cite.html" . }}
@@ -58,16 +48,4 @@
   <script type="application/json" id="{{ $id }}-config">{{ $cfg | jsonify | safeJS }}</script>
 </section>
 
-<script>
-  (function () {
-    var btn = document.querySelector('[data-toggles="{{ $id }}-about"]');
-    var panel = document.getElementById('{{ $id }}-about');
-    var close = panel.querySelector('.map-page__about-close');
-    function open()  { panel.classList.add('is-open');    btn.setAttribute('aria-expanded','true');  panel.setAttribute('aria-hidden','false'); }
-    function shut()  { panel.classList.remove('is-open'); btn.setAttribute('aria-expanded','false'); panel.setAttribute('aria-hidden','true');  }
-    btn.addEventListener('click', function () { panel.classList.contains('is-open') ? shut() : open(); });
-    close.addEventListener('click', shut);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
-  })();
-</script>
 {{ end }}
