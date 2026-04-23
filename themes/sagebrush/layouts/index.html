@@ -16,7 +16,6 @@
   <div class="hero__inner">
     <h1 class="hero__title">{{ .Site.Title }}</h1>
     <p class="hero__lede">{{ .Site.Params.description }}</p>
-    <a class="hero__cta" href="{{ "/narrative/" | relURL }}">Read the narrative</a>
   </div>
   {{- with .Site.Params.heroCredit }}
     <p class="hero__credit">
@@ -37,7 +36,7 @@
 
 <section class="home-sections" aria-label="Sections">
   <article class="home-card">
-    <p class="home-card__eyebrow">Narrative</p>
+    <p class="home-card__eyebrow">Writing</p>
     <h2 class="home-card__title"><a href="{{ "/narrative/" | relURL }}">Essays &amp; chapters</a></h2>
     <p class="home-card__body">The long-form history of public-lands politics, from the Taylor Grazing Act through the Clinton-era monuments.</p>
     <a class="home-card__cta" href="{{ "/narrative/" | relURL }}">Begin reading</a>

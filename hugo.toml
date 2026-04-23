@@ -19,24 +19,24 @@ enableEmoji = false
 
 [menu]
   [[menu.main]]
-    name = "Essays"
-    url = "/narrative/"
-    weight = 10
-  [[menu.main]]
     name = "Sightlines"
     url = "/sightlines/"
-    weight = 20
+    weight = 10
   [[menu.main]]
     name = "Data"
     url = "/data/"
-    weight = 30
+    weight = 20
   [[menu.main]]
     name = "Bibliography"
     url = "/sources/"
-    weight = 40
+    weight = 30
   [[menu.main]]
     name = "About"
     url = "/about/"
+    weight = 40
+  [[menu.main]]
+    name = "Writing"
+    url = "/narrative/"
     weight = 50
 
 [markup]
