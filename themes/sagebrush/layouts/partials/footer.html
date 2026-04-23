@@ -39,12 +39,10 @@
     <div>
       <h3>Credit</h3>
       <p>
-        {{- with .Site.Params.author }}By {{ . }}. {{ end }}
-        &copy; 2026. Content <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND 4.0</a>; code <a href="https://github.com/hepplerj/sbr-website/blob/main/LICENSE">MIT</a>.
+        <em>{{ .Site.Title }}</em> is a project by {{- with .Site.Params.author }} {{ . }}. {{ end }}
+        &copy; 2025&mdash;{{ .Date | time.Format "2006" }}. {{- with .Lastmod }} Last updated {{ .Format "January 2, 2006" }}. {{- end }}
       </p>
-      {{- with .Lastmod }}
-        <p><small>Last updated {{ .Format "January 2, 2006" }}.</small></p>
-      {{- end }}
+      <p> Content <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND 4.0</a>. Code <a href="https://github.com/hepplerj/sbr-website/blob/main/LICENSE">MIT</a>.</p>
     </div>
   </div>
 </footer>

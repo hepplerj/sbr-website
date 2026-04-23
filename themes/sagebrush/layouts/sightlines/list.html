@@ -94,7 +94,7 @@
             <p class="sightlines-group__desc">{{ $g.desc }}</p>
           </header>
           <ul class="sightlines-grid">
-            {{- range $pages.ByWeight }}
+            {{- range $pages.ByTitle }}
               <li class="sightlines-card"
                   data-themes="{{ delimit .Params.themes "," }}"
                   data-regions="{{ delimit .Params.regions "," }}">
