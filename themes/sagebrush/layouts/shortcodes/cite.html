@@ -1,7 +1,7 @@
 {{- /*
   cite — inline parenthetical citation (author year, pages).
 
-  Looks up the key in hugo.Data.bibliography (produced by
+  Looks up the key in site.Data.bibliography (produced by
   scripts/build_bibliography.py) and emits a compact author-date note
   that also links to the full entry on /sources/#{key}.
 
@@ -17,7 +17,7 @@
 
 {{- $entry := "" -}}
 {{- if $key -}}
-  {{- $entry = index hugo.Data.bibliography $key -}}
+  {{- $entry = index site.Data.bibliography $key -}}
 {{- end -}}
 
 {{- if $entry -}}
