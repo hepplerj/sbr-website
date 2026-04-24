@@ -259,9 +259,7 @@
         .attr("y", 6)
         .attr("width", barW + 0.5)
         .attr("height", ROW_H - 12)
-        .attr("fill", (d) => color(d.y))
-        .on("mouseover", (event, d) => updateRowInfo(info, cfg, row.label, d))
-        .on("mouseout",  () => updateInfo(info, cfg));
+        .attr("fill", (d) => color(d.y));
 
       // Row label, left of the ribbon
       svg.append("text")
@@ -271,6 +269,57 @@
         .attr("text-anchor", "end")
         .text(row.label);
     });
+
+    // ── Shared crosshair across all rows ─────────────────────────────
+    // A single dashed vertical guide that follows the mouse, and a
+    // readout showing every region's value at the hovered year.
+    const tracker = g.append("g")
+      .attr("class", "chart-viz__tracker")
+      .style("display", "none");
+    tracker.append("line")
+      .attr("class", "chart-viz__tracker-line")
+      .attr("y1", 0).attr("y2", innerH);
+
+    // Per-row lookup tables so we don't walk arrays per mousemove.
+    const byXPerRow = rows.map((r) => {
+      const m = new Map();
+      r.data.forEach((d) => m.set(d.x, d));
+      return m;
+    });
+    const xUnion = Array.from(new Set(rows.flatMap((r) => r.data.map((d) => d.x)))).sort((a, b) => a - b);
+    const bisect = d3.bisector((a, b) => a - b).left;
+    const unit = cfg.unitshort || "";
+
+    g.append("rect")
+      .attr("class", "chart-viz__tracker-overlay")
+      .attr("width", innerW)
+      .attr("height", innerH)
+      .attr("fill", "transparent")
+      .on("mouseenter", () => tracker.style("display", null))
+      .on("mouseleave", () => {
+        tracker.style("display", "none");
+        info.innerHTML = infoHTML(cfg);
+      })
+      .on("mousemove", (event) => {
+        const [mx] = d3.pointer(event);
+        const xv = xScale.invert(mx);
+        const i = bisect(xUnion, xv);
+        const cand = [xUnion[i - 1], xUnion[i]].filter((v) => v != null);
+        const snapX = cand.length === 1
+          ? cand[0]
+          : (Math.abs(cand[0] - xv) < Math.abs(cand[1] - xv) ? cand[0] : cand[1]);
+        const cx = xScale(snapX) + barW / 2;
+        tracker.select("line").attr("x1", cx).attr("x2", cx);
+
+        const rowsHTML = rows.map((r, ri) => {
+          const d = byXPerRow[ri].get(snapX);
+          if (!d) return `<div class="detail"><strong>${r.label}:</strong> —</div>`;
+          const val = (d.y > 0 ? "+" : "") + d.y.toFixed(2) + unit;
+          const swatch = color(d.y);
+          return `<div class="detail"><span class="chart-viz__tracker-swatch" style="background:${swatch}"></span><strong>${r.label}:</strong> ${val}</div>`;
+        }).join("");
+        info.innerHTML = `<h4>${snapX}</h4>${rowsHTML}`;
+      });
 
     // Shared bottom axis
     const tickYears = d3.range(Math.ceil(xDomain[0] / 10) * 10, xDomain[1] + 1, 10);
@@ -499,7 +548,9 @@
     const laneIndex = new Map(lanes.map((l, i) => [l.key, i]));
     const laneY = (i) => i * LANE_H + LANE_H / 2;
 
-    // Lane backgrounds (alternating tint) + labels + guide lines
+    // Lane backgrounds (alternating tint) + labels + guide lines.
+    // Each lane label is hoverable — the sub-description (lane.note)
+    // surfaces in the floating info card rather than crowding the axis.
     lanes.forEach((lane, i) => {
       g.append("rect")
         .attr("class", "chart-viz__timeline-lane-bg")
@@ -511,19 +562,30 @@
         .attr("x1", 0).attr("x2", innerW)
         .attr("y1", laneY(i)).attr("y2", laneY(i));
       // Lane label (in SVG root coords — outside the translated group)
-      svg.append("text")
+      const label = svg.append("text")
         .attr("class", "chart-viz__timeline-lane-label")
+        .classed("is-interactive", !!lane.note)
         .attr("x", margin.left - 14)
-        .attr("y", margin.top + laneY(i) + 4)
+        .attr("y", margin.top + laneY(i) + 6)
         .attr("text-anchor", "end")
         .text(lane.label);
+
       if (lane.note) {
-        svg.append("text")
-          .attr("class", "chart-viz__timeline-lane-note")
-          .attr("x", margin.left - 14)
-          .attr("y", margin.top + laneY(i) + 20)
-          .attr("text-anchor", "end")
-          .text(lane.note);
+        const showNote = (event) => {
+          info.innerHTML = `
+            <h4>${escapeHTML(lane.label)}</h4>
+            <div class="detail chart-viz__timeline-info-desc">${escapeHTML(lane.note)}</div>
+          `;
+          info.style.display = "block";
+          placeTimelineCard(info, container, event || { clientX: 0, clientY: 0 });
+        };
+        const hideNote = () => { info.style.display = "none"; };
+
+        label.on("mouseover", showNote).on("mouseout", hideNote);
+        // Focusable for keyboard users. SVG <text> isn't focusable
+        // without tabindex, so we add it here.
+        label.attr("tabindex", 0);
+        label.on("focus", showNote).on("blur", hideNote);
       }
     });
 

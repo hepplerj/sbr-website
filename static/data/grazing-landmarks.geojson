@@ -1,0 +1,66 @@
+{
+  "type": "FeatureCollection",
+  "source": "Hand-curated landmarks for the BLM Grazing Allotments by State sightline.",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -114.13,
+          36.78
+        ]
+      },
+      "properties": {
+        "name": "Bunkerville & Gold Butte",
+        "state": "NV",
+        "blurb": "Cliven Bundy's allotments sit in a checkerboard with Gold Butte National Monument (2016) and the desert-tortoise critical-habitat area whose protection underpinned the 1993 permit non-renewal that began the Bundy standoff."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.00,
+          42.60
+        ]
+      },
+      "properties": {
+        "name": "Owyhee Canyonlands",
+        "state": "ID",
+        "blurb": "Complex mosaic of wilderness, wilderness study areas, and grazing permits straddling the Idaho / Oregon border. A persistent legal battleground."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.82,
+          43.27
+        ]
+      },
+      "properties": {
+        "name": "Harney County",
+        "state": "OR",
+        "blurb": "The 2016 Malheur NWR occupation occurred adjacent to these allotments, next to the Hammond family's Steens Mountain allotment."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -111.70,
+          37.50
+        ]
+      },
+      "properties": {
+        "name": "Grand Staircase-Escalante",
+        "state": "UT",
+        "blurb": "The monument redesignations (1996 / 2017 / 2021) directly affected allotment management across southern Utah."
+      }
+    }
+  ]
+}

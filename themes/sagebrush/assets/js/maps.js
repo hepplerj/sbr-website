@@ -220,7 +220,10 @@
           }
           const geo = L.geoJSON(data, geoOpts).addTo(map);
           rendered.push({ layer, geo });
-          if (layer.label) overlays[layer.label] = geo;
+          // Layers opt-in to the toggle control via their `label`. A
+          // layer can hide from the control (still on the map, just not
+          // toggleable) by setting `hidefromcontrol: true`.
+          if (layer.label && !layer.hidefromcontrol) overlays[layer.label] = geo;
         });
 
         // Fit to the topmost non-context layer, or all thematic bounds —
@@ -235,8 +238,13 @@
           }
         }
 
-        // Layer control if more than one interactive layer (or explicit opt-in)
-        if (Object.keys(overlays).length > 1 || cfg.forcelayercontrol) {
+        // Layer control: shown when there are multiple labeled overlays,
+        // when the config explicitly asks for it, or when at least one
+        // layer opted out with `hidefromcontrol: true` (signals the
+        // author wants the remaining layers individually toggleable).
+        const anyHidden = rendered.some((r) => r.layer.hidefromcontrol);
+        if (Object.keys(overlays).length > 1 || cfg.forcelayercontrol ||
+            (anyHidden && Object.keys(overlays).length > 0)) {
           L.control.layers(null, overlays, { position: "topright", collapsed: false }).addTo(map);
         }
 
@@ -320,10 +328,17 @@
     const detail = featureDetail(p, layer);
     const rows = popupRows(p, layer);
 
+    // Optional per-feature prose body — named via layer.popupbodyfield.
+    // Rendered as a flowing paragraph, not a grid row, so long blurbs
+    // don't get squeezed into a narrow column.
+    const bodyText = layer.popupbodyfield ? (p[layer.popupbodyfield] || "") : "";
+    const body = bodyText ? `<div class="map-popup__body">${bodyText}</div>` : "";
+
     const popup = `
       <div class="map-popup">
         <h3>${label}</h3>
         ${detail ? `<div class="map-popup__value">${detail}</div>` : ""}
+        ${body}
         ${rows}
         ${layer.popupnote ? `<div class="map-popup__note">${layer.popupnote}</div>` : ""}
       </div>

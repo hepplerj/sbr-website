@@ -128,17 +128,58 @@
       info.innerHTML = `<h4>${name}</h4>${code ? `<div class="detail">${code}</div>` : ""}`;
     }
 
+    // Active-agency filter: when a legend item is clicked, only that
+    // agency's polygons stay full-opacity; everything else dims.
+    // Click the same item again (or the legend title/"All") to clear.
+    let activeCode = null;
+
+    function applyFilter() {
+      gData.selectAll("path.d3-map__feature")
+        .classed("is-dim",   (d) => activeCode != null && lookup(d.properties[cfg.colorfield]) !== activeCode)
+        .classed("is-focus", (d) => activeCode != null && lookup(d.properties[cfg.colorfield]) === activeCode);
+      legend.querySelectorAll(".legend-item").forEach((el) => {
+        const code = el.dataset.code || "";
+        const on = activeCode != null && code === activeCode;
+        el.classList.toggle("is-active",  on);
+        el.classList.toggle("is-inactive", activeCode != null && !on);
+        el.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+
     function renderLegend(features) {
       const presentLc = new Set(features.map((f) => lookup(f.properties[cfg.colorfield])));
-      const order = cfg.legendorder || Object.keys(palette).filter((k) => k !== "default");
-      const entries = order.filter((k) => presentLc.has(lookup(k)));
+      const pool = cfg.legendorder || Object.keys(palette).filter((k) => k !== "default");
+      // Sort alphabetically by display label (falling back to the code).
+      const entries = pool
+        .filter((k) => presentLc.has(lookup(k)))
+        .sort((a, b) => {
+          const la = (labels[lookup(a)] || a).toLowerCase();
+          const lb = (labels[lookup(b)] || b).toLowerCase();
+          return la.localeCompare(lb);
+        });
       const title = cfg.legendtitle || "Managing agency";
       const items = entries.map((k) => {
-        const sw = palette[lookup(k)] || unknown;
-        const lbl = labels[lookup(k)] || k;
-        return `<div class="legend-item"><span class="legend-swatch" style="background:${sw}"></span>${lbl}</div>`;
+        const code = lookup(k);
+        const sw = palette[code] || unknown;
+        const lbl = labels[code] || k;
+        return `<button type="button" class="legend-item" data-code="${code}" aria-pressed="false"><span class="legend-swatch" style="background:${sw}"></span>${lbl}</button>`;
       });
-      legend.innerHTML = `<h4>${title}</h4>${items.join("")}`;
+      legend.innerHTML = `<h4>${title}</h4>${items.join("")}<button type="button" class="legend-reset" hidden>Clear filter</button>`;
+
+      legend.querySelectorAll(".legend-item").forEach((el) => {
+        el.addEventListener("click", () => {
+          const code = el.dataset.code;
+          activeCode = (activeCode === code) ? null : code;
+          legend.querySelector(".legend-reset").hidden = (activeCode == null);
+          applyFilter();
+        });
+      });
+      const resetBtn = legend.querySelector(".legend-reset");
+      resetBtn.addEventListener("click", () => {
+        activeCode = null;
+        resetBtn.hidden = true;
+        applyFilter();
+      });
     }
   }
 

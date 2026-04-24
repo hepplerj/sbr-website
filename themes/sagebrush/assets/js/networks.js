@@ -244,20 +244,32 @@
 
       renderLegend(nodes);
 
+      // Precompute which categories each node touches, once. A Set
+      // per node makes the filter apply O(|activeCategories|) per node
+      // instead of O(|cosponsored|). Stored on the datum directly.
+      nodes.forEach((d) => {
+        d._cats = new Set((d.cosponsored || []).map((b) => b.category).filter(Boolean));
+      });
+
       function nodeMatchesFilter(d) {
         if (activeCategories.size === 0) return true;
-        return (d.cosponsored || []).some((b) => activeCategories.has(b.category));
+        for (const c of activeCategories) if (d._cats.has(c)) return true;
+        return false;
       }
 
+      // Toggle a CSS class instead of setting inline opacity. The class
+      // path lets the browser batch paints and avoids re-evaluating a
+      // per-datum callback every time D3 mutates the selection. Much
+      // smoother on the larger networks.
       function applyFilter() {
         const on = activeCategories.size > 0;
-        node.style("opacity",  on ? (d) => nodeMatchesFilter(d) ? 1 : 0.08 : null);
-        label.style("opacity", on ? (d) => nodeMatchesFilter(d) ? 1 : 0.08 : null);
-        link.style("opacity",  on ? (l) => {
-          const sm = nodeMatchesFilter(l.source);
-          const tm = nodeMatchesFilter(l.target);
-          return (sm && tm) ? 0.6 : 0.04;
-        } : null);
+        // Cache the match result on the datum so links can reuse it
+        // without re-walking cosponsored arrays per endpoint.
+        if (on) nodes.forEach((d) => { d._match = nodeMatchesFilter(d); });
+
+        node.classed("is-filter-dim",  on ? (d) => !d._match : false);
+        label.classed("is-filter-dim", on ? (d) => !d._match : false);
+        link.classed("is-filter-dim",  on ? (l) => !(l.source._match && l.target._match) : false);
       }
 
       renderFilter(graph, applyFilter);
