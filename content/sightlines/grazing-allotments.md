@@ -18,19 +18,22 @@ map:
       style: sage
       label: "Allotments"
       labelfield: allot_name
+      hidefromcontrol: true
       popupnote: "BLM grazing allotment"
       popupfields:
-        - field: allot_no
-          label: "Allotment no."
         - field: acres
           label: "Acres"
           format: int
+        - field: allot_no
+          label: "Allotment no."
         - field: adm_ofc_cd
-          label: "BLM office"
-        - field: adm_unit_cd
-          label: "Admin unit"
-        - field: admin_st
-          label: "State"
+          label: "BLM office code"
+    - src: /data/grazing-landmarks.geojson
+      style: rust
+      label: "Landmarks"
+      labelfield: name
+      pointradius: 9
+      popupbodyfield: blurb
   stateselector:
     label: "State"
     default: "NV"
@@ -60,51 +63,32 @@ map:
       WY: [43.0, -107.5, 7]
 ---
 
-## What the map shows
+This map illustrates the current (2026) Bureau of Land Management grazing allotments in each state. These lands are federal parcels on which specific ranchers (or grazing association) holds a federal permit to graze a set number of livestock for a season. Many federal land management decisions---from stock cuts to drought relief to sage-grouse habitat protection, to permit renewals---happen at this scale. 
 
-Every BLM grazing allotment in the selected state. Each allotment is a named permit area: a parcel of federal range on which a specific rancher (or grazing association) holds a federal permit to graze a specific class and number of livestock for a specific season. The allotment is the administrative atom of federal-range politics — every decision that matters (stocking cuts for drought, closures for sage-grouse habitat, permit renewals or suspensions) happens at this scale.
+The broader grazing scale can be see in the [Taylor Grazing Act districts](../grazing-districts/). 
 
-The [Taylor Grazing Act districts](../grazing-districts/) are the coarse frame; this is the fine weave inside ten states. Use the **state selector** above the map to explore each state's permit geography. Click any allotment to see its allotment number, acreage, and BLM office.
+Use the state selector on the map to explore each state's permit geography. Click any allotment to see its allotment number, acreage, and BLM office.
 
-**State-by-state counts** (approximate):
+**State-by-state counts** (approximate as of 2026):
 
-| State | Allotments | Notes |
-|-------|-----------:|-------|
-| Montana | 5,700 | Largest allotment inventory. Cattle-dominant; mix with private land extensive. |
-| Wyoming | 3,600 | Second largest. Includes contested Bridger-Teton and Bighorn Basin areas. |
-| Colorado | 2,400 | Western Slope concentration. |
-| New Mexico | 2,300 | Chihuahuan Desert range, heavy Navajo Nation adjacency. |
-| Idaho | 2,100 | Includes Owyhee Canyonlands — a perennial legal battleground. |
-| Oregon | 1,900 | Includes the Harney County allotments surrounding Malheur NWR. |
-| Utah | 1,400 | Includes Grand Staircase-Escalante allotments. |
-| Arizona | 920 | Strip-country and Sonoran Desert allotments. |
-| Nevada | 759 | **Bundy country** — Bunkerville, Gold Butte, Elko-area allotments. |
-| California | 694 | Great Basin side of the state plus the Carrizo Plain. |
+| State | Allotments |
+|-------|------------|
+| Montana | 5,700 |
+| Wyoming | 3,600 |
+| Colorado | 2,400 |
+| New Mexico | 2,300 |
+| Idaho | 2,100 |
+| Oregon | 1,900 |
+| Utah | 1,400 |
+| Arizona | 920 |
+| Nevada | 759 |
+| California | 694 |
 
-## Why this scale matters
-
-Sagebrush-rebellion politics lives at the allotment level. When a rancher says "the federal government took my ranch," what they usually mean is "my allotment was closed or my stocking rate was cut." When an environmental group sues the BLM, it usually asks the court to order closure, reduced AUMs (animal-unit-months), or new NEPA analysis on a specific allotment. Every famous standoff in the movement — Cliven Bundy's 1993 permit fight, the 2014 Bunkerville confrontation, the 2016 Malheur occupation (rooted in the Hammond family's Steens Mountain allotment prosecution) — was fundamentally an allotment-scale dispute.
-
-The state view foregrounds this scale. Zoomed in, you can trace where checkerboard patterns from the railroad land grants still dictate allotment boundaries; where wilderness study areas carve allotments into active and inactive portions; where one allotment of a few hundred acres sits inside another of several hundred thousand.
-
-## Landmarks worth finding
-
-- **Bunkerville and Gold Butte** (Nevada, southeast corner). Cliven Bundy's allotments sit in a checkerboard with Gold Butte National Monument (2016) and the desert-tortoise critical-habitat area whose protection underpinned the 1993 permit non-renewal that began the Bundy standoff.
-- **Elko County** (Nevada, northeast). Birthplace of the 1979 Sagebrush Rebellion. Dense cattle allotments and ongoing Jarbidge and Ruby Mountain disputes.
-- **Owyhee Canyonlands** (Idaho/Oregon border). Complex mosaic of wilderness, wilderness study areas, and grazing permits; persistent litigation.
-- **Harney County** (Oregon, southeast). The 2016 Malheur NWR occupation occurred adjacent to these allotments; the Hammond family's Steens Mountain allotment was the proximate cause.
-- **Grand Staircase-Escalante** (Utah, south-central). The Clinton-Trump-Biden monument redesignations directly affected allotment management.
+The grazing allotments are where the politics live: stock reductions that may upend a rancher's cattle business or a lawsuit brought against the BLM by an environmental group happens at the allotment level. The map also illustrates the checkerboard battern of grazing allotment boundaries. 
 
 ## Data and method
 
-- **Source**: BLM National Grazing Allotment Polygons FeatureServer, filtered per state by `ADMIN_ST`. Free, no API key required.
+- **Source**: BLM National Grazing Allotment Polygons FeatureServer, filtered per state by `ADMIN_ST`.
 - **Fields shown**: `ALLOT_NAME`, `ALLOT_NO`, `ADMIN_ST`, `ADM_OFC_CD` (BLM office code), `ADM_UNIT_CD`, `GIS_ACRES`.
 - **Geometry**: simplified to ~0.002° per state.
-- **Pre-built per-state files**: ten `grazing-allotments-<state>.geojson` files at `/data/`. The state selector swaps which file is loaded without reloading the page.
-- **Coverage**: ten Taylor-Grazing-Act states. North Dakota, South Dakota, Washington, and Nebraska are nominal TGA states but hold no allotments in the current BLM inventory.
 
-## Companion views
-
-- **[Taylor Grazing Districts](../grazing-districts/)** — the state-scale frame above these polygons.
-- **[USFS Range Allotments](../usfs-range-allotments/)** — the Forest Service's parallel network on the higher country.
-- **[Federal Lands in the American West](../federal-lands/)** — the state-level context for federal ownership patterns.

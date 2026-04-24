@@ -54,28 +54,14 @@ map:
     MWAA: "Metropolitan Washington Airports"
 ---
 
-## What the map shows
+Roughly 28 percent of the United States---about 640 million acres---is owned and managed by the federal government. This map renders every federal parcel and the agency that manages it.
 
-Roughly 28 percent of the United States — about 640 million acres — is owned and managed by the federal government. This map renders every federal parcel in the lower 48 plus Alaska and Hawaii, colored by the agency that holds it.
+Four agencies manage the overwhelming majority of the acreage: the **US Forest Service** (green), the **Bureau of Land Management** (gold), the **Fish & Wildlife Service** (olive), and the **National Park Service** (navy). Together they manage most of what the public thinks of as "public lands": the National Forests, the BLM grazing districts, the wildlife refuges, the National Parks and historic monuments. Federal agencies hold their lands under very different statutory regimes and serve very different purposes.
 
-Four agencies own the overwhelming majority of the acreage: the **US Forest Service** (green), the **Bureau of Land Management** (gold), the **Fish & Wildlife Service** (olive), and the **National Park Service** (navy). Together they manage most of what the public thinks of as "public lands" — the national forests, the BLM grazing districts, the wildlife refuges, the national parks and monuments. The rest — Defense installations, Bureau of Reclamation water projects, tribal trust lands through the BIA, and a long tail of smaller agencies — account for a minority of acres but often a disproportionate share of local politics.
 
-## Why the agency distinction matters
-
-The "federal government owns the land" framing of the sagebrush rebellions flattens a crucial distinction: federal agencies hold their lands under very different statutory regimes and serve very different purposes. BLM lands are explicitly *multiple-use* — grazing, mineral leasing, recreation, wildlife habitat — and most of the rancher grievances that drove the 1979 movement were specifically about BLM administration. Forest Service lands share some of that multiple-use logic but are tilted toward timber and watershed protection. Park Service and Fish & Wildlife lands are designated for preservation and are much more difficult to unwind. When Sagebrush rebels talked about "the federal lands," they often meant BLM specifically; transferring those acres was plausible in a way that transferring Yellowstone was not.
-
-The color argument of the map is this: the yellow (BLM) dominates the Great Basin and Intermountain interior; the green (Forest Service) traces the continental Rockies and Cascades; the olive (FWS) scatters along the flyways; the navy (Park Service) concentrates in a handful of large units. The sagebrush rebellions are, in large part, a BLM-territory phenomenon.
+Hover over a polygon to learn more about the land's management, or click an agency on the legend to filter down to just that agency's lands.
 
 ## Data and method
 
 Source: US federal land polygons compiled from the Protected Areas Database of the United States (PAD-US), simplified and converted to TopoJSON. State boundaries from the US Census cartographic files. Projection: Albers equal-area (AlbersUsa), which insets Alaska and Hawaii so the full federal estate appears at a single scale.
 
-This dataset is a **2014-vintage snapshot** — it represents the picture at the time the file was assembled for an earlier version of this project. Agency boundaries shift (land is added, transferred, or sold) and a current-year update will replace it in a future iteration.
-
-## Reading alongside the other maps
-
-- The [state-level Federal Lands map](../federal-lands/) shows ownership *share* by state — the aggregate argument for where federal presence is concentrated.
-- This map shows ownership *distribution* by agency — which bureau is where.
-- The [Bankhead-Jones Act Lands map](../bankhead-jones/) zooms into one specific slice — the submarginal-farmland parcels acquired under Title III of the 1937 Act, which the Forest Service manages as National Grasslands and Land Utilization Projects.
-
-Together they describe the legal and spatial architecture the sagebrush rebellions have argued against for nearly a century.

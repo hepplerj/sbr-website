@@ -1,7 +1,7 @@
 ---
 title: "Federal Payments by County"
 date: 2026-04-21
-lede: "The county-level companion to the federal-payments chart. Pick a program and a year; counties are shaded by how much they received that year (2020 dollars)."
+lede: "The county-level map of federal payments to counties."
 weight: 22
 draft: false
 viz: map
@@ -28,33 +28,32 @@ map:
     year: 2010
 ---
 
-## What the map shows
+> This is a recreation of a map from historian Jay Taylor's *[Follow the Money](https://followthemoney.stanford.edu)*. Since that project stopped working, I grabbed their open data to roughly re-create the map you see here. The fuller history of PILT and historical claims about the program are best read in Jay's project.
 
-Every county in the eleven western states for which Joseph Taylor, Erik Steiner, and collaborators reconstructed federal-payment histories at the county-year-program scale. Each county is shaded by the amount it received from the selected program in the selected year, expressed in thousands of 2020 dollars. Counties that received nothing that year show a muted gray; counties that received the bulk of a program's disbursements in that year show the darkest rust.
+This map recreates a version of the work completed by historian Jay Taylor: every county in the eleven western states to look at federal-payment histories at the county-year-program scale. Each county is shaded by the amount it received from the selected program in the selected year, expressed in thousands of 2020 dollars. Counties that received nothing that year show a muted gray; counties that received the bulk of a program's disbursements in that year show the darkest rust.
 
-Use the **Program** dropdown in the bottom-left to switch which revenue-sharing or in-lieu-of-taxes program is being mapped. Use the **Year** slider to move through time; the map re-colors in place. The legend scale is fixed per-program (built from that program's all-time maximum county-year value), so dragging the slider shows the program waxing and waning honestly over a century.
+Use the Program dropdown in the bottom-left to switch which revenue-sharing or in-lieu-of-taxes program is being mapped. Use the Year slider to move through time. The fiscal pattern of PILT is charted in the aggregated [line chart](../federal-payments/).
 
-**What to notice:**
-
-- **PILT** (Payments in Lieu of Taxes) lights up everywhere with high-federal-ownership land from 1977 forward — the map looks blankest before PILT was enacted and fills in afterward. Counties with the largest shaded acres (Nye, NV; Pima, AZ) are the ones with the most federal land to be compensated for.
-- **SRS** (Secure Rural Schools) is the dramatic stripe in the Pacific Northwest from 2000 onward — western Oregon and northern California counties that lost federal-timber revenue after the spotted-owl injunctions. Siskiyou, Trinity, Jackson, Josephine, Lane, Douglas: these counties light up a rust-dark red.
-- **Forest Service 25% Fund** is the long-running predecessor to SRS — darker in the 1960s–1980s Pacific Northwest and the northern Rockies, fading after 2000 as SRS effectively replaced it.
-- **O&C Lands** (Oregon and California Revested Lands) is a narrow band of eighteen Oregon counties — Coos, Douglas, Jackson, Josephine, Klamath, Lane, Lincoln, Linn, Curry, Benton, Marion, Polk, Tillamook, Washington, Yamhill, Columbia, Clackamas, and Multnomah. Nowhere else in the country shows up on this map.
-- **Federal Mineral Leasing** is a Wyoming-and-Utah story after 1976 — the coal, oil, and gas revenue shared back to the states and the counties where extraction happens.
-
-## Why this map matters
-
-Jay Taylor and Erik Steiner built *Follow the Money* to show that the sagebrush-politics claim "the federal government takes but doesn't give" has a specific, testable shape. For some counties — the PNW timber counties, the Wyoming mineral counties — federal payments are the single largest item on the local ledger. For other federally dense counties with fewer receipts (much of the Great Basin), PILT is a comparatively small cushion against an untaxable base. And in years when a program lapses or gets cut, you can literally watch the rust drain out of a region. That is a fiscal pattern the aggregated [line chart](../federal-payments/) compresses into a single curve; this map unfolds it.
+For a full history of these programs, read *[Follow the Money](https://followthemoney.stanford.edu)*.
 
 ## Data and method
 
 - **Source**: Taylor, Joseph E., III, Krista Fryauff, Erik Steiner, Celena Allen, Alex Sherman, and Zephyr Frank. *Follow the Money: A Spatial History of In-Lieu Programs for Western Federal Lands.* Spatial History Project, CESTA, Stanford University, 1 June 2016. Licensed CC BY-NC 4.0.
-- **Payments file**: the project's `Federal_Program_History_2020_Dollars_JAY_TAYLOR.csv`, re-shaped into ten per-program JSON files (one per federal program). Amounts are rounded to thousands of dollars. Each program file is loaded on demand when the user selects it from the dropdown — the map ships around 1 MB of data even if someone touches every program.
+- **Payments file**: the project's `Federal_Program_History_2020_Dollars_JAY_TAYLOR.csv`, re-shaped into ten per-program JSON files (one per federal program). Amounts are rounded to thousands of dollars. Each program file is loaded on demand when the user selects it from the dropdown.
 - **County geometry**: US Census Bureau TIGERweb Generalized_ACS2023 cartographic boundaries at 1:20M scale, filtered to the eleven states in the dataset.
-- **Color scale**: sqrt-transformed — the biggest single-county-year spike (a Lane County, Oregon SRS payment, or a Sublette County, Wyoming mineral-leasing year) doesn't wash out the mid-range. Scale is fixed per-program for honest year-over-year comparison.
 
-## Companion views
+## Bibliography
 
-- **[Federal Payments to Western Counties](../federal-payments/)** — the same dataset aggregated to an annual total per program. The chart shows the national-scale time series; this map shows which counties carry the totals in any given year.
-- **[Taylor Grazing Districts](../grazing-districts/)** — the administrative geography behind the TGA-3 and TGA-15 payment programs.
-- **[Federal Lands in the American West](../federal-lands/)** — the ownership-share map that explains why some counties receive so much more than others: they host so much more federal land.
+“An Act Authorizing the Secretary of the Interior to Enter into a Cooperative Agreement or Agreements with the State of Montana and Private Owners of Lands within the State of Montana for Grazing and Range Development, and for Other Purposes.” Public Law 70-210. <http://legisworks.org/sal/45/stats/STATUTE-45-Pg380b.pdf> (accessed 23 April 2026).
+
+“An Act to Amend the Act Entitled ‘An Act to Stop Injury to the Public Grazing Lands by Preventing Overgrazing and Soil Deterioration, to Provide for Their Orderly Use, Improvement, and Development, to Stabilize the Livestock Industry Dependent upon the Public Range, and for Other Purposes’, Approved June 28, 1934 (48 Stat. 1269).” Public Law 74-827. <http://legisworks.org/sal/49/stats/STATUTE-49-Pg1976.pdf> (accessed 23 April 2026).
+
+“An Act to Amend the Taylor Grazing Act of June 28, 1934 (48 Stat. 1269), as Amended June 26, 1936 (49 Stat. 1976).” Public Law 80-376. <http://legisworks.org/congress/80/publaw-376.pdf> (accessed 23 April 2026).
+
+“An Act to Authorize and Direct that Certain Lands Exclusively Administered by the Secretary of the Interior Be Classified in Order to Provide for Their Disposal or Interim Management under Principles of Multiple Use and to Produce a Sustained Yield of Products and Services, and for Other Purposes.” Public Law 88-607. <https://www.gpo.gov/fdsys/pkg/STATUTE-78/pdf/STATUTE-78-Pg986.pdf> (accessed 23 April 2026).
+
+“An Act to Provide for Stock-Raising Homesteads, and for Other Purposes.” Public Law 64-290. <http://legisworks.org/sal/39/stats/STATUTE-39-Pg862.pdf> (accessed 23 April 2026).
+
+“An Act to Require the Protection, Management, and Control of Wild Free-Roaming Horses and Burros on Public Lands.” Public Law 92-195. <https://www.gpo.gov/fdsys/pkg/STATUTE-85/pdf/STATUTE-85-Pg649.pdf> (accessed 23 April 2026).
+
+“An Act to Stop Injury to the Public Grazing Lands by Preventing Overgrazing and Soil Deterioration, to Provide for Their Orderly Use, Improvement, and Development, to Stabilize the Livestock Industry Dependent upon the Public Range, and for Other Purposes.” Public Law 73-482. <http://legisworks.org/sal/48/stats/STATUTE-48-Pg1269.pdf> (accessed 23 April 2026).

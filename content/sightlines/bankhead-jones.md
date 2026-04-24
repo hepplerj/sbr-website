@@ -34,11 +34,7 @@ map:
       popupnote: "National Grassland · USDA Forest Service"
 ---
 
-## The Bankhead-Jones Farm Tenant Act
-
-The **Bankhead-Jones Farm Tenant Act**, signed into law on July 22, 1937, was one of the New Deal's major responses to the Dust Bowl. Title III of the act authorized the federal government to acquire "submarginal" farmland (land considered unable to sustain productive agriculture) and repurpose it.
-
-Through the Land Utilization Program, the government ultimately acquired approximately 11.3 million acres across the Great Plains. Managed initially by the Soil Conservation Service, these lands were eventually transferred to the Forest Service in 1954. In 1960, Secretary of Agriculture Ezra Taft Benson designated 3.8 million of those acres as National Grasslands. Those are visible in green on this map.
+The Bankhead-Jones Farm Tenant Act, signed into law on July 22, 1937, was one of the New Deal's major responses to the Dust Bowl. Title III of the act authorized the federal government to acquire "submarginal" farmland (land unable to sustain productive agriculture) and repurpose it. Through the program, the government ultimately acquired approximately 11.3 million acres across the Great Plains. Managed initially by the Soil Conservation Service, these lands were eventually transferred to the Forest Service in 1954. In 1960, Secretary of Agriculture Ezra Taft Benson designated 3.8 million of those acres as National Grasslands. Those are visible in green on this map.
 
 All federal lands are shown in the purple shading on the map to give a sense of context where the grasslands are in relation to all other federal public land.
 
