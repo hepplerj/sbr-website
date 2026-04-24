@@ -1308,6 +1308,21 @@ img, svg, video, canvas {
   opacity: 0.8;
 }
 
+// When filters appear outside the sightlines-layout grid (e.g. on the
+// Sources / Bibliography page), bound them to the same content measure
+// and center under the section intro so they don't run to the viewport
+// edge. Inside `.sightlines-layout`, the grid provides the bounds.
+.sightlines-filters {
+  max-width: var(--measure-wide);
+  margin: 0 auto;
+  padding: 0 var(--space-5) var(--space-5);
+  .sightlines-layout & {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
 // Theme pills (reused inside the rail) — square corners to match the
 // About panel toggle button style on viz pages.
 .sightlines-filter__pills {
