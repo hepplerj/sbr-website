@@ -186,6 +186,18 @@
       btn.appendChild(document.createTextNode(REGION_LABEL[slug]));
 
       btn.addEventListener("click", function () { toggleRegion(slug); });
+      // Hovering a legend chip previews on the map (and vice versa
+      // via the path mouseover handler in the SVG).
+      btn.addEventListener("mouseover", function () {
+        if (!statePaths) return;
+        statePaths.classed("is-fade", function (d) {
+          return FIPS_REGION[+d.id] !== slug;
+        });
+      });
+      btn.addEventListener("mouseout", function () {
+        if (!statePaths) return;
+        statePaths.classed("is-fade", false);
+      });
       legend.appendChild(btn);
     });
   }
@@ -230,6 +242,27 @@
         var region = FIPS_REGION[+d.id];
         if (!region) return;
         toggleRegion(region);
+      })
+      // Hover preview: fade everything outside the hovered region so
+      // the user can see the region boundary before committing to a
+      // click. Restored on mouseout.
+      .on("mouseover", function (event, d) {
+        var region = FIPS_REGION[+d.id];
+        if (!region) return;
+        statePaths.classed("is-fade", function (other) {
+          return FIPS_REGION[+other.id] !== region;
+        });
+        // Mirror the hover state on the legend chip
+        var chip = document.querySelector(
+          '.sightlines-region-chip[data-region="' + region + '"]'
+        );
+        if (chip) chip.classList.add("is-hover");
+      })
+      .on("mouseout", function (event, d) {
+        statePaths.classed("is-fade", false);
+        document
+          .querySelectorAll(".sightlines-region-chip.is-hover")
+          .forEach(function (el) { el.classList.remove("is-hover"); });
       });
 
     statePaths.append("title").text(function (d) {
