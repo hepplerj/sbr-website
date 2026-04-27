@@ -35,10 +35,10 @@
   <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{- end }}
 
-{{/* Feed */}}
-{{- range .AlternativeOutputFormats -}}
-  <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink }}" title="{{ $.Site.Title }}">
-{{- end }}
+{{/* Feeds — two site-wide: essays (primary) + changelog. Advertise
+     both on every page so readers can subscribe from anywhere. */}}
+<link rel="alternate" type="application/rss+xml" href="{{ "narrative/index.xml" | absURL }}" title="{{ site.Title }}">
+<link rel="alternate" type="application/rss+xml" href="{{ "updates/index.xml" | absURL }}" title="{{ site.Title }} — Changelog">
 
 {{/* Viz: map + network libraries. Loaded per renderer used on the page. */}}
 {{- $renderer         := "" -}}

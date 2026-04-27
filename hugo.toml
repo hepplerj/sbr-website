@@ -53,8 +53,13 @@ enableEmoji = false
     ordered = false
 
 [outputs]
-  home = ["HTML", "RSS"]
-  section = ["HTML", "RSS"]
+  # RSS is opted into per-section via `outputs:` frontmatter on the
+  # section's _index.md. Currently: /narrative/ (the main site feed)
+  # and /updates/ (the changelog feed). Other sections emit HTML only.
+  home = ["HTML"]
+  section = ["HTML"]
+  taxonomy = ["HTML"]
+  term = ["HTML"]
 
 [taxonomies]
   tag = "tags"
