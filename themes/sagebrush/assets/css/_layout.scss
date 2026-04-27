@@ -516,6 +516,97 @@ img, svg, video, canvas {
   &:hover { color: var(--color-rust-dark); }
 }
 
+// ── Two-column body for pages with TOC opt-in ─
+// Sticky table-of-contents on the left; prose on the right. The
+// header uses the same grid so title/lede line up under the prose
+// column rather than getting pushed sideways.
+.page--with-toc {
+  .page-header {
+    max-width: var(--measure-full);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(180px, 14rem) minmax(0, var(--measure));
+    gap: var(--space-6);
+    @media (max-width: 56rem) {
+      display: block;
+      max-width: var(--measure);
+    }
+  }
+  // Header children all sit in the prose column (right side of grid)
+  // so they line up with the body content below.
+  .page-header > * {
+    grid-column: 2;
+    @media (max-width: 56rem) { grid-column: auto; }
+  }
+}
+.page-body {
+  display: grid;
+  grid-template-columns: minmax(180px, 14rem) minmax(0, var(--measure));
+  gap: var(--space-6);
+  max-width: var(--measure-full);
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+  align-items: start;
+  @media (max-width: 56rem) {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
+.page-toc {
+  position: sticky;
+  top: calc(72px + var(--space-5));   // below the sticky site nav
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  // Hide the long native scrollbar most of the time
+  scrollbar-width: thin;
+
+  @media (max-width: 56rem) {
+    position: static;
+    max-height: none;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+}
+.page-toc__label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-3);
+}
+// Hugo's `.TableOfContents` renders nested <ul>s. Strip the bullets and
+// indent gracefully.
+.page-toc nav,
+.page-toc nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.page-toc nav ul ul {
+  margin-left: var(--space-3);
+}
+.page-toc nav li { margin: 0.35em 0; }
+.page-toc nav a {
+  display: block;
+  padding: 0.15em 0.5em;
+  border-left: 2px solid transparent;
+  margin-left: -0.5em;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 100ms var(--ease), border-color 100ms var(--ease);
+  &:hover { color: var(--color-rust); }
+  &.is-active {
+    color: var(--color-ink);
+    border-left-color: var(--color-rust);
+    font-weight: 500;
+  }
+}
+
 // ── Page header (single pages) ───────────────
 .page-header {
   max-width: var(--measure);
