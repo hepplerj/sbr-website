@@ -380,6 +380,7 @@
         ylabel: opt.ylabel || cfg.ylabel,
         unitshort: opt.unit != null ? opt.unit : cfg.unitshort,
         annotations: opt.annotations || cfg.annotations || [],
+        periods: opt.periods || cfg.periods || [],
       });
       redraw(newCfg);
     };
@@ -399,8 +400,14 @@
       .filter((d) => !isNaN(d.x))
       .sort((a, b) => a.x - b.x);
 
-    const W = 1200, H = 420;
-    const margin = { top: 48, right: 20, bottom: 44, left: 60 };
+    // Optional period spans (cfg.periods) — same shape as the timeline's
+    // era strip: { start, end, label, description }. Render as a thin
+    // line + label above the chart area; reserves extra top-margin.
+    const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
+    const PERIOD_H = periods.length ? 28 : 0;
+
+    const W = 1200, H = 420 + PERIOD_H;
+    const margin = { top: 48 + PERIOD_H, right: 20, bottom: 44, left: 60 };
     const innerW = W - margin.left - margin.right;
     const innerH = H - margin.top - margin.bottom;
 
@@ -497,6 +504,55 @@
         .text(`${a.year} · ${a.label}`);
     });
 
+    // Periods: thin horizontal line + text label above the bars,
+    // matching the timeline's era strip. Pinned to the top of the SVG
+    // so it sits *above* the per-year annotation labels (which live
+    // just above the bars themselves), giving each its own band.
+    if (periods.length) {
+      const stripY = 22;                             // line baseline near the top of the SVG
+      const eraG = svg.append("g")
+        .attr("class", "chart-viz__bars-eras")
+        .attr("transform", `translate(${margin.left},${stripY})`);
+      periods.forEach((p) => {
+        const x0 = xScale(+p.start);
+        const x1 = xScale(+p.end);
+        const w  = Math.max(2, x1 - x0);
+        const grp = eraG.append("g")
+          .attr("class", "chart-viz__timeline-era")
+          .style("cursor", "help");
+        grp.append("line")
+          .attr("class", "chart-viz__timeline-era-line")
+          .attr("x1", x0).attr("x2", x1)
+          .attr("y1", 0).attr("y2", 0);
+        [x0, x1].forEach((xv) => {
+          grp.append("line")
+            .attr("class", "chart-viz__timeline-era-cap")
+            .attr("x1", xv).attr("x2", xv)
+            .attr("y1", -3).attr("y2", 3);
+        });
+        grp.append("text")
+          .attr("class", "chart-viz__timeline-era-label")
+          .attr("x", x0 + w / 2)
+          .attr("y", -6)
+          .attr("text-anchor", "middle")
+          .text(p.label || "");
+        grp.append("rect")
+          .attr("class", "chart-viz__timeline-era-hit")
+          .attr("x", x0 - 2).attr("y", -16)
+          .attr("width", w + 4).attr("height", 24)
+          .attr("fill", "transparent");
+        grp
+          .on("mouseover", () => {
+            info.innerHTML = `
+              <h4>${p.start}–${p.end}</h4>
+              <div class="detail"><strong>${escapeHTML(p.label || "")}</strong></div>
+              ${p.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(p.description)}</div>` : ""}
+            `;
+          })
+          .on("mouseout", () => updateInfo(info, cfg));
+      });
+    }
+
     // Gap label
     gaps.forEach(([a, b]) => {
       const mid = (xScale(a) + xScale(b)) / 2;
@@ -525,9 +581,20 @@
     const lanes  = cfg.lanes || raw.lanes || [];
     if (!events.length || !lanes.length) return;
 
+    // Three event shapes are now supported:
+    //   - point:      { year, type, title, ... }
+    //   - in-lane span: { start, end, type: <existing lane>, title }
+    //   - era span:   { start, end, type: "era", title }
+    // Eras render in a thin strip above the swim-lanes; in-lane spans
+    // render as capsules on their own lane behind point dots.
+    const eras       = events.filter((e) => e.type === "era" && e.start != null && e.end != null);
+    const points     = events.filter((e) => e.year != null && e.type !== "era");
+    const laneSpans  = events.filter((e) => e.start != null && e.end != null && e.type !== "era");
+
     const LANE_H = 72;
+    const ERA_H  = eras.length ? 38 : 0;   // strip height when at least one era is present
     const W = 1200;
-    const margin = { top: 28, right: 20, bottom: 44, left: 190 };
+    const margin = { top: 28 + ERA_H, right: 20, bottom: 44, left: 190 };
     const innerW = W - margin.left - margin.right;
     const innerH = lanes.length * LANE_H;
     const H = innerH + margin.top + margin.bottom;
@@ -540,9 +607,14 @@
 
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const years = events.map((e) => +e.year).filter((y) => !isNaN(y));
-    const xMin = Math.min.apply(null, years) - 3;
-    const xMax = Math.max.apply(null, years) + 3;
+    // X-domain considers years from points, span starts/ends, and era ranges.
+    const allYears = []
+      .concat(points.map((e) => +e.year))
+      .concat(laneSpans.flatMap((e) => [+e.start, +e.end]))
+      .concat(eras.flatMap((e) => [+e.start, +e.end]))
+      .filter((y) => !isNaN(y));
+    const xMin = Math.min.apply(null, allYears) - 3;
+    const xMax = Math.max.apply(null, allYears) + 3;
     const xScale = d3.scaleLinear().domain([xMin, xMax]).range([0, innerW]);
 
     const laneIndex = new Map(lanes.map((l, i) => [l.key, i]));
@@ -589,9 +661,104 @@
       }
     });
 
-    // Event markers
+    // Hover card helpers — shared by all three render passes.
+    const showCard = (event, d, kind) => {
+      const yearLine = d.year != null
+        ? d.year
+        : `${d.start}–${d.end}`;
+      info.innerHTML = `
+        <h4>${yearLine}</h4>
+        <div class="detail"><strong>${escapeHTML(d.title || "")}</strong></div>
+        ${d.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(d.description)}</div>` : ""}
+      `;
+      info.style.display = "block";
+      placeTimelineCard(info, container, event);
+    };
+    const hideCard = () => { info.style.display = "none"; };
+
+    // ── Era strip: thin line per period with a text label above ────
+    // Minimal style: a horizontal rule from start to end, small caps
+    // at each end, and a label seated above it. No filled box.
+    if (eras.length) {
+      const stripY = margin.top - ERA_H + 16; // line baseline
+      const eraG = svg.append("g")
+        .attr("class", "chart-viz__timeline-eras")
+        .attr("transform", `translate(${margin.left},${stripY})`);
+      eras.forEach((e) => {
+        const x0 = xScale(+e.start);
+        const x1 = xScale(+e.end);
+        const w  = Math.max(2, x1 - x0);
+        const grp = eraG.append("g")
+          .attr("class", "chart-viz__timeline-era")
+          .style("cursor", "help");
+        // The line itself
+        grp.append("line")
+          .attr("class", "chart-viz__timeline-era-line")
+          .attr("x1", x0).attr("x2", x1)
+          .attr("y1", 0).attr("y2", 0);
+        // Tiny end caps to mark start/end years
+        [x0, x1].forEach((xv) => {
+          grp.append("line")
+            .attr("class", "chart-viz__timeline-era-cap")
+            .attr("x1", xv).attr("x2", xv)
+            .attr("y1", -3).attr("y2", 3);
+        });
+        // Label above the line, centered
+        grp.append("text")
+          .attr("class", "chart-viz__timeline-era-label")
+          .attr("x", x0 + w / 2)
+          .attr("y", -6)
+          .attr("text-anchor", "middle")
+          .text(e.title || "");
+        // Wider invisible hit-target so the line is easy to hover
+        grp.append("rect")
+          .attr("class", "chart-viz__timeline-era-hit")
+          .attr("x", x0 - 2).attr("y", -16)
+          .attr("width", w + 4).attr("height", 24)
+          .attr("fill", "transparent");
+        grp
+          .on("mouseover", (event) => showCard(event, e, "era"))
+          .on("mousemove", (event) => placeTimelineCard(info, container, event))
+          .on("mouseout", hideCard);
+      });
+    }
+
+    // ── In-lane spans: capsules behind point dots ───────────────────
+    if (laneSpans.length) {
+      const spanG = g.append("g").attr("class", "chart-viz__timeline-spans");
+      laneSpans.filter((e) => laneIndex.has(e.type)).forEach((e) => {
+        const x0 = xScale(+e.start);
+        const x1 = xScale(+e.end);
+        const w  = Math.max(2, x1 - x0);
+        const cy = laneY(laneIndex.get(e.type));
+        const h  = 18;
+        const grp = spanG.append("g")
+          .attr("class", "chart-viz__timeline-span span-" + e.type)
+          .style("cursor", "help");
+        grp.append("rect")
+          .attr("x", x0).attr("y", cy - h / 2)
+          .attr("width", w).attr("height", h)
+          .attr("rx", h / 2).attr("ry", h / 2)
+          .attr("fill", TIMELINE_COLORS[e.type] || "#888");
+        // Title centered if there's room
+        if (w > 60) {
+          grp.append("text")
+            .attr("class", "chart-viz__timeline-span-label")
+            .attr("x", x0 + w / 2)
+            .attr("y", cy + 4)
+            .attr("text-anchor", "middle")
+            .text(e.title || "");
+        }
+        grp
+          .on("mouseover", (event) => showCard(event, e, "span"))
+          .on("mousemove", (event) => placeTimelineCard(info, container, event))
+          .on("mouseout", hideCard);
+      });
+    }
+
+    // ── Point events (existing dot markers) ─────────────────────────
     g.selectAll("circle.chart-viz__timeline-event")
-      .data(events.filter((e) => laneIndex.has(e.type)))
+      .data(points.filter((e) => laneIndex.has(e.type)))
       .join("circle")
       .attr("class", (e) => "chart-viz__timeline-event event-" + e.type)
       .attr("cx", (e) => xScale(+e.year))
@@ -602,20 +769,14 @@
       .attr("stroke-width", 1.5)
       .on("mouseover", function (event, d) {
         d3.select(this).attr("r", 9);
-        info.innerHTML = `
-          <h4>${d.year}</h4>
-          <div class="detail"><strong>${escapeHTML(d.title || "")}</strong></div>
-          ${d.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(d.description)}</div>` : ""}
-        `;
-        info.style.display = "block";
-        placeTimelineCard(info, container, event);
+        showCard(event, d, "point");
       })
       .on("mousemove", function (event) {
         placeTimelineCard(info, container, event);
       })
       .on("mouseout", function () {
         d3.select(this).attr("r", 6);
-        info.style.display = "none";
+        hideCard();
       });
 
     // X axis (decade ticks)

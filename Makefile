@@ -2,7 +2,7 @@ PY ?= python3
 
 .PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation follow-the-money cosponsorship timeline bibliography clean-data site serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation follow-the-money cosponsorship timeline bibliography
+data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies follow-the-money cosponsorship timeline bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py

@@ -17,10 +17,28 @@ chart:
   ylabel: "Filings"
   unitshort: ""
   infotitle: "Farmer bankruptcies"
-  infoprompt: "Hover a bar for that year's filing count. Grey bands mark data gaps."
-  annotations:
-    - { year: 1934, label: "Dust Bowl" }
-    - { year: 1987, label: "Chapter 12 enacted" }
+  infoprompt: "Hover a bar for that year's value. Grey bands mark data gaps."
+  periods:
+    - { start: 1921, end: 1929, label: "1920s ag depression",
+        description: "Post-WWI commodity-price collapse hit farm income hard, driving the highest absolute bankruptcy counts of the early 20th century." }
+    - { start: 1930, end: 1940, label: "Dust Bowl",
+        description: "Drought and topsoil erosion across the southern Plains. Frames the policy moment of the Taylor Grazing Act (1934) and Bankhead-Jones Farm Tenant Act (1937)." }
+    - { start: 1980, end: 1987, label: "Farm Crisis",
+        description: "Land-value collapse and export-market downturn push roughly 250,000 farms out of business. The 1980–86 bankruptcy gap on this chart sits inside this period — Chapter 12 didn't exist yet." }
+  selector:
+    label: "Show"
+    default: "count"
+    options:
+      - { value: "count",  label: "Filings (count)",
+          title: "US farmer bankruptcy filings, 1899–2024",
+          ylabel: "Filings",
+          unit: "",
+          annotations: [{ year: 1987, label: "Chapter 12 enacted" }] }
+      - { value: "per_1k", label: "Rate (per 1,000 farms)",
+          title: "US farmer bankruptcy rate per 1,000 farms operating, 1910–2024",
+          ylabel: "Bankruptcy rate (filings per 1,000 farms operating)",
+          unit: " per 1,000 farms",
+          annotations: [{ year: 1987, label: "Chapter 12 enacted" }] }
 ---
 
 Each bar is one year's count of farmer bankruptcy filings in the United States. Notably:

@@ -64,6 +64,22 @@ def main() -> None:
         y = int(r["YEAR"])
         ch12_national[y] = int(float(r.get("CHAP_12") or 0))
 
+    # Backfill `farms` from the farm-consolidation pipeline output where
+    # the historical CSV runs out (≈1980). farm-consolidation is built
+    # by `scripts/build_farm_consolidation.py` from NASS QuickStats; if
+    # it hasn't been built yet we silently skip this enrichment.
+    consolidation_farms: dict[int, int] = {}
+    try:
+        import json as _json
+        cdata = _json.loads((DATA_DIR / "farm-consolidation.json").read_text())
+        for r in cdata.get("data", []):
+            y = r.get("year")
+            f = r.get("farms")
+            if y is not None and f:
+                consolidation_farms[int(y)] = int(f)
+    except FileNotFoundError:
+        pass
+
     national_annual = []
     for y in range(1899, 2025):
         row: dict = {"year": y}
@@ -72,8 +88,16 @@ def main() -> None:
         else:
             row["count"] = ch12_national.get(y)
         farms = hist_by_year.get(y, {}).get("farms")
+        if farms is None:
+            farms = consolidation_farms.get(y)
         if farms is not None:
             row["farms"] = farms
+        # Filings per 1,000 farms — readable scale for the toggle. (As
+        # raw percent: 1,000 filings against 5 million farms ≈ 0.02 %,
+        # which a chart axis can't tell apart from zero. Per-thousand
+        # gives ≈ 0.2, which scales nicely.)
+        if row["count"] and farms:
+            row["per_1k"] = round(row["count"] / farms * 1000, 3)
         national_annual.append(row)
 
     # West/Plains annual from district-quarterly data
