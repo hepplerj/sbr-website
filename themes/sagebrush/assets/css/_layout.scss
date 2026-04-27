@@ -66,13 +66,13 @@ img, svg, video, canvas {
   margin: 0 auto;
   padding: 0 var(--space-5);
   display: flex;
-  align-items: baseline;
+  // Center alignment is more forgiving than baseline once the title
+  // and nav use different fonts / sizes / padding boxes.
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-3) var(--space-5);
   flex-wrap: wrap;
   @media (max-width: 36rem) {
-    // Stack title + nav on narrow screens, with extra breathing room
-    // and horizontal-scroll fallback so no nav item gets clipped.
     padding: 0 var(--space-4);
     gap: var(--space-3);
   }
@@ -92,25 +92,17 @@ img, svg, video, canvas {
 .site-title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: var(--font-size-md);
+  // Bumped from --font-size-md (~1rem). Clamp scales gently with
+  // viewport width so it doesn't crowd the nav on smaller screens.
+  font-size: clamp(1.2rem, 1.6vw, 1.5rem);
   letter-spacing: -0.01em;
+  line-height: 1;
   margin: 0;
   a {
     color: var(--color-ink);
     text-decoration: none;
   }
   a:hover { color: var(--color-rust); }
-}
-
-.site-title__sub {
-  display: block;
-  font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-top: 0.15em;
 }
 
 // ── Navigation ───────────────────────────────
