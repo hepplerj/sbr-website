@@ -58,8 +58,9 @@ Roughly 28 percent of the United States---about 640 million acres---is owned and
 
 Four agencies manage the overwhelming majority of the acreage: the **US Forest Service** (green), the **Bureau of Land Management** (gold), the **Fish & Wildlife Service** (olive), and the **National Park Service** (navy). Together they manage most of what the public thinks of as "public lands": the National Forests, the BLM grazing districts, the wildlife refuges, the National Parks and historic monuments. Federal agencies hold their lands under very different statutory regimes and serve very different purposes.
 
-
 Hover over a polygon to learn more about the land's management, or click an agency on the legend to filter down to just that agency's lands.
+
+([I made an early version of this map in 2011](https://jasonheppler.org/projects/western-lands/).)
 
 ## Data and method
 

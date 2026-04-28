@@ -8,3 +8,7 @@ cascade:
     - Jason Heppler
 ---
 
+Subscribe to new writings via this page's **[RSS feed](/narrative/index.xml)**.
+
+
+
