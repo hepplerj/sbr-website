@@ -40,4 +40,3 @@ Each vertical stripe in the graph represents a single year, color indicating the
 
 - **Source**: NOAA NCEI Climate at a Glance, national monthly precipitation series (contiguous U.S., region code 110), 1895 through 2024.
 - **Aggregation**: monthly values **summed** to annual totals (note — temperature uses a mean, precipitation uses a sum); anomalies computed against the 1901–2000 baseline (standard NOAA convention).
-- **Color scale**: diverging scale from rust-brown (−5.0 in) through cream (0) to navy (+5.0 in). The ±5 inch domain matches the actual historical extremes — 1910 at −5.02 in, 1973 at +5.02 in.

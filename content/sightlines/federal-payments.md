@@ -1,7 +1,7 @@
 ---
 title: "Federal Payments to Western Counties"
 date: 2026-04-21
-lede: "Over a century of in-lieu-of-taxes payments, revenue shares, and compensation programs flowing from federal-land agencies to the counties that host them. Reconstructed from the Taylor/Steiner *Follow the Money* dataset."
+lede: "Over a century of in-lieu-of-taxes payments, revenue shares, and compensation programs flowing from federal-land agencies to the counties that host them. Reconstructed from the Taylor/Steiner Follow the Money dataset."
 weight: 21
 draft: false
 viz: chart
