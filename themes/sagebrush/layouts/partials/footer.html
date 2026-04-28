@@ -26,18 +26,15 @@
         {{- with .Site.Params.social.github }}
           <li><a href="https://github.com/{{ . }}">Code on GitHub</a></li>
         {{- end }}
-        {{- with .Site.Home.OutputFormats.Get "RSS" }}
-          <li><a href="{{ .RelPermalink }}">RSS</a></li>
-        {{- end }}
+        <li><a href="{{ "/feeds/" | relURL }}">Feeds</a></li>
       </ul>
     </nav>
 
     <div>
       <h3>Credit</h3>
       <p>
-        <em>{{ .Site.Title }}</em> is a project by {{- with .Site.Params.author }} {{ . }}. {{ end }}
-        &copy; 2025&mdash;{{ .Date | time.Format "2006" }}. {{- with .Lastmod }} Last updated {{ .Format "January 2, 2006" }}. {{- end }}
-      </p>
+        <em>{{ .Site.Title }}</em> is a project created, developed, and written by <a href="https://jasonheppler.org">{{- with .Site.Params.author }} {{ . }}</a>. {{ end }}
+        &copy; 2025&mdash;{{ .Date | time.Format "2006" }}. {{- with .Lastmod }} Last updated {{ .Format "January 2, 2006" }}. {{- end }} </p>
       <p> Content <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND 4.0</a>. Code <a href="https://github.com/hepplerj/sbr-website/blob/main/LICENSE">MIT</a>.</p>
     </div>
   </div>
