@@ -21,9 +21,11 @@ chart:
   unitshort: "in"
   infotitle: "Regional precipitation"
   infoprompt: "Hover a stripe for a region's year-over-year anomaly."
-  annotations:
-    - { year: 1934, label: "Dust Bowl" }
-    - { year: 1981, label: "Farm Crisis" }
+  periods:
+    - { start: 1930, end: 1940, label: "Dust Bowl",
+        description: "A decade of severe drought and topsoil erosion across the southern Plains. Visible in this chart as a sustained brown band on the Plains row, with regional variation by year." }
+    - { start: 1980, end: 1987, label: "Farm Crisis",
+        description: "Land-value collapse and export-market downturn push roughly 250,000 farms out of business. The Northern Plains drought of 1988 sits at the back end of this period." }
 ---
 
 This chart uses the four NOAA climate regions to visualize each year of precipitation per vertical stripe, color-encoded by anomaly against a 1901–2000 baseline: brown for drier, blue for wetter. 

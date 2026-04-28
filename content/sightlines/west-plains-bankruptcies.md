@@ -23,9 +23,11 @@ chart:
   legendtitle: "Filings per year"
   infotitle: "Farm bankruptcies"
   infoprompt: "Hover a stripe for a state's Chapter 12 filings that year."
-  annotations:
-    - { year: 1998, label: "Late-1990s commodity crash" }
-    - { year: 2009, label: "Great Recession" }
+  periods:
+    - { start: 1996, end: 1999, label: "Late-1990s commodity crash",
+        description: "Asian financial crisis + grain glut depressed crop prices through the late 1990s; the 1998 trough hit Plains row-crop states hardest." }
+    - { start: 2007, end: 2010, label: "Great Recession",
+        description: "Credit contraction and the 2008 financial crisis squeezed farm credit access; bankruptcy filings climbed across most states for two to three years." }
 ---
 
 This chart, reading top to bottom, shows state filing-volume from most to least. Reading left to right is the filing-intensity history of that state across three decades.

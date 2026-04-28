@@ -116,6 +116,53 @@
       });
   }
 
+  // ── Era strip helper ───────────────────────────────────────────────
+  // Render a thin line + label per period above the chart area. Used
+  // by stripes, stacked stripes, bar, and timeline charts to mark
+  // multi-year frames (Dust Bowl, Farm Crisis, etc.) without competing
+  // with the chart's own data marks.
+  function drawEraStrip(svg, periods, xScale, opts) {
+    const { offsetX, offsetY } = opts;
+    if (!periods || !periods.length) return;
+    const eraG = svg.append("g")
+      .attr("class", opts.className || "chart-viz__bars-eras")
+      .attr("transform", `translate(${offsetX},${offsetY})`);
+    periods.forEach((p) => {
+      const x0 = xScale(+p.start);
+      const x1 = xScale(+p.end);
+      const w  = Math.max(2, x1 - x0);
+      const grp = eraG.append("g")
+        .attr("class", "chart-viz__timeline-era")
+        .style("cursor", "help");
+      grp.append("line")
+        .attr("class", "chart-viz__timeline-era-line")
+        .attr("x1", x0).attr("x2", x1)
+        .attr("y1", 0).attr("y2", 0);
+      [x0, x1].forEach((xv) => {
+        grp.append("line")
+          .attr("class", "chart-viz__timeline-era-cap")
+          .attr("x1", xv).attr("x2", xv)
+          .attr("y1", -3).attr("y2", 3);
+      });
+      grp.append("text")
+        .attr("class", "chart-viz__timeline-era-label")
+        .attr("x", x0 + w / 2)
+        .attr("y", -6)
+        .attr("text-anchor", "middle")
+        .text(p.label || "");
+      grp.append("rect")
+        .attr("class", "chart-viz__timeline-era-hit")
+        .attr("x", x0 - 2).attr("y", -16)
+        .attr("width", w + 4).attr("height", 24)
+        .attr("fill", "transparent");
+      if (opts.onHover) {
+        grp
+          .on("mouseover", () => opts.onHover(p))
+          .on("mouseout",  () => opts.onLeave && opts.onLeave());
+      }
+    });
+  }
+
   // ── Climate stripes ─────────────────────────────────────────────────
   function drawStripes(container, cfg, series, info) {
     const x = cfg.xfield || "year";
@@ -125,8 +172,11 @@
       .filter((d) => !isNaN(d.x) && !isNaN(d.y))
       .sort((a, b) => a.x - b.x);
 
-    const W = 1200, H = 260;
-    const margin = { top: 48, right: 16, bottom: 48, left: 16 };
+    const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
+    const PERIOD_H = periods.length ? 28 : 0;
+
+    const W = 1200, H = 260 + PERIOD_H;
+    const margin = { top: 48 + PERIOD_H, right: 16, bottom: 48, left: 16 };
     const innerW = W - margin.left - margin.right;
     const innerH = H - margin.top - margin.bottom;
 
@@ -194,6 +244,20 @@
         .text(`${a.year} · ${a.label}`);
     });
 
+    // Periods (era strip) above the stripe ribbon
+    drawEraStrip(svg, periods, xScale, {
+      offsetX: margin.left,
+      offsetY: 22,
+      onHover: (p) => {
+        info.innerHTML = `
+          <h4>${p.start}–${p.end}</h4>
+          <div class="detail"><strong>${escapeHTML(p.label || "")}</strong></div>
+          ${p.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(p.description)}</div>` : ""}
+        `;
+      },
+      onLeave: () => updateInfo(info, cfg),
+    });
+
     // Legend ramp
     addRampLegend(container, color, domain, cfg);
   }
@@ -217,9 +281,12 @@
     }));
     if (!rows.length || !rows[0].data.length) return;
 
+    const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
+    const PERIOD_H = periods.length ? 28 : 0;
+
     const ROW_H = 70;
     const W = 1200;
-    const margin = { top: 36, right: 16, bottom: 48, left: 180 };
+    const margin = { top: 36 + PERIOD_H, right: 16, bottom: 48, left: 180 };
     const innerW = W - margin.left - margin.right;
     const innerH = rows.length * ROW_H;
     const H = innerH + margin.top + margin.bottom;
@@ -342,6 +409,21 @@
         .attr("y", -12)
         .attr("text-anchor", "middle")
         .text(`${a.year} · ${a.label}`);
+    });
+
+    // Era strip pinned to the top of the SVG above the row labels and
+    // the per-year annotations.
+    drawEraStrip(svg, periods, xScale, {
+      offsetX: margin.left,
+      offsetY: 22,
+      onHover: (p) => {
+        info.innerHTML = `
+          <h4>${p.start}–${p.end}</h4>
+          <div class="detail"><strong>${escapeHTML(p.label || "")}</strong></div>
+          ${p.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(p.description)}</div>` : ""}
+        `;
+      },
+      onLeave: () => updateInfo(info, cfg),
     });
 
     addRampLegend(container, color, domain, cfg);

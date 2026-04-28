@@ -19,10 +19,15 @@ chart:
   infotitle: "US annual temperature"
   infoprompt: "Hover a stripe for that year's anomaly against the 1901–2000 mean."
   annotations:
-    - { year: 1936, label: "Taylor Grazing Act",      side: "above" }
-    - { year: 1976, label: "FLMPA",      side: "above" }
-    - { year: 1981, label: "Farm Crisis",      side: "above" }
-    - { year: 2012, label: "Megadrought",    side: "above" }
+    - { year: 1934, label: "Taylor Grazing Act", side: "above" }
+    - { year: 1976, label: "FLPMA",              side: "above" }
+  periods:
+    - { start: 1930, end: 1940, label: "Dust Bowl",
+        description: "A decade of severe drought and topsoil erosion across the southern Plains, accelerated by sodbuster farming on marginal grasslands." }
+    - { start: 1980, end: 1987, label: "Farm Crisis",
+        description: "Land-value collapse and export-market downturn push roughly 250,000 farms out of business between 1981 and 1987." }
+    - { start: 2000, end: 2024, label: "Western megadrought",
+        description: "The driest two-decade stretch in the West since at least 800 CE per tree-ring reconstruction; peaked in dryness around 2012 and continues into the 2020s." }
 ---
 
 Each vertical stripe in the chart indicates a single year, with color representing the year's mean temperature across the United States compared to the 1901-2000 average. Blue indicates cooler than baseline, cream for near-average, and rust for warmer. Read from left to right the chart shows a warming climate. 
