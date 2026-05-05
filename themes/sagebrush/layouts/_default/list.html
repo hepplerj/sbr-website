@@ -24,6 +24,7 @@
       {{- with or .Params.summary .Summary }}
         <p class="entry__summary">{{ . | plainify | truncate 260 }}</p>
       {{- end }}
+      {{ partial "coins.html" . }}
     </li>
   {{- end }}
 </ul>
