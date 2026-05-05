@@ -808,6 +808,62 @@ canvas {
   margin: 0;
 }
 
+// ── Inline definition tooltip ({{% define %}} shortcode) ──────────────
+// The .dfn wrapper is inline; the tip is absolutely positioned relative
+// to it. Pure CSS — no JS required.
+.dfn {
+  position: relative;
+  display: inline;
+
+  // The term itself: dotted underline signals interactivity.
+  .dfn__term {
+    font-style: normal;          // <dfn> is italic by default; override
+    text-decoration: underline dotted;
+    text-decoration-color: var(--color-text-muted);
+    text-underline-offset: 3px;
+    cursor: help;
+  }
+
+  // Tooltip: hidden until hover or keyboard focus.
+  .dfn__tip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+
+    width: max-content;
+    max-width: min(280px, 80vw);
+    padding: 0.5em 0.75em;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    font-style: normal;
+    line-height: 1.45;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+
+    // Downward-pointing arrow
+    &::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: var(--color-ink);
+    }
+  }
+
+  // Show on hover or when any child is focused (keyboard nav)
+  &:hover .dfn__tip,
+  &:focus-within .dfn__tip {
+    display: block;
+  }
+}
+
 // ── Viz embed ────────────────────────────────
 .viz-embed {
   margin: var(--space-7) auto;

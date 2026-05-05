@@ -1,0 +1,22 @@
+{{- /*
+  define — inline definition tooltip.
+
+  Wraps a term with a hover popup showing its definition. The term
+  appears in the text with a dotted underline; hovering (or focusing
+  via keyboard) surfaces the definition above it.
+
+  Usage:
+    {{< define term="smallholder" >}}
+      A farmer or rancher who cultivates a modest landholding, typically
+      relying on family labor rather than hired hands.
+    {{< /define >}}
+
+  Notes:
+    - .Inner is markdownified so the definition can use *emphasis*, **bold**, etc.
+    - <p> wrappers are stripped so the tip stays inline.
+    - role="tooltip" + aria-describedby wire up screen-reader access.
+*/ -}}
+{{- $term := .Get "term" -}}
+{{- $id   := printf "dfn-%s" ($term | urlize) -}}
+{{- $def  := .Inner | markdownify | replaceRE "</?p[^>]*>" "" | strings.TrimSpace -}}
+<span class="dfn"><dfn class="dfn__term" aria-describedby="{{ $id }}">{{ $term }}</dfn><span class="dfn__tip" id="{{ $id }}" role="tooltip">{{ $def | safeHTML }}</span></span>
