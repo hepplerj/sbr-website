@@ -1,0 +1,18 @@
+{{- $coins := slice
+  "ctx_ver" "Z39.88-2004"
+  "rft_val_fmt" "info:ofi/fmt:kev:mtx:dc"
+  "rft.title" .Title
+  "rft.date" (.Date.Format "2006-01-02")
+  "rft.type" "blogPost"
+  "rft_id" .Permalink
+-}}
+{{- with .Params.authors -}}
+  {{- range . -}}
+    {{- $coins = $coins | append "rft.creator" . -}}
+  {{- end -}}
+{{- else -}}
+  {{- with $.Params.author_name -}}
+    {{- $coins = $coins | append "rft.creator" . -}}
+  {{- end -}}
+{{- end -}}
+<span class="Z3988" title="{{ querify $coins }}"></span>
