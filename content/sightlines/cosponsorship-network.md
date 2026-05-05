@@ -28,28 +28,23 @@ network:
 
 > This is a draft network under active development. The bill set will grow as additional bills are compiled from historical records. Follow the [changelog](/updates/) for notices when this network changes.
 
-This graph charts fifty-seven bills introduced in the 96th through 118th Congresses (1979–2024) on federal-public-lands matters:transfer of federal lands to states, disposal of "excess" federal acreage, Antiquities Act reform and rollback, grazing administration, monument-designation review, sage-grouse / ESA flexibility, and wilderness study areas. Legislators appear as nodes if they cosponsored at least **two** bills in the set. Edges connect pairs who cosponsored **two or more** of the same bills.
+This graph charts fifty-seven bills introduced in the 96th through 118th Congresses (1979–2024) on federal-public-lands matters:transfer of federal lands to states, disposal of "excess" federal acreage, Antiquities Act reform and rollback, grazing administration, monument-designation review, sage-grouse / ESA flexibility, and wilderness study areas. Legislators appear as nodes if they cosponsored at least **two** bills in the set. Edges connect pairs who cosponsored **two or more** of the same bills. 246 legislators meet the threshold; 2,249 edges connect them.
 
-246 legislators meet the threshold. 2,249 edges connect them. The graph is dense by design: it shows the full caucus across four decades.
-
-**Click any legislator** to open a modal with their complete bill list from the dataset — sponsor versus cosponsor role, Congress, bill number, full title, and a link out to the Congress.gov page.
+**Click any legislator** to open a modal with their complete bill list from the dataset.
 
 ## How to read this graph
 
-- **Node size encodes bill count.** The 97th–104th bills significantly shift who is largest. Members who bridged the original Sagebrush Rebellion era into the Pombo/Bishop years later emerge prominently alongside the post-2003 caucus.
-- **Grazing-related bills are part of this history.** The Public Rangelands Fee Act appeared in four consecutive Congresses (99th–102nd) with 28–43 cosponsors each time. Members who signed all four form a distinct cluster connecting the Reagan-era reforms.
+- **Node size encodes bill count.** Notably, Congressional members who bridged the 1979 Sagebrush Rebellion era into the Pombo/Bishop years later emerge prominently alongside the post-2003 caucus.
 - **The 104th Congress cluster.** H.R. 2745 ("Restoration of Natural Resources Laws on Public Lands," 1995–96) carries 149 cosponsors---the largest single bill in the dataset by far. It creates a dense sub-graph representing the Contract with America–era legislative moment, the closest Congress came to a wholesale rollback of federal land law.
-- **A partisan shape holds.** The overwhelming majority of nodes are Republicans. Democrats present are almost entirely focused on bills with regional or procedural angles (grazing fee reform, state transfer provisions), rather than consistent caucus membership.
+- **A partisan shape holds.** The overwhelming majority of nodes are Republicans. Democrats present are almost entirely focused on bills with regional or procedural angles (grazing fee reform, state transfer provisions) rather than consistent caucus membership.
 
 There are any number of reasons a legislator would cosponsor a bill: for regional signaling, caucus loyalty, constituent favor, or genuine commitment. This graph makes no distinctions at that closer reading---rather, the network tries to demonstrate alignment and coordination. Notably, none of the 57 bills in this network became law. 
 
-Nodes can be filtered by what I've identified as five bill types to isolate clusters of coalitions focused on specific land use issues.
+Nodes can be filtered by what I've identified as five bill types to isolate clusters of coalitions focused on specific land use issues by selecting a highlight to fade out nodes that don't match.
 
 ## Bills in the data
 
-Fifty-seven bills across the 96th–118th Congresses appear in this dataset. The dataset is specifically curated to represent the transfer, disposal, grazing, wilderness areas, and Antiquities Act reform that I believe demonstrates a lineage in Sagebrush-style politics.
-
-Years shown are the two-year span of the Congress in which the bill was introduced.
+Fifty-seven bills across the 96th–118th Congresses appear in this dataset. The dataset is specifically curated to represent the transfer, disposal, grazing, wilderness areas, and Antiquities Act reform that I believe demonstrates a lineage in Sagebrush-style politics. Years shown are the two-year span of the Congress in which the bill was introduced.
 
 | Congress | Years | Bill | Bill name |
 |---|:---:|---|---:|
@@ -114,9 +109,9 @@ Years shown are the two-year span of the Congress in which the bill was introduc
 ## Data and method
 
 - **Source**: GPO `govinfo.gov` BILLSTATUS bulk data for 108th Congress onward; Congress.gov API v3 for pre-108th bills. Each bill's sponsor and cosponsor list (bioguide ID, name, party, state, district) fetched and parsed.
-- **Coverage floor**: The 96th Congress (1979) is the current lower bound. The 97th–104th era (1981–1996) is only partially covered: land disposal, grazing fees, and Antiquities Act bills were identified through the GovTrack subject-tag scan. The 105th–106th Congresses (1997–2002) are currently sparse and requires identifying the right bills through archival research.
+- **Coverage floor**: The data currently starts with the 96th Congress (1979). The 97th–104th era (1981–1996) is only partially covered: land disposal, grazing fees, and Antiquities Act bills were identified through the GovTrack subject-tag scan. The 105th–106th Congresses (1997–2002) are currently sparse and still requires identifying the right bills through archival research.
 - **Nodes** are legislators who appear on **two or more** bills, or who primary-sponsored any bill. Primary sponsors are always retained.
 - **Edges** are pairs of legislators who cosponsored **two or more** of the same bills. Any isolated nodes have been dropped from this network.
-- **Sizing**: circle *area* is sqrt-proportional to a legislator's bill count.
+- **Sizing**: circle *area* is proportional to a legislator's bill count.
 - **Click behavior**: clicking a node opens a modal with the legislator's complete list of cosponsored bills. Bill numbers link to Congress.gov.
 
