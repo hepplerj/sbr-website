@@ -900,6 +900,33 @@
   };
   const resolveColor = (name, fallback) => LINE_COLORS[name] || name || fallback;
 
+  // Presidential administrations — used by the admin-bands toggle in
+  // small-multiples charts. `end` is the first year of the *next*
+  // administration (exclusive upper bound for the band).
+  const ADMINISTRATIONS = [
+    { name: "Taft",        party: "republican", start: 1909, end: 1913 },
+    { name: "Wilson",      party: "democrat",   start: 1913, end: 1921 },
+    { name: "Harding",     party: "republican", start: 1921, end: 1923 },
+    { name: "Coolidge",    party: "republican", start: 1923, end: 1929 },
+    { name: "Hoover",      party: "republican", start: 1929, end: 1933 },
+    { name: "F. Roosevelt",party: "democrat",   start: 1933, end: 1945 },
+    { name: "Truman",      party: "democrat",   start: 1945, end: 1953 },
+    { name: "Eisenhower",  party: "republican", start: 1953, end: 1961 },
+    { name: "Kennedy",     party: "democrat",   start: 1961, end: 1963 },
+    { name: "Johnson",     party: "democrat",   start: 1963, end: 1969 },
+    { name: "Nixon",       party: "republican", start: 1969, end: 1974 },
+    { name: "Ford",        party: "republican", start: 1974, end: 1977 },
+    { name: "Carter",      party: "democrat",   start: 1977, end: 1981 },
+    { name: "Reagan",      party: "republican", start: 1981, end: 1989 },
+    { name: "Bush",        party: "republican", start: 1989, end: 1993 },
+    { name: "Clinton",     party: "democrat",   start: 1993, end: 2001 },
+    { name: "Bush",        party: "republican", start: 2001, end: 2009 },
+    { name: "Obama",       party: "democrat",   start: 2009, end: 2017 },
+    { name: "Trump",       party: "republican", start: 2017, end: 2021 },
+    { name: "Biden",       party: "democrat",   start: 2021, end: 2025 },
+    { name: "Trump",       party: "republican", start: 2025, end: 2029 },
+  ];
+
   function drawLine(container, cfg, series, info) {
     const x = cfg.xfield || "year";
 
@@ -1169,6 +1196,26 @@
         .domain([Math.min(0, yMin), yMax]).nice()
         .range([panelH, 0]);
 
+      // Presidential administration bands — rendered behind gridlines.
+      // Visibility toggled by the button appended after the SVG.
+      if (cfg.adminbands) {
+        const [xMin, xMax] = d3.extent(allX);
+        const bandsG = g.append("g")
+          .attr("class", "chart-viz__admin-bands")
+          .attr("pointer-events", "none");
+        ADMINISTRATIONS.forEach((a) => {
+          const bx0 = Math.max(a.start, xMin);
+          const bx1 = Math.min(a.end, xMax + 1);
+          if (bx0 >= bx1) return;
+          bandsG.append("rect")
+            .attr("class", "chart-viz__admin-band chart-viz__admin-band--" + a.party)
+            .attr("x", xScale(bx0))
+            .attr("y", 0)
+            .attr("width", Math.max(0, xScale(bx1) - xScale(bx0)))
+            .attr("height", panelH);
+        });
+      }
+
       // Gridlines
       g.append("g").attr("class", "chart-viz__grid")
         .selectAll("line")
@@ -1204,6 +1251,20 @@
 
       return { g, yScale, p, top, panelH };
     });
+
+    // Toggle button for administration bands
+    if (cfg.adminbands) {
+      const btn = document.createElement("button");
+      btn.className = "chart-viz__admin-toggle";
+      btn.setAttribute("aria-pressed", "false");
+      btn.textContent = "Show administrations";
+      btn.addEventListener("click", () => {
+        const on = container.classList.toggle("is-admin-bands");
+        btn.setAttribute("aria-pressed", String(on));
+        btn.textContent = on ? "Hide administrations" : "Show administrations";
+      });
+      container.appendChild(btn);
+    }
 
     // ── Shared crosshair ─────────────────────────────────────────────
     // One dashed guide spans the union of all panels; one highlight dot
@@ -1269,7 +1330,17 @@
           return `<div class="detail"><strong style="color:${pg.p.color}">${pg.p.label}:</strong> ${fmtOf(pg.p.format)(pt.y)}${pg.p.unit}</div>`;
         }).join("");
 
-        info.innerHTML = `<h4>${snapX}</h4>${rows}`;
+        // Administration row — only shown when bands are visible
+        let adminRow = "";
+        if (cfg.adminbands && container.classList.contains("is-admin-bands")) {
+          const adm = ADMINISTRATIONS.find((a) => snapX >= a.start && snapX < a.end);
+          if (adm) {
+            const col = adm.party === "republican" ? "#a94b2b" : "#1f2a44";
+            adminRow = `<div class="detail chart-viz__admin-row"><span class="chart-viz__admin-dot" style="background:${col}"></span>${adm.name} (${adm.party === "republican" ? "R" : "D"}) · ${adm.start}–${adm.end}</div>`;
+          }
+        }
+
+        info.innerHTML = `<h4>${snapX}</h4>${rows}${adminRow}`;
       });
   }
 

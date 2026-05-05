@@ -21,46 +21,50 @@
     16: "intermountain-west",// ID
     49: "intermountain-west",// UT
     32: "intermountain-west",// NV
-     8: "rocky-mountain",    // CO
+    8: "rocky-mountain",    // CO
     56: "rocky-mountain",    // WY
-     4: "southwest",         // AZ
+    4: "southwest",         // AZ
     35: "southwest",         // NM
     53: "pacific-northwest", // WA
     41: "pacific-northwest", // OR
-     6: "pacific-southwest", // CA
+    6: "pacific-southwest", // CA
+    15: "pacific-southwest", // HI
+    2: "alaska",            // AK
   };
 
   var REGION_COLOR = {
-    "northern-plains":   "#b8a55a",
-    "southern-plains":   "#c06b45",
-    "intermountain-west":"#4e8055",
-    "rocky-mountain":    "#5278a0",
-    "southwest":         "#9b4e4e",
+    "northern-plains": "#b8a55a",
+    "southern-plains": "#c06b45",
+    "intermountain-west": "#4e8055",
+    "rocky-mountain": "#5278a0",
+    "southwest": "#9b4e4e",
     "pacific-northwest": "#3a7268",
     "pacific-southwest": "#7a5e9a",
+    "alaska": "#4a7a8a",
   };
 
   var REGION_LABEL = {
-    "northern-plains":   "Northern Plains",
-    "southern-plains":   "Southern Plains",
-    "intermountain-west":"Intermountain West",
-    "rocky-mountain":    "Rocky Mountain",
-    "southwest":         "Southwest",
+    "northern-plains": "Northern Plains",
+    "southern-plains": "Southern Plains",
+    "intermountain-west": "Intermountain West",
+    "rocky-mountain": "Rocky Mountain",
+    "southwest": "Southwest",
     "pacific-northwest": "Pacific Northwest",
     "pacific-southwest": "Pacific Southwest",
+    "alaska": "Alaska",
   };
 
   // Ordered for display in legend
   var REGION_ORDER = [
     "northern-plains", "southern-plains",
     "intermountain-west", "rocky-mountain", "southwest",
-    "pacific-northwest", "pacific-southwest",
+    "pacific-northwest", "pacific-southwest", "alaska",
   ];
 
   // ── Shared filter state ───────────────────────────────────────────────────────
   var active = { theme: new Set(), region: new Set() };
 
-  var cards  = document.querySelectorAll(".sightlines-card");
+  var cards = document.querySelectorAll(".sightlines-card");
   var groups = document.querySelectorAll(".sightlines-group");
 
   function refresh() {
@@ -70,8 +74,8 @@
     );
     themePillGroups.forEach(function (pg) {
       pg.querySelectorAll(".sightlines-filter__pill").forEach(function (p) {
-        var v   = p.dataset.value;
-        var on  = v === "" ? active.theme.size === 0 : active.theme.has(v);
+        var v = p.dataset.value;
+        var on = v === "" ? active.theme.size === 0 : active.theme.has(v);
         p.classList.toggle("is-active", on);
         p.setAttribute("aria-pressed", on ? "true" : "false");
       });
@@ -79,9 +83,9 @@
 
     // Cards
     cards.forEach(function (c) {
-      var ct = (c.dataset.themes  || "").split(",").filter(Boolean);
+      var ct = (c.dataset.themes || "").split(",").filter(Boolean);
       var cr = (c.dataset.regions || "").split(",").filter(Boolean);
-      var tOK = active.theme.size  === 0 || ct.some(function (t) { return active.theme.has(t); });
+      var tOK = active.theme.size === 0 || ct.some(function (t) { return active.theme.has(t); });
       var rOK = active.region.size === 0 || cr.some(function (r) { return active.region.has(r); });
       c.classList.toggle("is-hidden", !(tOK && rOK));
     });
@@ -142,7 +146,7 @@
     if (!legend) return;
     legend.querySelectorAll(".sightlines-region-chip").forEach(function (btn) {
       var slug = btn.dataset.region;
-      var on   = active.region.size === 0 ? false : active.region.has(slug);
+      var on = active.region.size === 0 ? false : active.region.has(slug);
       btn.classList.toggle("is-active", on);
       btn.setAttribute("aria-pressed", on ? "true" : "false");
     });

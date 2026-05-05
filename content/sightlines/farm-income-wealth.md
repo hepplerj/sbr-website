@@ -1,7 +1,7 @@
 ---
 title: "Farm Wealth and the Federal Hand"
 date: 2026-05-04
-lede: "Four panels tracing U.S. farm net income, net worth, debt stress, and federal payments from 1910 to 2026. The land-value bubble of the 1970s, the Farm Crisis debt crunch of the 1980s, and the New Deal origins of federal agricultural support are all visible in the numbers."
+lede: "Tracing U.S. farm net income, net worth, debt stress, and federal payments from 1910 to 2026."
 weight: 15
 draft: false
 viz: chart
@@ -15,6 +15,7 @@ chart:
   title: "U.S. farm sector income, wealth, and federal payments, 1910–2026"
   infotitle: "Farm economy"
   infoprompt: "Hover to see values at a year."
+  adminbands: true
   panels:
     - field: net_farm_income
       label: "Net farm income"
@@ -23,7 +24,7 @@ chart:
       scale: 1
       format: "1f"
     - field: farm_equity
-      label: "Farm net worth (equity)"
+      label: "Farm net worth"
       color: sage
       unit: " B$"
       scale: 1
@@ -53,18 +54,6 @@ The four panels together describe a century of American farm economics: how inco
 **Debt-to-asset ratio** (available from 1960) makes the leverage story precise. Through the 1960s farms carried roughly 14–16 percent leverage — manageable. Aggressive lending through the 1970s — when farmland seemed an inflation-proof investment — pushed the ratio to 16 percent by 1979 even as nominal asset values soared. After the crash, it climbed to 22 percent in 1985: the highest reading in the series, the moment of maximum fragility. The ratio has since declined as asset values recovered, but the line is rising again after 2012 as input costs and borrowing have grown faster than income.
 
 **Government payments** charts federal outlays to farmers — commodity supports, conservation contracts, disaster relief — from the first New Deal appropriations in 1933 to the present. The pattern is instructive: payments stayed below $2 billion for forty years, then jumped nearly fivefold between 1979 and 1986 as Congress tried to shore up a collapsing farm sector. The spike contradicts a common claim in sagebrush rebellion rhetoric: that the federal government was a predatory presence rather than a financial lifeline. Western ranchers who mobilized against federal land management in the same years were often the same operators collecting federal payments to survive the commodity crash.
-
-## The 1970s land bubble
-
-The equity panel reveals the bubble's dimensions. In 1950, total U.S. farm equity was $111 billion. By 1979 it had reached $767 billion — a compound annual growth rate of 6.6 percent, well above inflation. Farmland was widely treated as a hedge against the stagflation of the Nixon–Carter years. Banks extended credit liberally against inflated collateral, and farmers borrowed to expand.
-
-The Sagebrush Rebellion of 1979–1981 emerged in this climate of rising asset values and rising frustration with federal land management that seemed to constrain the expansion of grazing and resource extraction operations. The rebellion's demands — transfer of federal lands to states, reduction of grazing fees, rollback of environmental review requirements — were partly about ideology and partly about the economics of leveraged ranches seeking to expand their operational base.
-
-## The 1980s debt crunch
-
-When Paul Volcker raised the federal funds rate to 20 percent in 1981 to break inflation, the farm sector faced a compound shock: the same interest rates that made new debt catastrophically expensive also drove the dollar up, crushing export markets. Corn prices fell 30 percent between 1980 and 1986. Land values, which had tracked commodity prices on the way up, fell sharply — from a farm-asset peak of $1.06 trillion in 1981 to $768 billion in 1986. Debt did not fall with assets. The debt-to-asset ratio peaked at 22 percent in 1985.
-
-Government payments quintupled in response. The 1985 Farm Bill — passed in the same Congress that was also debating Sagebrush Rebellion-adjacent public-lands legislation — authorized $26 billion in farm support over five years. The contradiction at the heart of the rebellion was at its starkest: operators demanding independence from the federal government were simultaneously the primary beneficiaries of the largest agricultural rescue in U.S. history to that point.
 
 ## Data and method
 
