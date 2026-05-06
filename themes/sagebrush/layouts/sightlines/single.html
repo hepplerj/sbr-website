@@ -19,15 +19,13 @@
 {{- $id := printf "%s-%s" $viz $slug -}}
 
 <section class="map-page sightlines-page sightlines-page--{{ $viz }}" data-viz-id="{{ $id }}">
-  <header class="map-page__bar">
-    <div class="map-page__meta">
+
+  <aside class="map-page__about" id="{{ $id }}-about" aria-label="About this {{ $viz }}">
+    <div class="map-page__about-header">
       <p class="map-page__eyebrow"><a href="{{ "/sightlines/" | relURL }}">Sightlines</a></p>
       <h1 class="map-page__title">{{ .Title }}</h1>
       {{- with .Params.lede }}<p class="map-page__lede">{{ . }}</p>{{ end }}
     </div>
-  </header>
-
-  <aside class="map-page__about" id="{{ $id }}-about" aria-label="About this {{ $viz }}">
     <div class="map-page__about-body prose">
       {{ .Content }}
       {{ partial "cite.html" . }}

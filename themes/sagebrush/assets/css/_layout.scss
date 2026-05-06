@@ -915,38 +915,27 @@ canvas {
 }
 
 // ── Sightlines viz page ──────────────────────
-// Used by layouts/sightlines/single.html. The header bar spans full width;
-// below it the narrative sidebar (1/3) sits left and the viz (2/3) right.
-// The content row has a fixed height so the sidebar scrolls internally
-// while the viz renders at viewport scale. The page flows normally below,
-// so the footer sits below the grid with its standard margin.
+// Used by layouts/sightlines/single.html. The narrative sidebar (1/3) sits
+// left and the viz (2/3) right, filling the viewport below the sticky nav.
+// Title and lede live at the top of the scrollable sidebar rather than in
+// a full-width bar, so the viz gets the full viewport height minus the nav.
 .map-page {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  grid-template-rows: auto calc(100vh - 240px);
+  grid-template-rows: calc(100vh - 4rem);
   position: relative;
   background: var(--color-bg);
 
   @media (max-width: 56rem) {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto;
   }
 }
 
-.map-page__bar {
-  grid-column: 1 / -1;
-  padding: var(--space-4) var(--space-5);
+.map-page__about-header {
+  padding: var(--space-5) var(--space-5) var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg-alt);
-  z-index: 20;
-
-  @media (max-width: 40rem) {
-    padding: var(--space-4);
-  }
-}
-
-.map-page__meta {
-  min-width: 0;
+  margin-bottom: var(--space-4);
 }
 
 .map-page__eyebrow {
@@ -969,11 +958,11 @@ canvas {
 
 .map-page__title {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
   font-weight: 700;
   letter-spacing: -0.01em;
   margin: 0;
-  line-height: 1.1;
+  line-height: 1.15;
   color: var(--color-navy);
 }
 
@@ -984,7 +973,6 @@ canvas {
   color: var(--color-text-muted);
   margin: 0.35em 0 0;
   line-height: 1.5;
-  max-width: 60ch;
 }
 
 .map-page__actions {
@@ -1023,6 +1011,7 @@ canvas {
   margin: var(--space-5);
   min-height: 480px;
   position: relative;
+  isolation: isolate; // contain Leaflet's z-indices so they don't escape above the sticky nav
   background: var(--color-bone);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
@@ -1042,7 +1031,7 @@ canvas {
   box-shadow: 0 2px 16px var(--color-shadow);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: var(--space-6) var(--space-5) var(--space-7);
+  padding: 0 0 var(--space-7);
 
   @media (max-width: 56rem) {
     margin: var(--space-5);
@@ -1052,7 +1041,7 @@ canvas {
 
 .map-page__about-body {
   max-width: none;
-  padding: 0;
+  padding: 0 var(--space-5);
   font-size: var(--font-size-sm);
   line-height: 1.65;
 }
