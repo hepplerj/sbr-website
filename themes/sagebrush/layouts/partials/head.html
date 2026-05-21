@@ -18,11 +18,16 @@
 <meta property="og:description" content="{{ $desc | plainify | truncate 170 }}">
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:site_name" content="{{ .Site.Title }}">
-{{- with .Site.Params.heroImage }}
-  {{- with resources.Get . }}
-    <meta property="og:image" content="{{ .Permalink }}">
-  {{- end }}
-{{- end }}
+<meta property="og:image" content="{{ "images/social-preview.jpg" | absURL }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ .Site.Title }} — {{ .Site.Params.subtitle }}">
+
+{{/* Twitter Card */}}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $title }}">
+<meta name="twitter:description" content="{{ $desc | plainify | truncate 170 }}">
+<meta name="twitter:image" content="{{ "images/social-preview.jpg" | absURL }}">
 
 {{/* Fonts */}}
 <link rel="preconnect" href="https://fonts.googleapis.com">

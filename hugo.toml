@@ -9,9 +9,9 @@ enableEmoji = false
   subtitle = "A century of sagebrush rebellions"
   description = "A history of recurring fights over land, power, and federal authority in the American West from the 1930s to the 2020s."
   author = "Jason A. Heppler"
-  heroImage = "images/hero_horse.jpg"
-  heroCredit = "John Kakuk / Unsplash"
-  heroCreditURL = "https://unsplash.com/@lensatic"
+  heroImage = "images/hero_usda.jpg"
+  heroCredit = "Fort Keogh Livestock and Range Research Station, Montana | US Department of Agriculture"
+  heroCreditURL = "https://www.flickr.com/photos/usdagov/8432666225"
   citationStyle = "chicago"
 
 [params.social]

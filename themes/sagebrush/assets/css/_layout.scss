@@ -335,7 +335,7 @@ canvas {
   position: absolute;
   bottom: var(--space-3);
   right: var(--space-4);
-  max-width: 32rem;
+  max-width: 34rem;
   margin: 0;
   z-index: 2;
   text-align: right;
@@ -817,7 +817,7 @@ canvas {
 
   // The term itself: dotted underline signals interactivity.
   .dfn__term {
-    font-style: normal;          // <dfn> is italic by default; override
+    font-style: normal; // <dfn> is italic by default; override
     text-decoration: underline dotted;
     text-decoration-color: var(--color-text-muted);
     text-underline-offset: 3px;
@@ -2308,15 +2308,25 @@ canvas {
 // Bands live inside each panel's <g>; hidden until the toggle button
 // adds .is-admin-bands to the container.
 
-.chart-viz__admin-bands { display: none; }
+.chart-viz__admin-bands {
+  display: none;
+}
 
-.chart-viz.is-admin-bands .chart-viz__admin-bands { display: block; }
+.chart-viz.is-admin-bands .chart-viz__admin-bands {
+  display: block;
+}
 
 .chart-viz__admin-band {
   opacity: 0.07;
 }
-.chart-viz__admin-band--republican { fill: var(--color-rust); }
-.chart-viz__admin-band--democrat   { fill: var(--color-navy); }
+
+.chart-viz__admin-band--republican {
+  fill: var(--color-rust);
+}
+
+.chart-viz__admin-band--democrat {
+  fill: var(--color-navy);
+}
 
 // Toggle button — small pill below the chart
 .chart-viz__admin-toggle {
