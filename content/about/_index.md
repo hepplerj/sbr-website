@@ -1,7 +1,7 @@
 ---
 title: "About"
 heading: "About this project"
-lede: "A history of the sagebrush rebellions — their origins, their coalitions, their geographies, and their long afterlife from the 1930s to the present."
+lede: "A history of the sagebrush rebellions—their origins, their coalitions, their geographies, and their long afterlife from the 1930s to the present."
 toc: true
 ---
 

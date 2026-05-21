@@ -1,6 +1,6 @@
 ---
 title: "On Generative AI"
-lede: "Transparency about which parts of Governing Ground were produced with AI assistance — and, more importantly, which were not."
+lede: "Transparency about which parts of Governing Ground were produced with AI assistance."
 date: 2026-04-22
 ---
 
@@ -13,13 +13,14 @@ I am documenting the use of generative AI both as an ethical claim and as a digi
 - **Site infrastructure.** The Hugo theme, layout templates, partials, shortcodes, and CSS. The palette, typography system, and component library were built in conversation with me.
 - **Visualization code.** The Leaflet map module (`maps.js`), the D3 AlbersUSA map module (`d3-maps.js`), the D3 force-directed network module (`networks.js`), the D3 chart module (`charts.js`) that renders climate stripes, line plots, and bar charts, and the Sightlines index filter module (`sightlines-map.js`) with its clickable region mini-map.
 - **Data processing pipelines.** Python scripts that pull and aggregate open and government data.
-- **Page apparatus.** Frontmatter, methodology sections in map/network/chart About panels, legends, data-source notes, and figure captions were drafted or refined with AI assistance and then reviewed for accuracy.
 
 ## What AI did not write
 
 **The narrative essays.** Every piece of long-form historical analysis in the [Narrative](/narrative/) section is written by me. Any narrative text that appears on this site is my work.
 
-**The research.** The archival work, the choice of which questions to ask, which sources to consult, which arguments to make, which datasets to use and which to reject, is human work. The AI has not made any decisions about what matters to the sagebrush rebellion story. Those are my scholarly judgments.
+**The visualization essays.** Every piece of writing in the [Sightlines](/sightlines/) section is written by me. Similarly to narratives, all text there is my work.
+
+**The research.** The archival work, the choice of which questions to ask, which sources to consult, which arguments to make, which datasets to use and which to reject, is human work. The AI has not made any decisions about what matters to the Sagebrush Rebellion story.
 
 ## Reproducibility
 
@@ -52,9 +53,8 @@ Each script documents its source URLs, its transformation logic, and the reasoni
 
 AI assistance drafted these scripts in the first pass, as with the rest of the codebase. The scripts are then read, run, and corrected by me. All computational work is a versioned, auditable record of how the project's data was assembled and can be reviewed on Github. Anyone rerunning them on the same source URLs should get the same files that ship on the site. All AI-generated code is reviewed and tested locally before publication. All open data fetched and processed is reviewed for accuracy. 
 
-
 ## Tools and sessions
 
-The generative AI used for this project is [Claude Code](https://www.claude.com/product/claude-code) (Anthropic), running Claude Sonnet 4.6. The project's GitHub repository preserves the commits produced across sessions.
+The generative AI used for this project is [Claude Code](https://www.claude.com/product/claude-code) (Anthropic), running a combination of Claude Sonnet 4.6 and Opus 4.6. The project's GitHub repository preserves the commits produced across sessions.
 
 Generative AI is more disciplined than I am about `git` commits, pull requests, and branching, and handles many of these commit messages for me.
