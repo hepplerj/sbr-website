@@ -38,7 +38,7 @@ data/                   — Hugo data files (e.g., bibliography.json) read at bu
 themes/sagebrush/       — custom theme; treat it as part of the project, not a dependency
 Articles.bibtex         — source-of-truth bibliography, parsed by build_bibliography.py
 Books.bibtex
-TODO.md                 — flagged future work organized by section
+GitHub Issues            — flagged future work, labeled by category + tier
 ```
 
 ## Three gotchas that WILL bite if not remembered
@@ -209,6 +209,6 @@ human-reviewed.** Keep that line clean when modifying content.
 
 ## Open work
 
-See `TODO.md` for a running list of flagged extensions, organized by
-section. Not a plan; just an inventory of things About panels and
-earlier conversations promised.
+See [GitHub Issues](https://github.com/hepplerj/sbr-website/issues) for
+flagged extensions, labeled by category (`maps`, `networks`, `charts`,
+`content`, etc.) and priority tier (`tier-1`, `tier-2`, `tier-3`).
