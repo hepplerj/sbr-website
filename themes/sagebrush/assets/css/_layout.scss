@@ -417,6 +417,90 @@ canvas {
   padding: var(--space-8) var(--space-5) 0;
 }
 
+// ── Search page + Pagefind UI theming ────────
+.search-page {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding-bottom: var(--space-9);
+}
+.search-page__ui,
+.error-page__search {
+  margin-top: var(--space-5);
+}
+.error-page__search {
+  max-width: 32rem;
+  margin: var(--space-6) auto var(--space-2);
+  text-align: left;
+}
+.search-page__noscript {
+  font-family: var(--font-ui);
+  color: var(--color-text-muted);
+  padding: 0 var(--space-5);
+}
+// Pagefind UI exposes CSS custom properties for theming — map them to
+// the site palette so search matches the rest of the design.
+:root {
+  --pagefind-ui-primary: var(--color-rust);
+  --pagefind-ui-text: var(--color-ink);
+  --pagefind-ui-background: var(--color-bg);
+  --pagefind-ui-border: var(--color-border);
+  --pagefind-ui-tag: var(--color-bg-alt);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: var(--radius);
+  --pagefind-ui-font: var(--font-ui);
+}
+.pagefind-ui {
+  padding: 0 var(--space-5);
+}
+
+// ── 404 / error page ─────────────────────────
+.error-page {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: var(--space-9) var(--space-5);
+  text-align: center;
+}
+.error-page__code {
+  font-family: var(--font-mono);
+  font-size: clamp(3rem, 12vw, 6rem);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-dust);
+  margin: 0;
+}
+.error-page__title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  color: var(--color-navy);
+  margin: var(--space-3) 0 var(--space-4);
+}
+.error-page__lede {
+  font-family: var(--font-body);
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  max-width: 40rem;
+  margin: 0 auto var(--space-6);
+}
+.error-page__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3) var(--space-5);
+  a {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 0.2em;
+    transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+    &:hover { color: var(--color-ink); border-bottom-color: var(--color-rust); }
+  }
+}
+
 .section-intro__eyebrow {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);

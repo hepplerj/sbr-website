@@ -1,6 +1,6 @@
 PY ?= python3
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income follow-the-money cosponsorship timeline bibliography clean-data site serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income follow-the-money cosponsorship timeline bibliography clean-data site site-fast serve
 
 data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship timeline bibliography
 
@@ -53,8 +53,15 @@ timeline:
 bibliography:
 	$(PY) scripts/build_bibliography.py
 
-# Build the site (requires Hugo extended)
+# Build the site (requires Hugo extended) and the Pagefind search
+# index. Pagefind runs after Hugo, indexing the built public/ tree
+# into public/pagefind/. Requires Node/npx (no global install needed).
 site:
+	hugo --gc --minify
+	npx --yes pagefind@latest --site public
+
+# Hugo build only — skips the search index. Faster for content checks.
+site-fast:
 	hugo --gc --minify
 
 serve:
