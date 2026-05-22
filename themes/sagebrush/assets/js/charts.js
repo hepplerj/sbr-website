@@ -284,9 +284,15 @@
     const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
     const PERIOD_H = periods.length ? 28 : 0;
 
-    const ROW_H = 70;
+    // Each row stacks a label above its stripe ribbon. LABEL_H is the
+    // band reserved for the label; the ribbon fills the rest of ROW_H.
+    // Putting labels above (not left) lets the ribbon use the full
+    // width — long region names like "Northern Rockies & Plains" no
+    // longer need a wide left margin that would crop or shrink the viz.
+    const LABEL_H = 22;
+    const ROW_H = 78;
     const W = 1200;
-    const margin = { top: 36 + PERIOD_H, right: 16, bottom: 48, left: 180 };
+    const margin = { top: 36 + PERIOD_H, right: 16, bottom: 48, left: 16 };
     const innerW = W - margin.left - margin.right;
     const innerH = rows.length * ROW_H;
     const H = innerH + margin.top + margin.bottom;
@@ -308,33 +314,37 @@
 
     const barW = innerW / (xDomain[1] - xDomain[0] + 1);
 
+    // Ribbon geometry within a row: label band on top, ribbon below.
+    const ribbonY = LABEL_H;
+    const ribbonH = ROW_H - LABEL_H - 8;   // 8px gap between rows
+
     // One row per series
     rows.forEach((row, i) => {
       const rowG = g.append("g").attr("transform", `translate(0,${i * ROW_H})`);
 
+      // Row label, sitting above the ribbon, left-aligned
+      rowG.append("text")
+        .attr("class", "chart-viz__series-label")
+        .attr("x", 0)
+        .attr("y", LABEL_H - 8)
+        .attr("text-anchor", "start")
+        .text(row.label);
+
       // Ribbon background (so empty years still register as a row)
       rowG.append("rect")
         .attr("class", "chart-viz__stripe-row-bg")
-        .attr("x", 0).attr("y", 6)
-        .attr("width", innerW).attr("height", ROW_H - 12);
+        .attr("x", 0).attr("y", ribbonY)
+        .attr("width", innerW).attr("height", ribbonH);
 
       rowG.selectAll("rect.chart-viz__stripe")
         .data(row.data)
         .join("rect")
         .attr("class", "chart-viz__stripe")
         .attr("x", (d) => xScale(d.x))
-        .attr("y", 6)
+        .attr("y", ribbonY)
         .attr("width", barW + 0.5)
-        .attr("height", ROW_H - 12)
+        .attr("height", ribbonH)
         .attr("fill", (d) => color(d.y));
-
-      // Row label, left of the ribbon
-      svg.append("text")
-        .attr("class", "chart-viz__series-label")
-        .attr("x", margin.left - 12)
-        .attr("y", margin.top + i * ROW_H + ROW_H / 2 + 4)
-        .attr("text-anchor", "end")
-        .text(row.label);
     });
 
     // ── Shared crosshair across all rows ─────────────────────────────
