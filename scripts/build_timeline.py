@@ -185,7 +185,7 @@ PERIODS = [
      "A decade of severe drought and topsoil erosion across the southern Plains, accelerated by sodbuster farming on marginal grasslands. Frames the policy moment of the Taylor Grazing Act (1934) and the Bankhead-Jones Farm Tenant Act (1937)."),
     ("proclamation", 1933, 1942, "Civilian Conservation Corps",
      "FDR-era public-works program putting roughly 3 million young men to work on national forests, parks, and grasslands — fire roads, erosion control, plantings, structures still in use a century later. The largest single labor force ever applied to federal land."),
-    ("rebellion", 1979, 1982, "Second Sagebrush Rebellion",
+    ("rebellion", 1979, 1982, "Sagebrush Rebellion",
      "The peak years of the state-transfer movement following Nevada AB 413. Six Western states pass companion legislation; Reagan promises to be 'one of you' as a 'sagebrush rebel'; the movement loses momentum after FLPMA litigation fails and James Watt's privatization push collapses."),
     ("era", 1980, 1987, "Farm Crisis",
      "Collapse in farmland values and farm-export markets after the early-1980s commodity-price drop. Roughly 250,000 farms lost in the window. The bankruptcy gap on the farm-bankruptcies chart sits inside this period."),
