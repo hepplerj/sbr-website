@@ -23,9 +23,12 @@ chart:
   infoprompt: "Hover a stripe for a region's year-over-year anomaly."
   periods:
     - { start: 1930, end: 1940, label: "Dust Bowl",
-        description: "The 1930s registered as a genuine heat anomaly across the Plains — visible here as a rust band — compounding the drought and erosion of the period." }
+        description: "A decade of severe drought and topsoil erosion across the southern Plains. Visible in this chart as a sustained brown band on the Plains row, with regional variation by year." }
+    - { start: 1980, end: 1987, label: "Farm Crisis",
+        description: "Land-value collapse and export-market downturn push roughly 250,000 farms out of business. The Northern Plains drought of 1988 sits at the back end of this period." }
     - { start: 2000, end: 2024, label: "Western megadrought",
-        description: "The driest two-decade stretch in the West since at least 800 CE per tree-ring reconstruction. Sustained warming intensifies it: hotter air pulls more moisture from soil and snowpack." }
+        description: "The driest two-decade stretch in the West due to sustained warming intensified by hotter air pulling more moisture from soil and snowpack." }
+    
 ---
 
 This chart uses the four NOAA climate regions to render each year of mean temperature as a vertical stripe, color-encoded by anomaly against a 1901–2000 baseline: blue for cooler, rust for warmer. Read alongside the [regional-precipitation chart](/sightlines/regional-precipitation/), it completes the picture of a western climate that's changing. The warming is universal but the *pace* differs. The Northern Rockies & Plains have warmed the most in absolute terms, posting the largest single-year anomalies of the four regions. 
