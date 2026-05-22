@@ -2160,13 +2160,19 @@ canvas {
 
 .chart-viz__timeline-era-label {
   font-family: var(--font-ui);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 500;
   fill: var(--color-text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   pointer-events: none;
   user-select: none;
   transition: fill 120ms var(--ease);
+}
+// On the timeline itself the strip is denser (more eras, closer
+// together); keep its labels a touch smaller than the chart era
+// strips so adjacent labels don't collide.
+.chart-viz--timeline .chart-viz__timeline-era-label {
+  font-size: 13px;
 }
 
 .chart-viz__timeline-era:hover {
