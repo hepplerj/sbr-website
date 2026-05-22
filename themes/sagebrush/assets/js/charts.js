@@ -1167,7 +1167,7 @@
 
     const W = 1200;
     const panelH = 180;
-    const panelGap = 28;
+    const panelGap = 52;   // generous breathing room between multiples
     const margin = { top: 36, right: 20, bottom: 40, left: 70 };
     const H = margin.top + margin.bottom
             + panels.length * panelH
