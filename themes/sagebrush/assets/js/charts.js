@@ -116,13 +116,66 @@
       });
   }
 
-  // ── Era strip helper ───────────────────────────────────────────────
+  // ── Era strip helpers ──────────────────────────────────────────────
   // Render a thin line + label per period above the chart area. Used
-  // by stripes, stacked stripes, bar, and timeline charts to mark
-  // multi-year frames (Dust Bowl, Farm Crisis, etc.) without competing
-  // with the chart's own data marks.
+  // by stripes, stacked stripes, bar, line, and timeline charts to
+  // mark multi-year frames (Dust Bowl, Farm Crisis, etc.) without
+  // competing with the chart's own data marks.
+  //
+  // When labels overlap horizontally (close periods or long labels),
+  // we greedy-pack them into rows so each label has its own row above
+  // the line. Row 0 sits just above the line; row 1 above that; etc.
+  // The chart's caller asks for the row count up front via
+  // `planEraRows` so it can reserve enough top margin.
+
+  // Per-row vertical step (in viewBox px). Tuned to the era-label
+  // font size; matches the leading you'd want between two label rows.
+  const ERA_ROW_STEP = 18;
+  // Rough width-per-character for the era-label font (JetBrains Mono,
+  // 15px). Used to estimate label widths without measuring DOM.
+  const ERA_CHAR_PX = 8.2;
+  // Padding around each label box so adjacent labels keep a visual gap.
+  const ERA_LABEL_PAD = 8;
+
+  function planEraRows(periods, xMin, xMax, innerW) {
+    if (!periods || !periods.length) return { rows: new Map(), maxRow: 0 };
+    const span = (xMax - xMin) || 1;
+    // Build label boxes in chart-pixel space.
+    const items = periods.map((p) => {
+      const centerYear = (+p.start + +p.end) / 2;
+      const cx = ((centerYear - xMin) / span) * innerW;
+      // Allow either `label` (era-strip schema) or `title` (timeline
+      // era schema) — same row-packing logic for both.
+      const text = p.label || p.title || "";
+      const w  = text.length * ERA_CHAR_PX + ERA_LABEL_PAD;
+      return { p, cx, w, left: cx - w / 2, right: cx + w / 2 };
+    });
+    // Greedy: walk in start-year order, place each in the lowest row
+    // (closest to the line) that doesn't overlap any label already
+    // there. Rows are arrays of placed boxes.
+    items.sort((a, b) => (+a.p.start) - (+b.p.start));
+    const rows = [];
+    const out = new Map();
+    items.forEach((it) => {
+      let placed = false;
+      for (let r = 0; r < rows.length; r++) {
+        const collides = rows[r].some((b) => !(it.right <= b.left || it.left >= b.right));
+        if (!collides) { rows[r].push(it); out.set(it.p, r); placed = true; break; }
+      }
+      if (!placed) { rows.push([it]); out.set(it.p, rows.length - 1); }
+    });
+    return { rows: out, maxRow: rows.length - 1 };
+  }
+
+  // Total vertical room (in viewBox px) the era strip needs: room for
+  // the line baseline + each label row stacked above it.
+  function eraStripHeight(maxRow) {
+    if (maxRow < 0) return 0;            // no periods
+    return 22 + (maxRow + 1) * ERA_ROW_STEP;
+  }
+
   function drawEraStrip(svg, periods, xScale, opts) {
-    const { offsetX, offsetY } = opts;
+    const { offsetX, offsetY, rowMap } = opts;
     if (!periods || !periods.length) return;
     const eraG = svg.append("g")
       .attr("class", opts.className || "chart-viz__bars-eras")
@@ -131,29 +184,36 @@
       const x0 = xScale(+p.start);
       const x1 = xScale(+p.end);
       const w  = Math.max(2, x1 - x0);
+      // Each row is its own horizontal lane — the line itself moves up
+      // along with the label, instead of all lines sharing a baseline
+      // with labels stacking above. Row 0 is closest to the chart.
+      const row = (rowMap && rowMap.get(p)) || 0;
+      const laneY = -row * ERA_ROW_STEP;
+      const labelY = laneY - 6;
       const grp = eraG.append("g")
         .attr("class", "chart-viz__timeline-era")
         .style("cursor", "help");
       grp.append("line")
         .attr("class", "chart-viz__timeline-era-line")
         .attr("x1", x0).attr("x2", x1)
-        .attr("y1", 0).attr("y2", 0);
+        .attr("y1", laneY).attr("y2", laneY);
       [x0, x1].forEach((xv) => {
         grp.append("line")
           .attr("class", "chart-viz__timeline-era-cap")
           .attr("x1", xv).attr("x2", xv)
-          .attr("y1", -3).attr("y2", 3);
+          .attr("y1", laneY - 3).attr("y2", laneY + 3);
       });
       grp.append("text")
         .attr("class", "chart-viz__timeline-era-label")
         .attr("x", x0 + w / 2)
-        .attr("y", -6)
+        .attr("y", labelY)
         .attr("text-anchor", "middle")
         .text(p.label || "");
+      // Hit-rect spans the lane (line + label + a little slack).
       grp.append("rect")
         .attr("class", "chart-viz__timeline-era-hit")
-        .attr("x", x0 - 2).attr("y", -16)
-        .attr("width", w + 4).attr("height", 24)
+        .attr("x", x0 - 2).attr("y", labelY - 10)
+        .attr("width", w + 4).attr("height", ERA_ROW_STEP)
         .attr("fill", "transparent");
       if (opts.onHover) {
         grp
@@ -173,10 +233,15 @@
       .sort((a, b) => a.x - b.x);
 
     const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
-    const PERIOD_H = periods.length ? 28 : 0;
+    const W = 1200;
+    const baseMargin = { right: 16, left: 16 };
+    const baseInnerW = W - baseMargin.left - baseMargin.right;
+    const dXMin = d3.min(data, (d) => d.x), dXMax = d3.max(data, (d) => d.x);
+    const eraPlan = planEraRows(periods, dXMin, dXMax + 1, baseInnerW);
+    const PERIOD_H = eraStripHeight(eraPlan.maxRow);
 
-    const W = 1200, H = 260 + PERIOD_H;
-    const margin = { top: 48 + PERIOD_H, right: 16, bottom: 48, left: 16 };
+    const H = 260 + PERIOD_H;
+    const margin = { top: 48 + PERIOD_H, right: baseMargin.right, bottom: 48, left: baseMargin.left };
     const innerW = W - margin.left - margin.right;
     const innerH = H - margin.top - margin.bottom;
 
@@ -247,7 +312,8 @@
     // Periods (era strip) above the stripe ribbon
     drawEraStrip(svg, periods, xScale, {
       offsetX: margin.left,
-      offsetY: 22,
+      offsetY: PERIOD_H - 6,
+      rowMap: eraPlan.rows,
       onHover: (p) => {
         info.innerHTML = `
           <h4>${p.start}–${p.end}</h4>
@@ -282,7 +348,6 @@
     if (!rows.length || !rows[0].data.length) return;
 
     const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
-    const PERIOD_H = periods.length ? 28 : 0;
 
     // Each row stacks a label above its stripe ribbon. LABEL_H is the
     // band reserved for the label; the ribbon fills the rest of ROW_H.
@@ -292,7 +357,14 @@
     const LABEL_H = 22;
     const ROW_H = 78;
     const W = 1200;
-    const margin = { top: 36 + PERIOD_H, right: 16, bottom: 48, left: 16 };
+    const baseMargin = { right: 16, left: 16 };
+    const baseInnerW = W - baseMargin.left - baseMargin.right;
+    const dXMin = rows[0].data[0].x;
+    const dXMax = rows[0].data[rows[0].data.length - 1].x;
+    const eraPlan = planEraRows(periods, dXMin, dXMax + 1, baseInnerW);
+    const PERIOD_H = eraStripHeight(eraPlan.maxRow);
+
+    const margin = { top: 36 + PERIOD_H, right: baseMargin.right, bottom: 48, left: baseMargin.left };
     const innerW = W - margin.left - margin.right;
     const innerH = rows.length * ROW_H;
     const H = innerH + margin.top + margin.bottom;
@@ -425,7 +497,8 @@
     // the per-year annotations.
     drawEraStrip(svg, periods, xScale, {
       offsetX: margin.left,
-      offsetY: 22,
+      offsetY: PERIOD_H - 6,
+      rowMap: eraPlan.rows,
       onHover: (p) => {
         info.innerHTML = `
           <h4>${p.start}–${p.end}</h4>
@@ -495,11 +568,17 @@
     // Optional period spans (cfg.periods) — same shape as the timeline's
     // era strip: { start, end, label, description }. Render as a thin
     // line + label above the chart area; reserves extra top-margin.
+    // Overlapping period labels stack into swim-lanes via planEraRows.
     const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
-    const PERIOD_H = periods.length ? 28 : 0;
+    const W = 1200;
+    const baseMargin = { right: 20, left: 60 };
+    const baseInnerW = W - baseMargin.left - baseMargin.right;
+    const dXMin = d3.min(data, (d) => d.x), dXMax = d3.max(data, (d) => d.x);
+    const eraPlan = planEraRows(periods, dXMin, dXMax + 1, baseInnerW);
+    const PERIOD_H = eraStripHeight(eraPlan.maxRow);
 
-    const W = 1200, H = 420 + PERIOD_H;
-    const margin = { top: 48 + PERIOD_H, right: 20, bottom: 44, left: 60 };
+    const H = 420 + PERIOD_H;
+    const margin = { top: 48 + PERIOD_H, right: baseMargin.right, bottom: 44, left: baseMargin.left };
     const innerW = W - margin.left - margin.right;
     const innerH = H - margin.top - margin.bottom;
 
@@ -596,54 +675,21 @@
         .text(`${a.year} · ${a.label}`);
     });
 
-    // Periods: thin horizontal line + text label above the bars,
-    // matching the timeline's era strip. Pinned to the top of the SVG
-    // so it sits *above* the per-year annotation labels (which live
-    // just above the bars themselves), giving each its own band.
-    if (periods.length) {
-      const stripY = 22;                             // line baseline near the top of the SVG
-      const eraG = svg.append("g")
-        .attr("class", "chart-viz__bars-eras")
-        .attr("transform", `translate(${margin.left},${stripY})`);
-      periods.forEach((p) => {
-        const x0 = xScale(+p.start);
-        const x1 = xScale(+p.end);
-        const w  = Math.max(2, x1 - x0);
-        const grp = eraG.append("g")
-          .attr("class", "chart-viz__timeline-era")
-          .style("cursor", "help");
-        grp.append("line")
-          .attr("class", "chart-viz__timeline-era-line")
-          .attr("x1", x0).attr("x2", x1)
-          .attr("y1", 0).attr("y2", 0);
-        [x0, x1].forEach((xv) => {
-          grp.append("line")
-            .attr("class", "chart-viz__timeline-era-cap")
-            .attr("x1", xv).attr("x2", xv)
-            .attr("y1", -3).attr("y2", 3);
-        });
-        grp.append("text")
-          .attr("class", "chart-viz__timeline-era-label")
-          .attr("x", x0 + w / 2)
-          .attr("y", -6)
-          .attr("text-anchor", "middle")
-          .text(p.label || "");
-        grp.append("rect")
-          .attr("class", "chart-viz__timeline-era-hit")
-          .attr("x", x0 - 2).attr("y", -16)
-          .attr("width", w + 4).attr("height", 24)
-          .attr("fill", "transparent");
-        grp
-          .on("mouseover", () => {
-            info.innerHTML = `
-              <h4>${p.start}–${p.end}</h4>
-              <div class="detail"><strong>${escapeHTML(p.label || "")}</strong></div>
-              ${p.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(p.description)}</div>` : ""}
-            `;
-          })
-          .on("mouseout", () => updateInfo(info, cfg));
-      });
-    }
+    // Periods: era strip pinned above the per-year annotation row,
+    // with overlapping labels stacked into swim-lanes (planEraRows).
+    drawEraStrip(svg, periods, xScale, {
+      offsetX: margin.left,
+      offsetY: PERIOD_H - 6,
+      rowMap: eraPlan.rows,
+      onHover: (p) => {
+        info.innerHTML = `
+          <h4>${p.start}–${p.end}</h4>
+          <div class="detail"><strong>${escapeHTML(p.label || "")}</strong></div>
+          ${p.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(p.description)}</div>` : ""}
+        `;
+      },
+      onLeave: () => updateInfo(info, cfg),
+    });
 
     // Gap label
     gaps.forEach(([a, b]) => {
@@ -684,9 +730,26 @@
     const laneSpans  = events.filter((e) => e.start != null && e.end != null && e.type !== "era");
 
     const LANE_H = 72;
-    const ERA_H  = eras.length ? 38 : 0;   // strip height when at least one era is present
     const W = 1200;
-    const margin = { top: 28 + ERA_H, right: 20, bottom: 44, left: 190 };
+    const baseMargin = { right: 20, left: 190 };
+    const baseInnerW = W - baseMargin.left - baseMargin.right;
+    // Pre-compute the era strip's row packing so the top margin can
+    // reserve room for stacked-above period labels.
+    const eraYMin = Math.min(...eras.map((e) => +e.start), Number.POSITIVE_INFINITY);
+    const eraYMax = Math.max(...eras.map((e) => +e.end),   Number.NEGATIVE_INFINITY);
+    // Use the same x-extent the chart's xScale will use — but built
+    // before margins/innerW are finalized. eras can sit inside the
+    // broader point/span year range, so use the full span when known.
+    const tmpAllYears = []
+      .concat(points.map((e) => +e.year))
+      .concat(laneSpans.flatMap((e) => [+e.start, +e.end]))
+      .concat(eras.flatMap((e) => [+e.start, +e.end]))
+      .filter((y) => !isNaN(y));
+    const tmpMin = tmpAllYears.length ? Math.min(...tmpAllYears) - 3 : 0;
+    const tmpMax = tmpAllYears.length ? Math.max(...tmpAllYears) + 3 : 1;
+    const eraPlan = planEraRows(eras, tmpMin, tmpMax, baseInnerW);
+    const ERA_H  = eras.length ? eraStripHeight(eraPlan.maxRow) + 10 : 0;
+    const margin = { top: 28 + ERA_H, right: baseMargin.right, bottom: 44, left: baseMargin.left };
     const innerW = W - margin.left - margin.right;
     const innerH = lanes.length * LANE_H;
     const H = innerH + margin.top + margin.bottom;
@@ -769,10 +832,10 @@
     const hideCard = () => { info.style.display = "none"; };
 
     // ── Era strip: thin line per period with a text label above ────
-    // Minimal style: a horizontal rule from start to end, small caps
-    // at each end, and a label seated above it. No filled box.
+    // Each era gets its own row (swim-lane) when label boxes overlap;
+    // see planEraRows + drawEraStrip for the shared packing logic.
     if (eras.length) {
-      const stripY = margin.top - ERA_H + 16; // line baseline
+      const stripY = margin.top - 6;   // bottom-of-strip baseline
       const eraG = svg.append("g")
         .attr("class", "chart-viz__timeline-eras")
         .attr("transform", `translate(${margin.left},${stripY})`);
@@ -780,33 +843,32 @@
         const x0 = xScale(+e.start);
         const x1 = xScale(+e.end);
         const w  = Math.max(2, x1 - x0);
+        const row = eraPlan.rows.get(e) || 0;
+        const laneY = -row * ERA_ROW_STEP;
+        const labelY = laneY - 6;
         const grp = eraG.append("g")
           .attr("class", "chart-viz__timeline-era")
           .style("cursor", "help");
-        // The line itself
         grp.append("line")
           .attr("class", "chart-viz__timeline-era-line")
           .attr("x1", x0).attr("x2", x1)
-          .attr("y1", 0).attr("y2", 0);
-        // Tiny end caps to mark start/end years
+          .attr("y1", laneY).attr("y2", laneY);
         [x0, x1].forEach((xv) => {
           grp.append("line")
             .attr("class", "chart-viz__timeline-era-cap")
             .attr("x1", xv).attr("x2", xv)
-            .attr("y1", -3).attr("y2", 3);
+            .attr("y1", laneY - 3).attr("y2", laneY + 3);
         });
-        // Label above the line, centered
         grp.append("text")
           .attr("class", "chart-viz__timeline-era-label")
           .attr("x", x0 + w / 2)
-          .attr("y", -6)
+          .attr("y", labelY)
           .attr("text-anchor", "middle")
           .text(e.title || "");
-        // Wider invisible hit-target so the line is easy to hover
         grp.append("rect")
           .attr("class", "chart-viz__timeline-era-hit")
-          .attr("x", x0 - 2).attr("y", -16)
-          .attr("width", w + 4).attr("height", 24)
+          .attr("x", x0 - 2).attr("y", labelY - 10)
+          .attr("width", w + 4).attr("height", ERA_ROW_STEP)
           .attr("fill", "transparent");
         grp
           .on("mouseover", (event) => showCard(event, e, "era"))
@@ -973,8 +1035,19 @@
     const allX = seriesCfg.flatMap((s) => s.data.map((d) => d.x));
     if (!allY.length) return;
 
-    const W = 1200, H = 420;
-    const margin = { top: 52, right: 20, bottom: 40, left: 60 };
+    // Optional period spans (same shape as the timeline/bars/stripes
+    // era strips): a thin line + label per period above the chart.
+    // Pack labels into rows so overlapping periods don't collide.
+    const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
+    const W = 1200;
+    const baseMarginLeft = 60, baseMarginRight = 20;
+    const baseInnerW = W - baseMarginLeft - baseMarginRight;
+    const xExtent = [Math.min(...allX), Math.max(...allX)];
+    const eraPlan = planEraRows(periods, xExtent[0], xExtent[1], baseInnerW);
+    const PERIOD_H = eraStripHeight(eraPlan.maxRow);
+
+    const H = 420 + PERIOD_H;
+    const margin = { top: 52 + PERIOD_H, right: baseMarginRight, bottom: 40, left: baseMarginLeft };
     const innerW = W - margin.left - margin.right;
     const innerH = H - margin.top - margin.bottom;
 
@@ -1134,6 +1207,22 @@
         offset += 24 + s.label.length * 6.8 + 24;
       });
     }
+
+    // Era strip pinned to the top of the SVG. The line baseline sits
+    // below all stacked label rows (each row is ERA_ROW_STEP tall).
+    drawEraStrip(svg, periods, xScale, {
+      offsetX: margin.left,
+      offsetY: PERIOD_H - 6,
+      rowMap: eraPlan.rows,
+      onHover: (p) => {
+        info.innerHTML = `
+          <h4>${p.start}–${p.end}</h4>
+          <div class="detail"><strong>${escapeHTML(p.label || "")}</strong></div>
+          ${p.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(p.description)}</div>` : ""}
+        `;
+      },
+      onLeave: () => { info.innerHTML = infoHTML(cfg); },
+    });
   }
 
   // ── Small-multiples line chart ──────────────────────────────────────
