@@ -1,14 +1,33 @@
 {{ define "main" }}
-<header class="section-intro">
+{{- /* Sections with `toc: true` in frontmatter get the same sticky
+       table-of-contents treatment narrative essays do. Only renders
+       when the page actually has H2-level headings (a one-line TOC
+       is just visual noise). */ -}}
+{{- $wantsToc := and .Params.toc (gt (len .Fragments.Headings) 0) -}}
+
+<header class="section-intro{{ if $wantsToc }} section-intro--with-toc{{ end }}">
   <p class="section-intro__eyebrow">{{ .Title }}</p>
   <h1 class="section-intro__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
   {{- with .Params.lede }}
     <p class="section-intro__lede">{{ . }}</p>
   {{- end }}
-  {{- with .Content }}
-    <div class="section-intro__body">{{ . }}</div>
+  {{- /* When TOC is off, prose content lives inside the section-intro
+         so it inherits the same centered measure as the title/lede.
+         When TOC is on we render content separately in the grid below. */ -}}
+  {{- if and (not $wantsToc) .Content }}
+    <div class="section-intro__body">{{ .Content }}</div>
   {{- end }}
 </header>
+
+{{- if and $wantsToc .Content }}
+  <div class="page-body page-body--list">
+    <aside class="page-toc" aria-label="Sections of this page">
+      <p class="page-toc__label">Contents</p>
+      {{ .TableOfContents }}
+    </aside>
+    <div class="prose section-intro__body">{{ .Content }}</div>
+  </div>
+{{- end }}
 
 {{- $pages := where .RegularPages.ByWeight "Params.draft" "!=" true }}
 {{- if $pages }}
@@ -28,5 +47,36 @@
     </li>
   {{- end }}
 </ul>
+{{- end }}
+
+{{- if $wantsToc }}
+<script>
+  // Scroll-spy — same pattern as the single-page TOC.
+  (function () {
+    var toc = document.querySelector('.page-toc');
+    if (!toc) return;
+    var links = toc.querySelectorAll('a[href^="#"]');
+    if (!links.length) return;
+    var byId = {};
+    links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var headings = [];
+    Object.keys(byId).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) headings.push(el);
+    });
+    if (!headings.length) return;
+    function clear() { links.forEach(function (a) { a.classList.remove('is-active'); }); }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          clear();
+          var a = byId[e.target.id];
+          if (a) a.classList.add('is-active');
+        }
+      });
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+    headings.forEach(function (h) { io.observe(h); });
+  })();
+</script>
 {{- end }}
 {{ end }}
