@@ -1,6 +1,6 @@
 PY ?= python3
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income follow-the-money cosponsorship timeline bibliography clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money cosponsorship timeline bibliography clean-data site site-fast serve
 
 data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship timeline bibliography
 
@@ -40,6 +40,10 @@ follow-the-money:
 # Requires NASS_API_KEY env var (free at quickstats.nass.usda.gov/api).
 farm-consolidation:
 	$(PY) scripts/build_farm_consolidation.py
+
+# Requires NASS_API_KEY env var. Also pulls CPI from FRED (no key).
+cattle-prices:
+	$(PY) scripts/build_cattle_prices.py
 
 
 farm-income:

@@ -1,10 +1,11 @@
 ---
 title: "Data"
 heading: "Data behind the project"
-lede: "The datasets that drive every map, chart, and network on this site."
+lede: "The datasets that drive every map, chart, and network in this project."
+toc: true
 ---
 
-## Research Data
+## Archival and Historical Research Data
 
 As I compile data from my archival research I will document the creation and transformation of this into visualizations. In the meantime, most of the visualizations on this site are currently data-driven from open government data. 
 
@@ -38,6 +39,8 @@ All of the data below is fetched, cleaned, and cached by a Python pipeline in th
 
 `farm-consolidation.json`: Number of US farms (1910–present) and average farm size (1950–present), fetched from the [USDA NASS QuickStats API](https://quickstats.nass.usda.gov/api) (requires a free `NASS_API_KEY` environment variable). Both series indexed to 1950 = 100 on the [Farm Consolidation](/sightlines/farm-consolidation/) chart.
 
+`cattle-prices.json`: Annual prices received by US ranchers for cattle, steers & heifers, and calves, 1910–present, in dollars per hundredweight ($/cwt). Nominal values from the [USDA NASS QuickStats API](https://quickstats.nass.usda.gov/api) (`CATTLE [class] - PRICE RECEIVED, MEASURED IN $ / CWT`, national). Where NASS publishes only monthly values for early years, the script aggregates to an annual mean (≥10 months required). Real values are deflated to current-year dollars using CPI-U from the [Federal Reserve Bank of St. Louis (FRED)](https://fred.stlouisfed.org/series/CPIAUCNS). Feeds the [Century of Cattle Prices](/sightlines/cattle-prices/) chart.
+
 `follow-the-money.json`: An annual re-aggregation of the [*Follow the Money*](https://web.stanford.edu/group/spatialhistory/FollowTheMoney/) county-level federal-payments dataset, summed across all western counties and split by program. Ten revenue-sharing and in-lieu-of-taxes programs, 1906–2020, expressed in 2020 dollars.
 
 > Taylor, Joseph E., III, Krista Fryauff, Erik Steiner, Celena Allen, Alex Sherman, and Zephyr Frank. *Follow the Money: A Spatial History of In-Lieu Programs for Western Federal Lands.* Spatial History Project, CESTA, Stanford University, 1 June 2016. Licensed CC BY-NC 4.0.
@@ -50,7 +53,7 @@ Feeds the [Federal Payments to Western Counties](/sightlines/federal-payments/) 
 
 `timeline.json`: Hand-curated 33-event chronology of federal public-lands governance, 1872–2024, organized into four swim lanes (agencies, laws, proclamations, rebellions). Not drawn from any single source; references are in [`scripts/build_timeline.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_timeline.py). Feeds the [Federal Public-Lands Timeline](/sightlines/timeline/) visualization.
 
-### Reproducing
+### Reproducing Data
 
 ```sh
 git clone https://github.com/hepplerj/sbr-website.git
