@@ -29,7 +29,11 @@
   </div>
 {{- end }}
 
-{{- $pages := where .RegularPages.ByWeight "Params.draft" "!=" true }}
+{{- /* Hugo already filters drafts via the -D flag: pages with
+       `draft: true` are absent from .RegularPages in production
+       builds and present in `hugo server -D`. No template-level
+       filter needed. */ -}}
+{{- $pages := .RegularPages.ByWeight }}
 {{- if $pages }}
 <ul class="entries">
   {{- range $pages }}
