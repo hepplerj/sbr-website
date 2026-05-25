@@ -3034,6 +3034,237 @@ textarea:focus-visible {
   }
 }
 
+/* ───────── Atlas (regional cosponsorship heatmap, etc.) ───────── */
+.atlas-page {
+  max-width: 72rem;
+  margin: 2rem auto 4rem;
+  padding: 0 1.5rem;
+}
+.atlas-page__eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted, #6b7a5a);
+  margin: 0 0 0.5rem;
+}
+.atlas-page__title {
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+.atlas-page__lede {
+  font-size: 1.05rem;
+  color: var(--color-muted, #4a5640);
+  margin: 0 0 1.5rem;
+  max-width: 56ch;
+}
+.atlas-page__viz {
+  position: relative;
+  margin: 1.5rem 0 2.5rem;
+  background: #fffaf3;
+  border: 1px solid #e0d6c5;
+  border-radius: 6px;
+  padding: 1rem 1rem 1.5rem;
+  min-height: 380px;
+}
+.atlas-page__body {
+  max-width: 56ch;
+  margin: 0 auto;
+}
+
+.atlas-list {
+  max-width: 56rem;
+  margin: 2rem auto 4rem;
+  padding: 0 1.5rem;
+}
+.atlas-list__cards {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.atlas-list__card a {
+  display: block;
+  padding: 1.25rem;
+  border: 1px solid #d9ccb3;
+  border-radius: 6px;
+  background: #fffaf3;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.atlas-list__card a:hover {
+  border-color: #a94b2b;
+  transform: translateY(-1px);
+}
+.atlas-list__card h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+.atlas-list__card p {
+  font-size: 0.9rem;
+  color: #4a5640;
+  margin: 0;
+}
+
+.atlas-viz__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+.atlas-viz__control { display: inline-flex; align-items: baseline; gap: 0.4rem; }
+.atlas-viz__control-label { color: #6b7a5a; font-size: 0.82rem; }
+.atlas-viz__metric-select {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #c9a978;
+  background: #fff;
+  color: #2b2b2b;
+  border-radius: 4px;
+  font: inherit;
+}
+.atlas-viz__metric-select option {
+  color: #2b2b2b;
+  background: #fff;
+}
+
+.atlas-viz__legend-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.75rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+}
+.atlas-viz__legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #fffaf3;
+  border: 1px solid #ddd2bb;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font: inherit;
+  color: #2b2b2b;
+  cursor: pointer;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.atlas-viz__legend-chip:hover { border-color: #a94b2b; }
+.atlas-viz__legend-chip.is-dim { opacity: 0.4; }
+.atlas-viz__swatch {
+  width: 0.7rem; height: 0.7rem; border-radius: 50%; display: inline-block;
+}
+
+.atlas-trend__title {
+  fill: #2b2b2b; font-size: 0.82rem; font-weight: 600;
+}
+.atlas-trend__axis text {
+  fill: #6b7a5a; font-size: 0.7rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.atlas-trend__axis path,
+.atlas-trend__axis line { stroke: #d9ccb3; }
+.atlas-trend__line { stroke-linecap: round; stroke-linejoin: round; }
+.atlas-viz__meta {
+  margin-left: auto;
+  color: #6b7a5a;
+  font-size: 0.85rem;
+}
+.atlas-viz__svg-wrap { width: 100%; overflow-x: auto; }
+.atlas-viz__svg { display: block; width: 100%; height: auto; font-family: inherit; }
+
+.atlas-row-label__main { font-weight: 600; fill: #2b2b2b; font-size: 0.85rem; }
+.atlas-row-label__sub  { fill: #6b7a5a; font-size: 0.75rem; }
+.atlas-col-label { fill: #4a5640; font-size: 0.78rem; }
+.atlas-cell__value {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.95rem;
+  font-weight: 500;
+  pointer-events: none;
+}
+.atlas-legend__title { fill: #4a5640; font-size: 0.78rem; font-weight: 600; }
+.atlas-legend__tick  { fill: #6b7a5a; font-size: 0.7rem; }
+
+.atlas-viz__tooltip {
+  position: absolute;
+  background: #2b2b2b;
+  color: #f7f2ec;
+  padding: 0.6rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  pointer-events: none;
+  z-index: 10;
+  max-width: 240px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.atlas-viz__tooltip[hidden] { display: none; }
+.atlas-viz__tooltip-title { font-weight: 600; margin-bottom: 0.1rem; }
+.atlas-viz__tooltip-area  { color: #c9a978; font-size: 0.78rem; margin-bottom: 0.4rem; }
+.atlas-viz__tooltip dl   { display: grid; grid-template-columns: 1fr auto; gap: 0.1rem 0.75rem; margin: 0; font-size: 0.78rem; }
+.atlas-viz__tooltip dt   { color: #c9a978; font-weight: 400; }
+.atlas-viz__tooltip dd   { margin: 0; text-align: right; font-family: "JetBrains Mono", ui-monospace, monospace; }
+.atlas-viz__tooltip-hint { color: #c9a978; font-size: 0.72rem; margin-top: 0.4rem; font-style: italic; }
+
+.atlas-viz__drill {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  background: #fffaf3;
+  border: 1px solid #c9a978;
+  border-radius: 6px;
+  padding: 1rem 1.25rem 1rem;
+  max-width: 360px;
+  max-height: 80%;
+  overflow-y: auto;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  z-index: 5;
+}
+.atlas-viz__drill[hidden] { display: none; }
+.atlas-viz__drill h3 { margin: 0 0 0.25rem; font-size: 1rem; }
+.atlas-viz__drill-area {
+  display: inline-block;
+  font-size: 0.78rem;
+  color: #6b2d18;
+  background: #f3e7d4;
+  padding: 0.1rem 0.5rem;
+  border-radius: 3px;
+  margin: 0 0 0.5rem;
+}
+.atlas-viz__drill-sub { font-size: 0.8rem; color: #6b7a5a; margin: 0 0 0.75rem; }
+.atlas-viz__drill-loading {
+  font-size: 0.85rem;
+  color: #6b7a5a;
+  padding: 1rem 0;
+  text-align: center;
+}
+.atlas-viz__drill-close {
+  position: absolute; top: 0.4rem; right: 0.5rem;
+  background: none; border: 0; font-size: 1.3rem; color: #6b7a5a; cursor: pointer;
+}
+.atlas-viz__drill-list { list-style: none; padding: 0; margin: 0; font-size: 0.85rem; }
+.atlas-viz__drill-list li {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr 2rem 2.5rem;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #ece2cf;
+  align-items: center;
+}
+.atlas-viz__pty {
+  width: 1.25rem; height: 1.25rem;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; color: #fff;
+}
+.atlas-viz__pty--rep { background: #a94b2b; }
+.atlas-viz__pty--dem { background: #1f2a44; }
+.atlas-viz__pty--ind { background: #6b7a5a; }
+.atlas-viz__name { font-weight: 500; }
+.atlas-viz__st   { color: #6b7a5a; font-size: 0.78rem; }
+.atlas-viz__ct   { text-align: right; font-family: "JetBrains Mono", ui-monospace, monospace; }
+
 // Respect OS-level motion preferences (WCAG 2.3.3).
 // Also stops D3's running force simulation via the reduced-motion class
 // added to viz containers by JS (see networks.js).

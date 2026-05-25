@@ -8,9 +8,9 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money cosponsorship grasslands-cosponsorship physio-great-plains timeline bibliography clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline bibliography clean-data site site-fast serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship grasslands-cosponsorship timeline bibliography
+data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -64,6 +64,21 @@ cosponsorship:
 # none for 108th+).
 grasslands-cosponsorship:
 	$(PY) scripts/build_grasslands_cosponsorship_network.py
+
+# Atlas: regional cosponsorship profile by CRS policy area, 96th–119th
+# Congresses (1979–present). The 108th+ uses keyless govinfo bulk-data
+# ZIPs (fast); 96th–107th uses the keyed api.congress.gov v3 path
+# (slow — full backfill is ~10 hours throttled at 18k/hr).
+#
+# Override the range with CONGRESS_RANGE (e.g. "117 117" for a single
+# Congress, or "96 107" for just the legacy backfill).
+#   make atlas-regional CONGRESS_RANGE="117 117"
+CONGRESS_RANGE ?= 96 119
+atlas-regional:
+	$(PY) scripts/build_atlas_regional.py $(CONGRESS_RANGE)
+
+atlas-regional-smoketest:
+	$(PY) scripts/build_atlas_regional.py --smoketest
 
 # Fenneman (1928) Great Plains physiographic-province boundary overlay
 # for the sightlines mini-map. One-off shell script — requires GDAL

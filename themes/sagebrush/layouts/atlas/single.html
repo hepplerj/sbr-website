@@ -1,0 +1,32 @@
+{{ define "main" }}
+{{- /* Atlas dispatcher. Atlas pages are reference instruments (heatmaps,
+       sortable tables, scorecards) rather than the argument-with-a-viz
+       form of sightlines. Each page declares `atlas:` in frontmatter and
+       the matching JS module mounts onto data-viz="atlas". */ -}}
+
+{{- $cfg  := .Params.atlas -}}
+{{- $slug := .File.BaseFileName -}}
+{{- $id   := printf "atlas-%s" $slug -}}
+
+<article class="atlas-page prose">
+  <header class="atlas-page__header">
+    <p class="atlas-page__eyebrow"><a href="{{ "/atlas/" | relURL }}">Atlas</a></p>
+    <h1 class="atlas-page__title">{{ .Title }}</h1>
+    {{- with .Params.lede }}<p class="atlas-page__lede">{{ . }}</p>{{ end }}
+  </header>
+
+  <div class="atlas-page__viz"
+       id="{{ $id }}"
+       data-viz="atlas"
+       role="img"
+       aria-label="{{ with .Params.lede }}{{ . }}{{ else }}Interactive atlas{{ end }}">
+    <noscript>This atlas requires JavaScript.</noscript>
+  </div>
+  <script type="application/json" id="{{ $id }}-config">{{ $cfg | jsonify | safeJS }}</script>
+
+  <div class="atlas-page__body">
+    {{ .Content }}
+    {{ partial "cite.html" . }}
+  </div>
+</article>
+{{ end }}

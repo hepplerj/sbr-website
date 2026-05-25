@@ -51,8 +51,9 @@
 {{- $hasD3Map         := eq $renderer "d3" -}}
 {{- $hasNetwork       := or (.HasShortcode "network") .Params.network -}}
 {{- $hasChart         := or (.HasShortcode "chart") .Params.chart -}}
+{{- $hasAtlas         := .Params.atlas -}}
 {{- $hasSightlinesList := and (eq .Section "sightlines") .IsSection -}}
-{{- $hasD3            := or $hasD3Map $hasNetwork $hasChart $hasSightlinesList -}}
+{{- $hasD3            := or $hasD3Map $hasNetwork $hasChart $hasAtlas $hasSightlinesList -}}
 {{- $hasLeaflet       := or (.HasShortcode "map") (and .Params.map (not $hasD3Map)) -}}
 
 {{- if $hasLeaflet }}
@@ -84,6 +85,11 @@
   {{- end }}
   {{- if $hasChart }}
     {{- with resources.Get "js/charts.js" | fingerprint }}
+      <script defer src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
+    {{- end }}
+  {{- end }}
+  {{- if $hasAtlas }}
+    {{- with resources.Get "js/atlas.js" | fingerprint }}
       <script defer src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
     {{- end }}
   {{- end }}

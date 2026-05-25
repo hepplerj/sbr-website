@@ -23,6 +23,10 @@ enableEmoji = false
     url = "/sightlines/"
     weight = 10
   [[menu.main]]
+    name = "Atlas"
+    url = "/atlas/"
+    weight = 15
+  [[menu.main]]
     name = "Data"
     url = "/data/"
     weight = 20
