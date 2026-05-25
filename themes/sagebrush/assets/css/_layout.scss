@@ -382,16 +382,25 @@ canvas {
   max-width: var(--measure-wide);
 }
 
-// Figure breakout — figures and viz extend past the reading column
+// Figures fill the prose reading column. Prior attempts at a wider
+// "breakout" failed because the essay layout puts .prose in a grid
+// column next to the TOC — negative margins collide with the TOC.
+// If a wider figure is needed in the future, the right move is to
+// widen the .page-body grid column for narrative pages, not to break
+// out from inside it.
 .prose figure,
 .prose .figure,
 .prose .viz-embed {
-  margin: 2.5em auto;
-  max-width: var(--measure-wide);
+  margin: 2.5em 0;
+  max-width: 100%;
 }
 
-.prose figure img {
-  margin: 0 auto;
+.prose figure img,
+.prose figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
 }
 
 .prose figcaption {

@@ -88,6 +88,13 @@ atlas-regional-smoketest:
 physio-great-plains:
 	bash scripts/build_physio_great_plains.sh
 
+# Static SVG figure for the "What is the Great Plains?" narrative post.
+# Pure-Python (stdlib) Albers Conic projection of the contiguous US
+# with the Fenneman boundary highlighted. Re-run if the source
+# physio-great-plains.geojson or states.json changes.
+fig-great-plains:
+	$(PY) scripts/build_fig_great_plains.py
+
 timeline:
 	$(PY) scripts/build_timeline.py
 
