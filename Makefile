@@ -1,8 +1,16 @@
 PY ?= python3
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money cosponsorship timeline bibliography clean-data site site-fast serve
+# Auto-load scripts/.env if present, so API keys (NASS_API_KEY,
+# CONGRESS_API_KEY) come through to recipes without a manual
+# `source`. The file is gitignored; see scripts/.env for the format.
+ifneq (,$(wildcard scripts/.env))
+  include scripts/.env
+  export
+endif
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship timeline bibliography
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money cosponsorship grasslands-cosponsorship timeline bibliography clean-data site site-fast serve
+
+data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship grasslands-cosponsorship timeline bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -50,6 +58,12 @@ farm-income:
 	$(PY) scripts/build_farm_income.py
 cosponsorship:
 	$(PY) scripts/build_cosponsorship_network.py
+
+# Sister network — grasslands / Plains-conservation bills. Same key
+# requirement as cosponsorship (CONGRESS_API_KEY for pre-108th bills,
+# none for 108th+).
+grasslands-cosponsorship:
+	$(PY) scripts/build_grasslands_cosponsorship_network.py
 
 timeline:
 	$(PY) scripts/build_timeline.py

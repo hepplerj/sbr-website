@@ -51,6 +51,8 @@ Feeds the [Federal Payments to Western Counties](/sightlines/federal-payments/) 
 
 `cosponsorship-network.json`: Bill-cosponsorship network for a curated set of 41 federal public-lands bills across the 96th–118th Congresses (1979–2024). Bills from the 108th Congress onward are fetched from the [GPO govinfo.gov BILLSTATUS](https://www.govinfo.gov/bulkdata/BILLSTATUS) bulk-XML feed (free, no key); earlier bills use the [Congress.gov API v3](https://api.congress.gov/) (free key). Each node is a legislator who cosponsored at least two bills in the set; each edge is a shared-cosponsorship tie. Feeds the [Cosponsorship Network](/sightlines/cosponsorship-network/) visualization.
 
+`grasslands-cosponsorship-network.json`: A sister network with the same structure, scoped to Plains-grasslands politics: Conservation Reserve Program modifications, sodsaver / native-sod protection, lesser prairie chicken (both protection and delisting), the North American Grasslands Conservation Act, bison restoration, and a handful of National Grassland-specific items. Fifteen standalone bills across the 111th–119th Congresses. S. 273 (115th, Risch) Greater Sage-Grouse Protection Act appears in both networks. Feeds the [Cosponsorship on Plains Grasslands Bills](/sightlines/grasslands-cosponsorship/) visualization.
+
 `timeline.json`: Hand-curated 33-event chronology of federal public-lands governance, 1872–2024, organized into four swim lanes (agencies, laws, proclamations, rebellions). Not drawn from any single source; references are in [`scripts/build_timeline.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_timeline.py). Feeds the [Federal Public-Lands Timeline](/sightlines/timeline/) visualization.
 
 ### Reproducing Data
