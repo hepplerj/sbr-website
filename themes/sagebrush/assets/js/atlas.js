@@ -1,29 +1,21 @@
 // ─────────────────────────────────────────────
-// Governing Ground — atlas renderer
-// Two modes for the regional-cosponsorship views:
-//   mode: "heatmap" (default) — region × policy-area grid for one Congress
-//   mode: "trends"             — small-multiples lines, one per policy area,
-//                                three lines per panel (one per region),
-//                                X = Congress, Y = chosen metric
+// Governing Ground — atlas renderer (trends mode)
 //
-// Mounts on elements with data-viz="atlas". Config and data shapes
-// follow scripts/build_atlas_regional.py.
+// Small-multiples line chart: one panel per CRS policy area, three
+// lines per panel (one per regional delegation), X = Congress (year
+// labels), Y = chosen metric. Mounts on data-viz="atlas".
 //
-// Heatmap config (lowercase — Hugo lowercases frontmatter keys):
+// Config (lowercase — Hugo lowercases frontmatter keys):
 //   {
-//     mode:    "heatmap",
-//     src:     "/data/atlas-regional-117.json",
-//     metric:  "permember" | "shareofregion" | "cosponsorships",
-//     chamber: "both" | "house" | "senate",      // default "both"
-//   }
-//
-// Trends config:
-//   {
-//     mode:    "trends",
 //     src:     "/data/atlas-regional-timeseries.json",
 //     metric:  "permember" | "shareofregion" | "cosponsorships",
 //     chamber: "both" | "house" | "senate",
 //   }
+//
+// A `mode` field is accepted but currently only "trends" is supported.
+// A prior per-Congress heatmap mode was removed when the dual-entry
+// atlas was consolidated into a single trends entry; restore from git
+// history if a single-Congress view is wanted again.
 // ─────────────────────────────────────────────
 
 (function () {
@@ -45,8 +37,6 @@
     house:  "House only",
     senate: "Senate only",
   };
-
-  const COLOR_DOMAIN = ["#f7f2ec", "#e8d4b8", "#d09870", "#a94b2b", "#6b2d18"];
 
   // Each Congress is two years starting odd-numbered years from 1789.
   // 108 → 2003 (Jan), 109 → 2005, ... 119 → 2025.
@@ -79,18 +69,14 @@
     const src = cfg.src;
     if (!src) { console.error("atlas: missing src"); return; }
 
-    const mode    = (cfg.mode    || "heatmap").toLowerCase();
-    let   metric  = (cfg.metric  || "permember").toLowerCase();
-    let   chamber = (cfg.chamber || "both").toLowerCase();
+    let metric  = (cfg.metric  || "permember").toLowerCase();
+    let chamber = (cfg.chamber || "both").toLowerCase();
     if (!(metric  in METRIC_FIELD))   metric  = "permember";
     if (!(chamber in CHAMBER_LABELS)) chamber = "both";
 
     fetch(src)
       .then(r => r.json())
-      .then(data => {
-        if (mode === "trends") renderTrends(container, data, cfg, metric, chamber);
-        else                   renderHeatmap(container, data, cfg, metric, chamber);
-      })
+      .then(data => renderTrends(container, data, cfg, metric, chamber))
       .catch(err => {
         console.error("atlas fetch failed", err);
         container.innerHTML = '<p class="atlas-viz__error">Could not load data.</p>';
@@ -109,124 +95,6 @@
     if (metric === "permember")      return +by.perMem || 0;
     if (metric === "cosponsorships") return +by.cosp   || 0;
     return 0;
-  }
-
-  // ───────────────────────── HEATMAP MODE ─────────────────────────
-  function renderHeatmap(container, data, cfg, initialMetric, initialChamber) {
-    const regions = data.regions;
-    const areas   = data.policyAreas;
-    const cells   = data.cells;
-    const cellByKey = new Map(cells.map(c => [c.region + "|" + c.policyArea, c]));
-
-    const ctrls = controlsRow(container);
-    const metricSel  = makeSelect(ctrls, "Show", METRIC_LABELS, initialMetric);
-    const chamberSel = makeSelect(ctrls, "Chamber", CHAMBER_LABELS, initialChamber);
-
-    const meta = document.createElement("span");
-    meta.className = "atlas-viz__meta";
-    meta.textContent = `${data.billsKept.toLocaleString()} bills · `
-      + `${regions.reduce((a, r) => a + r.memberCount, 0)} members `
-      + `· ${data.congress}th Congress (${data.years})`;
-    ctrls.appendChild(meta);
-
-    const margin = { top: 28, right: 16, bottom: 110, left: 220 };
-    const cellH = 56;
-    const innerH = regions.length * cellH;
-
-    const svgWrap = document.createElement("div");
-    svgWrap.className = "atlas-viz__svg-wrap";
-    container.appendChild(svgWrap);
-    const svg = d3.select(svgWrap).append("svg")
-      .attr("class", "atlas-viz__svg").attr("role", "img");
-
-    const tooltip = makeTooltip(container);
-    const drill   = makeDrill(container);
-    const g       = svg.append("g");
-
-    function draw() {
-      const metric  = metricSel.value;
-      const chamber = chamberSel.value;
-      const field   = METRIC_FIELD[metric];
-      const width   = svgWrap.clientWidth || 800;
-      const innerW  = Math.max(320, width - margin.left - margin.right);
-      const cellW   = innerW / areas.length;
-      const totalH  = innerH + margin.top + margin.bottom;
-
-      svg.attr("viewBox", `0 0 ${width} ${totalH}`)
-         .attr("width", width).attr("height", totalH);
-      g.attr("transform", `translate(${margin.left},${margin.top})`);
-      g.selectAll("*").remove();
-
-      const vals = cells.map(c => valueOf(c, metric, chamber));
-      const vmax = d3.max(vals) || 1;
-      const color = d3.scaleQuantize().domain([0, vmax]).range(COLOR_DOMAIN);
-
-      // Row labels
-      g.selectAll(".atlas-row-label")
-        .data(regions).join("text")
-        .attr("class", "atlas-row-label")
-        .attr("x", -12).attr("y", (_, i) => i * cellH + cellH / 2)
-        .attr("text-anchor", "end")
-        .each(function (r) {
-          const s = d3.select(this);
-          const memN = chamber === "house"  ? r.memberHouse
-                     : chamber === "senate" ? r.memberSenate
-                     : r.memberCount;
-          s.append("tspan").attr("x", -12).attr("dy", "-0.4em")
-            .attr("class", "atlas-row-label__main").text(r.label);
-          s.append("tspan").attr("x", -12).attr("dy", "1.2em")
-            .attr("class", "atlas-row-label__sub")
-            .text(`${memN} member${memN === 1 ? "" : "s"}`);
-        });
-
-      // Column labels
-      g.selectAll(".atlas-col-label")
-        .data(areas).join("text")
-        .attr("class", "atlas-col-label")
-        .attr("x", (_, i) => i * cellW + cellW / 2)
-        .attr("y", innerH + 14).attr("text-anchor", "end")
-        .attr("transform", (_, i) =>
-          `rotate(-32, ${i * cellW + cellW / 2}, ${innerH + 14})`)
-        .text(d => d);
-
-      // Cells
-      const cellG = g.selectAll(".atlas-cell")
-        .data(regions.flatMap(r =>
-          areas.map(a => {
-            const base = cellByKey.get(r.slug + "|" + a) || {};
-            return Object.assign({ _region: r, _area: a }, base);
-          })))
-        .join("g")
-        .attr("class", "atlas-cell")
-        .attr("transform", d => {
-          const ri = regions.indexOf(d._region);
-          const ai = areas.indexOf(d._area);
-          return `translate(${ai * cellW}, ${ri * cellH})`;
-        })
-        .style("cursor", "pointer")
-        .on("mousemove", (ev, d) => showHeatmapTooltip(ev, d, metric, chamber, tooltip, container))
-        .on("mouseleave", () => tooltip.setAttribute("hidden", ""))
-        .on("click", d_ev_capture(d => openDrill(drill, d, data, container)));
-
-      cellG.append("rect")
-        .attr("width", cellW - 2).attr("height", cellH - 2).attr("rx", 4)
-        .attr("fill", d => color(valueOf(d, metric, chamber)));
-
-      cellG.append("text")
-        .attr("x", (cellW - 2) / 2).attr("y", (cellH - 2) / 2)
-        .attr("text-anchor", "middle").attr("dy", "0.32em")
-        .attr("class", "atlas-cell__value")
-        .attr("fill", d => valueOf(d, metric, chamber) > vmax * 0.55
-              ? "#f7f2ec" : "#2b2b2b")
-        .text(d => formatValue(valueOf(d, metric, chamber), metric));
-
-      drawLegend(g, innerH + 70, vmax, metric, chamber);
-    }
-
-    metricSel.addEventListener("change", draw);
-    chamberSel.addEventListener("change", draw);
-    window.addEventListener("resize", debounce(draw, 120));
-    draw();
   }
 
   // ───────────────────────── TRENDS MODE ─────────────────────────
@@ -495,42 +363,6 @@
     container.appendChild(d);
     return d;
   }
-  function drawLegend(g, y, vmax, metric, chamber) {
-    const lg = g.append("g").attr("class", "atlas-legend")
-      .attr("transform", `translate(0, ${y})`);
-    const legW = 220, legH = 10;
-    lg.selectAll("rect").data(COLOR_DOMAIN).join("rect")
-      .attr("x", (_, i) => i * (legW / COLOR_DOMAIN.length))
-      .attr("width", legW / COLOR_DOMAIN.length)
-      .attr("height", legH).attr("fill", d => d);
-    lg.append("text").attr("y", -4).attr("class", "atlas-legend__title")
-      .text(METRIC_LABELS[metric] + (chamber === "both" ? "" : ` (${CHAMBER_LABELS[chamber]})`));
-    lg.append("text").attr("y", legH + 14).attr("x", 0)
-      .attr("class", "atlas-legend__tick").text("0");
-    lg.append("text").attr("y", legH + 14).attr("x", legW)
-      .attr("text-anchor", "end").attr("class", "atlas-legend__tick")
-      .text(formatValue(vmax, metric));
-  }
-
-  function showHeatmapTooltip(ev, d, metric, chamber, tooltip, container) {
-    const v = valueOf(d, metric, chamber);
-    const memN = chamber === "house"  ? d._region.memberHouse
-               : chamber === "senate" ? d._region.memberSenate
-               : d._region.memberCount;
-    const bp = d.byParty || {};
-    tooltip.innerHTML =
-        `<div class="atlas-viz__tooltip-title">${escapeHtml(d._region.label)}</div>`
-      + `<div class="atlas-viz__tooltip-area">${escapeHtml(d._area)}</div>`
-      + `<dl>`
-      + `<dt>${escapeHtml(METRIC_LABELS[metric])}</dt><dd>${formatValue(v, metric)}</dd>`
-      + `<dt>Members (${chamber})</dt><dd>${memN}</dd>`
-      + `<dt>Bills touched</dt><dd>${(d.bills || 0).toLocaleString()}</dd>`
-      + `<dt>D / R / I cosp.</dt><dd>${bp.d||0} / ${bp.r||0} / ${bp.i||0}</dd>`
-      + `</dl>`
-      + `<div class="atlas-viz__tooltip-hint">Click for top members</div>`;
-    positionTooltip(tooltip, ev, container, 240, 130);
-  }
-
   function showTrendTooltip(ev, p, s, area, metric, chamber, tooltip, container) {
     const c = p.cell;
     const bp = c.byParty || {};
@@ -554,40 +386,6 @@
     tooltip.style.left = Math.min(x, container.clientWidth - w) + "px";
     tooltip.style.top  = Math.min(y, container.clientHeight - h) + "px";
   }
-
-  function openDrill(drill, d, data, container) {
-    const slug = d._region.slug;
-    const area = d._area;
-    const list = (data.members || [])
-      .filter(m => m.region === slug && (m.totals[area] || 0) > 0)
-      .sort((a, b) => (b.totals[area] || 0) - (a.totals[area] || 0))
-      .slice(0, 25);
-    drill.innerHTML =
-        `<button class="atlas-viz__drill-close" aria-label="Close">×</button>`
-      + `<h3>${escapeHtml(d._region.label)} — ${escapeHtml(area)}</h3>`
-      + `<p class="atlas-viz__drill-sub">${list.length} of `
-        + `${d._region.memberCount} delegation members cosponsored ≥1 bill `
-        + `in this area. Top 25:</p>`
-      + `<ol class="atlas-viz__drill-list">`
-      + list.map(m => {
-          const partyClass = m.party === "R" ? "rep" : m.party === "D" ? "dem" : "ind";
-          const cleanName = m.name.replace(/^(Sen\.|Rep\.|Del\.|Res\.)\s*/, "")
-                                  .replace(/\s+\[.*?\]$/, "");
-          const chamberTag = m.chamber === "senate" ? "S" : "H";
-          return `<li>`
-            + `<span class="atlas-viz__pty atlas-viz__pty--${partyClass}">${m.party || "?"}</span>`
-            + `<span class="atlas-viz__name">${escapeHtml(cleanName)}</span>`
-            + `<span class="atlas-viz__st">${m.state} · ${chamberTag}</span>`
-            + `<span class="atlas-viz__ct">${m.totals[area]}</span>`
-            + `</li>`;
-        }).join("")
-      + `</ol>`;
-    drill.removeAttribute("hidden");
-    drill.querySelector(".atlas-viz__drill-close").onclick = () =>
-      drill.setAttribute("hidden", "");
-  }
-  // D3 callback adapter (curried so each cell gets the same drill handler)
-  function d_ev_capture(fn) { return (_ev, d) => fn(d); }
 
   function formatValue(v, metric) {
     if (metric === "shareofregion") return (v * 100).toFixed(1) + "%";

@@ -3184,18 +3184,6 @@ textarea:focus-visible {
 .atlas-viz__svg-wrap { width: 100%; overflow-x: auto; }
 .atlas-viz__svg { display: block; width: 100%; height: auto; font-family: inherit; }
 
-.atlas-row-label__main { font-weight: 600; fill: #2b2b2b; font-size: 0.85rem; }
-.atlas-row-label__sub  { fill: #6b7a5a; font-size: 0.75rem; }
-.atlas-col-label { fill: #4a5640; font-size: 0.78rem; }
-.atlas-cell__value {
-  font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 0.95rem;
-  font-weight: 500;
-  pointer-events: none;
-}
-.atlas-legend__title { fill: #4a5640; font-size: 0.78rem; font-weight: 600; }
-.atlas-legend__tick  { fill: #6b7a5a; font-size: 0.7rem; }
-
 .atlas-viz__tooltip {
   position: absolute;
   background: #2b2b2b;
