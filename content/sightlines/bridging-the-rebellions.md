@@ -6,7 +6,7 @@ weight: 6
 draft: true 
 viz: network
 themes: [sagebrush-rebellion-1979, bundy-family, malheur, bunkerville, public-lands]
-regions: [northern-plains, southern-plains, intermountain-west, rocky-mountain, southwest, pacific-northwest, pacific-southwest]
+regions: [northern-plains, southern-plains, rocky-mountain, intermountain-west, southwest, pacific-northwest, pacific-southwest]
 network:
   src: /data/bridging-network.json
   infotitle: "Bridging the rebellions"

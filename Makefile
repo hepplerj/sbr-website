@@ -8,7 +8,7 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money cosponsorship grasslands-cosponsorship timeline bibliography clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money cosponsorship grasslands-cosponsorship physio-great-plains timeline bibliography clean-data site site-fast serve
 
 data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship grasslands-cosponsorship timeline bibliography
 
@@ -64,6 +64,14 @@ cosponsorship:
 # none for 108th+).
 grasslands-cosponsorship:
 	$(PY) scripts/build_grasslands_cosponsorship_network.py
+
+# Fenneman (1928) Great Plains physiographic-province boundary overlay
+# for the sightlines mini-map. One-off shell script — requires GDAL
+# (ogr2ogr); install with `brew install gdal`. Output is committed,
+# so only re-run if the upstream USGS shapefile is updated (effectively
+# never — it's a historical classification).
+physio-great-plains:
+	bash scripts/build_physio_great_plains.sh
 
 timeline:
 	$(PY) scripts/build_timeline.py

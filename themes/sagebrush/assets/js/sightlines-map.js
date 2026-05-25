@@ -11,18 +11,18 @@
   // ── Region taxonomy ──────────────────────────────────────────────────────────
   // FIPS IDs are strings "01".."72" in us-atlas. +id gives the numeric value.
   var FIPS_REGION = {
-    30: "northern-plains",   // MT
     38: "northern-plains",   // ND
     46: "northern-plains",   // SD
     31: "northern-plains",   // NE
     20: "southern-plains",   // KS
     40: "southern-plains",   // OK
     48: "southern-plains",   // TX
+    30: "rocky-mountain",    // MT  — Glacier, Bob Marshall, Beaverhead-Deerlodge
+    56: "rocky-mountain",    // WY  — Yellowstone, Tetons, Wind River, Bighorn
+    8:  "rocky-mountain",    // CO  — Rocky Mountain NP, San Juans, Sawatch, Front Range
     16: "intermountain-west",// ID
     49: "intermountain-west",// UT
     32: "intermountain-west",// NV
-    8: "rocky-mountain",    // CO
-    56: "rocky-mountain",    // WY
     4: "southwest",         // AZ
     35: "southwest",         // NM
     53: "pacific-northwest", // WA
@@ -35,8 +35,8 @@
   var REGION_COLOR = {
     "northern-plains": "#b8a55a",
     "southern-plains": "#c06b45",
-    "intermountain-west": "#4e8055",
     "rocky-mountain": "#5278a0",
+    "intermountain-west": "#4e8055",
     "southwest": "#9b4e4e",
     "pacific-northwest": "#3a7268",
     "pacific-southwest": "#7a5e9a",
@@ -46,8 +46,8 @@
   var REGION_LABEL = {
     "northern-plains": "Northern Plains",
     "southern-plains": "Southern Plains",
-    "intermountain-west": "Intermountain West",
     "rocky-mountain": "Rocky Mountain",
+    "intermountain-west": "Intermountain West",
     "southwest": "Southwest",
     "pacific-northwest": "Pacific Northwest",
     "pacific-southwest": "Pacific Southwest",
@@ -57,7 +57,7 @@
   // Ordered for display in legend
   var REGION_ORDER = [
     "northern-plains", "southern-plains",
-    "intermountain-west", "rocky-mountain", "southwest",
+    "rocky-mountain", "intermountain-west", "southwest",
     "pacific-northwest", "pacific-southwest", "alaska",
   ];
 
@@ -273,5 +273,48 @@
       var region = FIPS_REGION[+d.id];
       return region ? REGION_LABEL[region] : "";
     });
+
+    // ── Fenneman Great Plains overlay (toggleable) ─────────────────
+    // Outline of the USGS/Fenneman (1928) Great Plains physiographic
+    // province. Off by default; the reader opts in via the "Map
+    // features" checkbox in the sidebar. The boundary cuts diagonally
+    // through eastern CO, eastern WY, eastern MT, and the western
+    // edges of MN/IA/MO/AR — independent of state lines.
+    // Source: scripts/build_physio_great_plains.sh.
+    var overlayGroup = svg.append("g")
+      .attr("class", "sightlines-map__overlay")
+      .style("display", "none")
+      .attr("pointer-events", "none");
+
+    d3.json("/data/physio-great-plains.geojson").then(function (gp) {
+      // White halo underneath for legibility against any region fill,
+      // then the solid rust line on top.
+      overlayGroup.selectAll("path.halo")
+        .data(gp.features).join("path")
+        .attr("class", "halo")
+        .attr("d", path)
+        .attr("fill", "none")
+        .attr("stroke", "#fffaf3")
+        .attr("stroke-width", 5)
+        .attr("stroke-linejoin", "round")
+        .attr("opacity", 0.85);
+      overlayGroup.selectAll("path.line")
+        .data(gp.features).join("path")
+        .attr("class", "line")
+        .attr("d", path)
+        .attr("fill", "none")
+        .attr("stroke", "#5a3a28")
+        .attr("stroke-width", 2.6)
+        .attr("stroke-linejoin", "round")
+        .attr("opacity", 0.95);
+    }).catch(function () { /* overlay file missing — silently skip */ });
+
+    // Wire the sidebar checkbox to the overlay's display.
+    var overlayCheck = document.getElementById("map-overlay-great-plains");
+    if (overlayCheck) {
+      overlayCheck.addEventListener("change", function (ev) {
+        overlayGroup.style("display", ev.target.checked ? null : "none");
+      });
+    }
   });
 })();

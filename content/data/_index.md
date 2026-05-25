@@ -53,6 +53,8 @@ Feeds the [Federal Payments to Western Counties](/sightlines/federal-payments/) 
 
 `grasslands-cosponsorship-network.json`: A sister network with the same structure, scoped to Plains-grasslands politics: Conservation Reserve Program modifications, sodsaver / native-sod protection, lesser prairie chicken (both protection and delisting), the North American Grasslands Conservation Act, bison restoration, and a handful of National Grassland-specific items. Fifteen standalone bills across the 111th–119th Congresses. S. 273 (115th, Risch) Greater Sage-Grouse Protection Act appears in both networks. Feeds the [Cosponsorship on Plains Grasslands Bills](/sightlines/grasslands-cosponsorship/) visualization.
 
+`physio-great-plains.geojson`: A single dissolved polygon of the Fenneman (1928) "Great Plains" physiographic province, derived from the [USGS physiographic divisions of the conterminous US](https://water.usgs.gov/GIS/dsdl/physio_shp.zip). Boundaries cut diagonally through eastern CO, eastern WY, eastern MT, and the western edges of MN/IA/MO/AR — independent of state lines. Used as a toggleable overlay on the [Sightlines](/sightlines/) mini-map to show that the geographic Plains don't follow state boundaries. Simplified to ~2 km tolerance (~70 KB). Built by `scripts/build_physio_great_plains.sh` (requires GDAL).
+
 `timeline.json`: Hand-curated 33-event chronology of federal public-lands governance, 1872–2024, organized into four swim lanes (agencies, laws, proclamations, rebellions). Not drawn from any single source; references are in [`scripts/build_timeline.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_timeline.py). Feeds the [Federal Public-Lands Timeline](/sightlines/timeline/) visualization.
 
 ### Reproducing Data

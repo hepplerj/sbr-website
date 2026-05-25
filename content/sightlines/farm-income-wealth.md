@@ -6,7 +6,7 @@ weight: 15
 draft: false
 viz: chart
 themes: [farm-crisis, rural-economy, sagebrush-rebellion-1979]
-regions: [national, northern-plains, southern-plains, intermountain-west, rocky-mountain, southwest]
+regions: [national, northern-plains, southern-plains, rocky-mountain, intermountain-west, southwest]
 chart:
   src: /data/farm-income.json
   type: small-multiples

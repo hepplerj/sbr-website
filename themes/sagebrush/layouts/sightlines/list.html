@@ -1,5 +1,7 @@
 {{ define "main" }}
-{{- $all := where .RegularPages "Params.draft" "!=" true -}}
+{{- /* Hugo's -D flag controls draft inclusion at the build level;
+       no template-level filter needed. */ -}}
+{{- $all := .RegularPages -}}
 
 {{- /* Collect theme filter dimension. */ -}}
 {{- $themes := slice -}}
@@ -22,12 +24,16 @@
     "sagebrush-rebellion-1979" "Sagebrush Rebellion (1979)"
 -}}
 
-{{- /* New 7-region taxonomy (Forest Service groupings). Used for card region tags. */ -}}
+{{- /* Region taxonomy. MT/WY/CO are grouped as Rocky Mountain — the
+       spine of the range runs continuously through them and their
+       federal-land character is dominated by Rocky Mountain NF/NP
+       holdings (Glacier, Yellowstone-Teton, RMNP). Plains-character
+       eastern halves get acknowledged in prose where it matters. */ -}}
 {{- $regionLabel := dict
     "northern-plains"    "Northern Plains"
     "southern-plains"    "Southern Plains"
-    "intermountain-west" "Intermountain West"
     "rocky-mountain"     "Rocky Mountain"
+    "intermountain-west" "Intermountain West"
     "southwest"          "Southwest"
     "pacific-northwest"  "Pacific Northwest"
     "pacific-southwest"  "Pacific Southwest"
@@ -75,6 +81,26 @@
         </div>
       </div>
     {{- end }}
+
+    {{- /* Map features — optional overlays for the mini-map. Currently
+           one: the Fenneman (1928) Great Plains physiographic-province
+           boundary, which doesn't follow state lines. Future overlays
+           (USFS regions, other physiographic provinces, historic
+           boundaries) drop in here as additional checkbox items. */ -}}
+    <div class="sightlines-rail__section">
+      <p class="sightlines-rail__label">Map features</p>
+      <div class="sightlines-features" role="group" aria-label="Optional map overlays">
+        <label class="sightlines-features__check">
+          <input type="checkbox" id="map-overlay-great-plains" data-overlay="great-plains">
+          <span class="sightlines-features__swatch"
+                style="background: #5a3a28;" aria-hidden="true"></span>
+          <span class="sightlines-features__text">
+            <span class="sightlines-features__name">Great Plains boundary</span>
+            <span class="sightlines-features__meta">Fenneman, 1928 — physiographic</span>
+          </span>
+        </label>
+      </div>
+    </div>
 
   </aside>
 
