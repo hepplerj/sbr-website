@@ -9,25 +9,31 @@ atlas:
   src: /data/atlas-regional-timeseries.json
   metric: permember
   chamber: both
+  howto:
+    - "**Hover** anywhere over a panel to see a dashed vertical guide-line at the nearest Congress. Small dots mark where the line crosses each region's series, and the year span shows at the top of the line."
+    - "**Click** a panel to pin the position. A solid dark line stays at the pinned Congress; hovering elsewhere still shows the dashed preview without losing your pin. Click the same spot again or use the **Unpin** button to dismiss."
+    - "A **detail panel** opens below the charts once you pin. The left column shows that policy area's value, bill count, and party breakdown for each of the three regions. Click any region row to populate the right column with that delegation's members."
+    - "The **right column** is a member list with name search and state-filter chips — useful for asking 'who in the Plains delegation drove the 118th Energy spike?' or 'which California members didn't sign onto Animals bills?'"
+    - "**Region legend chips** above the charts dim the other two series when clicked, letting you focus on one delegation's trajectory across all six panels."
+    - "**Metric** controls the y-axis: per-member (delegation-size-adjusted), share-of-region (% of total cosponsorships), or raw total."
+    - "**Chamber** scopes to Both / House / Senate. Senators cosponsor 3–5× more bills per member, so Senate-only views make the signal sharper."
 ---
 
 This view plots cosponsorship attention across six CRS policy areas and twenty-four Congresses — the 96th (1979–80, the founding Sagebrush Rebellion Congress, when Paul Laxalt was introducing his Nevada-disposal bills) through the 119th (2025–26, in progress).
 
-Each panel is one policy area, with three lines — one per regional delegation. Click a region in the legend to dim the others; toggle metric and chamber from the controls. Click any data point to see the top 25 members of that delegation who cosponsored bills in that area in that Congress.
-
-The patterns to look for: stability vs volatility, narrowing vs widening regional gaps, the historical inflection points where Congressional attention shifts.
+Each panel is one policy area, with three lines — one per regional delegation. The patterns to look for: stability vs volatility, narrowing vs widening regional gaps, the historical inflection points where Congressional attention shifts.
 
 The three regional delegations:
 
 - **Great Plains** — MT, WY, CO, ND, SD, NE, KS. Dryland farming, ranching, oil-gas-wind, and the Conservation Reserve Program country.
-- **Intermountain & Pacific West + AK** — AK, AZ, CA, HI, ID, NM, NV, OR, UT, WA. The federal-land West; where the Sagebrush Rebellion's transfer politics live.
-- **Corn Belt Midwest** — IA, IL, IN, MI, MN, MO, OH, WI. Almost no federal-land exposure; included as the *contrast case* — what does an agriculture-heavy region without federal-land politics actually cosponsor?
+- **American West** — AK, AZ, CA, HI, ID, NM, NV, OR, UT, WA. The federal-land West; where the Sagebrush Rebellion's transfer politics live.
+- **Midwest** — IA, IL, IN, MI, MN, MO, OH, WI. Almost no federal-land exposure; included as the *contrast case* — what does an agriculture-heavy region without federal-land politics actually cosponsor?
 
 The unit of analysis is the delegation as a political-economic actor, not the geographic region — which is why this taxonomy differs from the eight-region one used by the [sightlines](/sightlines/) filter. The atlas asks "what does this delegation spend its cosponsorship attention on?" — a different question than "what content is geographically relevant to this region?"
 
 ## What stays stable across the period
 
-- **Animals legislation skews West throughout.** The Intermountain & Pacific West delegation cosponsors animal-welfare and species-conservation bills at the highest per-member rate in *every* Congress in the series. The Plains stay lowest in every Congress. This is not a recent artifact — it has held since the 96th and reflects the geography of the West's urban-coastal members (CA, OR, WA delegations driving the signal) versus the production-ag Plains.
+- **Animals legislation skews West throughout.** The American West delegation cosponsors animal-welfare and species-conservation bills at the highest per-member rate in *every* Congress in the series. The Plains stay lowest in every Congress. This is not a recent artifact — it has held since the 96th and reflects the geography of the West's urban-coastal members (CA, OR, WA delegations driving the signal) versus the production-ag Plains.
 - **Public Lands tracks the federal-land map.** The West always leads in *Public Lands & Natural Resources* cosponsorships per member; the Midwest is always lowest. The Plains sit between, closer to the West than the Midwest — consistent with their substantial BLM, National Grassland, and Forest Service exposure.
 
 ## What changes meaningfully

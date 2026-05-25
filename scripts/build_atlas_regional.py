@@ -101,7 +101,7 @@ REGIONS = {
         "states": ["AK", "AZ", "CA", "HI", "ID", "NM", "NV", "OR", "UT", "WA"],
     },
     "corn-belt": {
-        "label":  " Midwest",
+        "label":  "Midwest",
         "states": ["IA", "IL", "IN", "MI", "MN", "MO", "OH", "WI"],
     },
 }
