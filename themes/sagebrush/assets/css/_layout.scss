@@ -88,17 +88,21 @@ canvas {
 .site-title {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 26px;
-  line-height: 1;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
 }
 .site-title a {
   color: var(--ink);
   text-decoration: none;
+  display: inline-block;
 }
 .site-title a:hover {
   color: var(--rust);
+}
+.site-title__line {
+  display: block;   // stacks "Governing" / "Ground" on two lines
 }
 .site-nav ul {
   list-style: none;
@@ -111,9 +115,10 @@ canvas {
 .site-nav a {
   font-family: var(--font-ui);
   font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--soft);
+  color: var(--ink);
   text-decoration: none;
   padding: 0.4em 0;
   transition: color var(--duration) var(--ease);
@@ -187,9 +192,13 @@ canvas {
 .site-footer__col-head {
   font-family: var(--font-ui);
   font-size: 10px;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--rust);
+  // Was rust on ink — failed the legibility check; switched to paper
+  // (full brightness) for the column heads. The rust accent still
+  // signals the column-head role via the wordmark/blurb pairing.
+  color: var(--paper);
   margin: 0 0 18px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--ink-rule);
@@ -293,61 +302,94 @@ canvas {
   position: relative;
   max-width: var(--measure-full);
   margin: 0 auto;
-  padding: var(--space-8) var(--space-5);
-  color: var(--color-cream);
+  padding: var(--space-8) var(--space-page);
+  color: var(--paper);
   z-index: 1;
   width: 100%;
 }
 
-.hero__eyebrow {
+// Kicker — Space Mono UPPERCASE tracked, set in paper so it reads
+// cleanly over the dark photo (rust was tonally too close to the
+// photograph's mid-warms to hold).
+.hero__kicker {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
-  color: var(--color-sage-light);
-  margin: 0 0 var(--space-3);
+  letter-spacing: 0.18em;
+  color: var(--paper);
+  opacity: 0.88;
+  margin: 0 0 var(--space-4);
 }
 
+// Stacked title — "Governing / Ground", Spectral 700 at 78px, tight
 .hero__title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-size: clamp(3.5rem, 8vw, 5.5rem);
   font-weight: 700;
-  line-height: 1;
+  line-height: 0.92;
   letter-spacing: -0.02em;
-  margin: 0 0 var(--space-4);
-  color: var(--color-cream);
-  max-width: 18ch;
+  margin: 0 0 var(--space-5);
+  color: var(--paper);
+}
+.hero__title-line {
+  display: block;
 }
 
+// Italic Spectral standfirst, max ~460px
 .hero__lede {
   font-family: var(--font-body);
-  font-size: var(--font-size-md);
-  line-height: 1.5;
-  max-width: 38rem;
-  color: var(--color-cream);
-  margin: 0 0 var(--space-5);
+  font-size: clamp(1.1rem, 1.4vw, 1.31rem);   // ~17.5–21px
+  font-weight: 400;
   font-style: italic;
-  opacity: 0.92;
+  line-height: 1.5;
+  max-width: 32rem;
+  color: var(--paper);
+  margin: 0 0 var(--space-6);
+  opacity: 0.94;
 }
 
+// CTA row — filled + outline buttons
 .hero__cta {
-  display: inline-block;
-  padding: 0.75em 1.5em;
-  background: var(--color-rust);
-  color: var(--color-cream);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  text-decoration: none;
-  border-radius: var(--radius-sm);
-  transition: background var(--duration) var(--ease), transform var(--duration) var(--ease);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 
-.hero__cta:hover {
-  background: var(--color-rust-dark);
-  color: var(--color-cream);
-  transform: translateY(-1px);
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  border-radius: 0;
+  transition: background var(--duration) var(--ease),
+              border-color var(--duration) var(--ease),
+              color var(--duration) var(--ease);
+}
+.btn--filled {
+  background: var(--ink);
+  color: var(--paper);
+  border: 1.5px solid var(--ink);
+}
+.btn--filled:hover {
+  background: var(--rust);
+  border-color: var(--rust);
+  color: var(--paper);
+}
+.btn--outline {
+  background: transparent;
+  color: var(--paper);
+  border: 1.5px solid var(--paper);
+}
+.btn--outline:hover {
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .hero__credit {
@@ -601,132 +643,135 @@ canvas {
   max-width: var(--measure);
 }
 
-// ── Home intro (sits between hero and section cards) ────────
-// Editorial register — bigger than body prose, narrower than cards,
-// softly separated from what's below with a thin rule rather than
-// another background color.
-.home-grid {
+// ── Home plates — Survey numbered card row ─────────────────────
+// Four bordered-top plates (Pl. I-IV), each with a rust kicker, a
+// short title, body copy, and a View → link. Top border is the rust
+// rule that gives the row its plate-edition feel.
+.home-plates {
   max-width: var(--measure-full);
   margin: 0 auto;
-  padding: var(--space-7) var(--space-5);
-  display: grid;
-  gap: var(--space-7);
-  grid-template-columns: 1fr;
-
-  @media (min-width: 64rem) {
-    grid-template-columns: 5fr 7fr;
-    gap: var(--space-8);
-    align-items: start;
-  }
+  padding: var(--space-8) var(--space-page) var(--space-9);
 }
-
-.home-intro {
-  max-width: none;
-  margin: 0;
-  padding: 0;
-}
-
-.home-intro__inner {
-  max-width: none;
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--font-size-base);
-  line-height: 1.65;
-  color: var(--color-ink);
-  padding-bottom: var(--space-6);
-}
-
-.home-intro__inner p {
-  margin: 0 0 1em;
-}
-
-.home-intro__inner p:first-child {
-  font-size: 1.25rem;
-}
-
-.home-intro__inner p:last-child {
-  margin-bottom: 0;
-  font-size: var(--font-size-base);
+.home-plates__head {
   font-family: var(--font-ui);
-  color: var(--color-text-muted);
-  letter-spacing: 0.01em;
-  margin-top: var(--space-5);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0 0 var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--rule);
 }
-
-// ── Home sections ────────────────────────────
-.home-sections {
-  max-width: none;
-  margin: 0;
-  padding: 0;
+// Edge-to-edge columns with hairline dividers between, not boxed cards.
+// The grid gap is 0 so the columns butt against each other; the visual
+// separation is the `border-left` on every plate except the first.
+// Padding-left gives the content breathing room off the rule.
+.home-plates__grid {
   display: grid;
-  gap: var(--space-5);
+  gap: 0;
   grid-template-columns: 1fr;
 
-  @media (min-width: 36rem) {
+  @media (min-width: 48rem) {
     grid-template-columns: repeat(2, 1fr);
   }
+  @media (min-width: 76rem) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
-
-.home-card {
-  padding: var(--space-6);
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+.plate {
   display: flex;
   flex-direction: column;
+  padding: 8px 28px 4px 28px;
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--rule);
+  transition: background var(--duration) var(--ease);
 }
-
-.home-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--color-shadow);
+.plate:hover {
+  background: color-mix(in srgb, var(--panel) 50%, transparent);
 }
-
-.home-card__eyebrow {
+// First column has no left rule (it's flush with the page padding).
+// On narrow viewports the columns wrap, so the "first" in each row of
+// the grid also drops its left rule via :nth-child resets.
+.plate:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+@media (max-width: 76rem) and (min-width: 48rem) {
+  // Two-column rows: every odd plate becomes a "first-of-row"
+  .plate:nth-child(2n+1) {
+    padding-left: 0;
+    border-left: 0;
+  }
+  // Reset the override on first-child so it doesn't conflict
+  .plate:nth-child(2n) {
+    padding-left: 28px;
+    border-left: 1px solid var(--rule);
+  }
+}
+@media (max-width: 48rem) {
+  // Single-column rows: every plate is a "first-of-row" — no left rule
+  .plate { padding-left: 0; border-left: 0; padding-top: 28px; }
+  .plate + .plate { border-top: 1px solid var(--rule); }
+}
+.plate__num {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--color-rust);
-  margin: 0 0 var(--space-3);
+  color: var(--rust);
+  margin: 0 0 6px;
 }
-
-.home-card__title {
+.plate__eyebrow {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0 0 14px;
+}
+.plate__title {
   font-family: var(--font-display);
-  font-size: var(--font-size-lg);
-  margin: 0 0 var(--space-3);
-
-  a {
-    color: var(--color-heading);
-    text-decoration: none;
-  }
-
-  a:hover {
-    color: var(--color-rust);
-  }
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0 0 12px;
+  color: var(--ink);
 }
-
-.home-card__body {
-  color: var(--color-text);
-  margin: 0 0 var(--space-4);
+.plate__title a {
+  color: inherit;
+  text-decoration: none;
+}
+.plate__title a:hover {
+  color: var(--rust);
+}
+.plate__body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--soft);
+  margin: 0 0 20px;
   flex: 1;
 }
-
-.home-card__cta {
+.plate__cta {
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--color-rust);
+  color: var(--ink);
   text-decoration: none;
-
-  &::after {
-    content: " →";
-  }
-
-  &:hover {
-    color: var(--color-rust-dark);
-  }
+  align-self: flex-start;
+  margin-top: 4px;
+  padding-bottom: 14px;
+  transition: color var(--duration) var(--ease);
+}
+.plate__cta:hover {
+  color: var(--rust);
 }
 
 // ── Two-column body for pages with TOC opt-in ─

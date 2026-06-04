@@ -13,10 +13,26 @@
     {{- end }}
   {{- end }}
   <div class="hero__overlay"></div>
+
+  {{- /* Survey typographic treatment overlaid on the photo. The kicker
+         and stacked title carry the same vocabulary as the chrome,
+         standfirst is italic Spectral, CTAs use the Space Mono button
+         pattern. Image, overlay, and credit remain. */ -}}
   <div class="hero__inner">
-    <h1 class="hero__title">{{ .Site.Title }}</h1>
-    <p class="hero__lede">{{ .Site.Params.description }}</p>
+    <p class="hero__kicker">A digital history of the sagebrush rebellions</p>
+    {{- $words := split .Site.Title " " }}
+    <h1 class="hero__title">
+      {{- range $words -}}
+        <span class="hero__title-line">{{ . }}</span>
+      {{- end }}
+    </h1>
+    <p class="hero__lede">{{ .Site.Params.description | markdownify }}</p>
+    <div class="hero__cta">
+      <a class="btn btn--outline" href="{{ "/atlas/" | relURL }}">Enter the Atlas <span aria-hidden="true">&rarr;</span></a>
+      <a class="btn btn--outline" href="{{ "/narrative/" | relURL }}">Begin reading</a>
+    </div>
   </div>
+
   {{- with .Site.Params.heroCredit }}
     <p class="hero__credit">
       {{- with $.Site.Params.heroCreditURL -}}
@@ -28,38 +44,41 @@
   {{- end }}
 </section>
 
-<div class="home-grid">
-  {{- with .Content }}
-    <section class="home-intro">
-      <div class="home-intro__inner">{{ . }}</div>
-    </section>
-  {{- end }}
-
-  <section class="home-sections" aria-label="Sections">
-    <article class="home-card">
-      <p class="home-card__eyebrow">Writing</p>
-      <h2 class="home-card__title"><a href="{{ "/narrative/" | relURL }}">Essays &amp; writings</a></h2>
-      <p class="home-card__body">The long-form history of public-lands politics and writings about digital methods.</p>
-      <a class="home-card__cta" href="{{ "/narrative/" | relURL }}">Begin reading</a>
+{{- /* Four plates — Survey numbered cards (Pl. I–IV). The eyebrow
+       sequence and rust top rule mimic the design handoff's plate
+       treatment. The home intro paragraph the previous layout carried
+       between the hero and the cards is intentionally dropped. */ -}}
+<section class="home-plates" aria-label="Four ways into the project">
+  <p class="home-plates__head">Four ways into the project</p>
+  <div class="home-plates__grid">
+    <article class="plate">
+      <p class="plate__num">Pl. I</p>
+      <p class="plate__eyebrow">Sightlines</p>
+      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}">Geographies</a></h2>
+      <p class="plate__body">Where federal land sits — grazing allotments, wilderness designations, the Bankhead-Jones land-utilization projects, and the flashpoints of conflict.</p>
+      <a class="plate__cta" href="{{ "/sightlines/" | relURL }}">View &rarr;</a>
     </article>
-    <article class="home-card">
-      <p class="home-card__eyebrow">Maps</p>
-      <h2 class="home-card__title"><a href="{{ "/sightlines/" | relURL }}#maps">Geographies</a></h2>
-      <p class="home-card__body">Interactive maps of federal land, grazing allotments, wilderness designations, and the flashpoints of conflict.</p>
-      <a class="home-card__cta" href="{{ "/sightlines/" | relURL }}#maps">Explore maps</a>
+    <article class="plate">
+      <p class="plate__num">Pl. II</p>
+      <p class="plate__eyebrow">Writing</p>
+      <h2 class="plate__title"><a href="{{ "/narrative/" | relURL }}">Essays &amp; field notes</a></h2>
+      <p class="plate__body">Long-form history of public-lands politics and the digital method behind the project.</p>
+      <a class="plate__cta" href="{{ "/narrative/" | relURL }}">View &rarr;</a>
     </article>
-    <article class="home-card">
-      <p class="home-card__eyebrow">Networks</p>
-      <h2 class="home-card__title"><a href="{{ "/sightlines/" | relURL }}#networks">People &amp; organizations</a></h2>
-      <p class="home-card__body">The coalitions that made the sagebrush rebellions — ranchers, legislators, militia networks, think tanks, and the ties between them.</p>
-      <a class="home-card__cta" href="{{ "/sightlines/" | relURL }}#networks">Explore networks</a>
+    <article class="plate">
+      <p class="plate__num">Pl. III</p>
+      <p class="plate__eyebrow">Networks</p>
+      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}#networks">People &amp; orgs</a></h2>
+      <p class="plate__body">The coalitions behind the rebellions — ranchers, legislators, think tanks, militias, and the ties between them.</p>
+      <a class="plate__cta" href="{{ "/sightlines/" | relURL }}#networks">View &rarr;</a>
     </article>
-    <article class="home-card">
-      <p class="home-card__eyebrow">Charts</p>
-      <h2 class="home-card__title"><a href="{{ "/sightlines/" | relURL }}#charts">Conditions over time</a></h2>
-      <p class="home-card__body">A century of temperature, drought, farm stress, and aridification — the environmental and economic conditions that shaped land use and conflict.</p>
-      <a class="home-card__cta" href="{{ "/sightlines/" | relURL }}#charts">Explore charts</a>
+    <article class="plate">
+      <p class="plate__num">Pl. IV</p>
+      <p class="plate__eyebrow">Charts</p>
+      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}#charts">Conditions over time</a></h2>
+      <p class="plate__body">A century of temperature, drought, farm stress, and aridification — the conditions that shaped land use and conflict.</p>
+      <a class="plate__cta" href="{{ "/sightlines/" | relURL }}#charts">View &rarr;</a>
     </article>
-  </section>
-</div>
+  </div>
+</section>
 {{ end }}

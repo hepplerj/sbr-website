@@ -27,8 +27,9 @@
   --rust:         #a2502c;   // primary accent — kickers, active states, hot end of ramps
   --sage:         #6b7257;   // secondary accent — network/chart greens, cold end of ramps
   --ramp-mid:     #d8c9ad;   // mid-point of the warming/choropleth ramps
-  --ink-rule:     rgba(241, 235, 219, 0.16);   // hairlines on dark
-  --ink-soft:     rgba(241, 235, 219, 0.62);   // secondary text on dark
+  --ink-rule:     rgba(241, 235, 219, 0.22);   // hairlines on dark
+  --ink-soft:     rgba(241, 235, 219, 0.78);   // secondary text on dark — bumped for legibility
+  --ink-soft-d:   rgba(241, 235, 219, 0.62);   // deepest mute (rarely used)
 
   // ─── Semantic (mapped to Survey palette) ────────────────────────────
   --color-bg:           var(--paper);
