@@ -66,168 +66,187 @@ canvas {
   flex: 1;
 }
 
-// ── Header ───────────────────────────────────
+// ── Header (Survey register) ─────────────────────────────────────
+// Wordmark in Spectral 26px/600 on the left; nav in Space Mono 11px
+// UPPERCASE with 0.14em tracking on the right. Strong 1.5px ink rule
+// on the bottom. No sticky / blur / meta strip — the design-handoff
+// flourishes the project explicitly didn't want.
 .site-header {
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  backdrop-filter: saturate(120%) blur(6px);
-  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  padding: 26px var(--space-page);
+  border-bottom: 1.5px solid var(--ink);
+  background: var(--paper);
 }
-
 .site-header__inner {
   max-width: var(--measure-full);
   margin: 0 auto;
-  padding: 0 var(--space-5);
   display: flex;
-  // Center alignment is more forgiving than baseline once the title
-  // and nav use different fonts / sizes / padding boxes.
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-3) var(--space-5);
+  gap: var(--space-5);
   flex-wrap: wrap;
-
-  @media (max-width: 36rem) {
-    padding: 0 var(--space-4);
-    gap: var(--space-3);
-  }
 }
-
-.site-nav {
-  @media (max-width: 36rem) {
-    width: 100%;
-
-    ul {
-      gap: var(--space-3);
-      overflow-x: auto;
-      white-space: nowrap;
-      padding-bottom: 0.25em;
-    }
-  }
-}
-
 .site-title {
-  font-family: var(--font-display);
-  font-weight: 700;
-  // Bumped from --font-size-md (~1rem). Clamp scales gently with
-  // viewport width so it doesn't crowd the nav on smaller screens.
-  font-size: clamp(1.2rem, 1.6vw, 1.5rem);
-  letter-spacing: -0.01em;
-  line-height: 1;
   margin: 0;
-
-  a {
-    color: var(--color-ink);
-    text-decoration: none;
-  }
-
-  a:hover {
-    color: var(--color-rust);
-  }
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: -0.01em;
 }
-
-// ── Navigation ───────────────────────────────
+.site-title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.site-title a:hover {
+  color: var(--rust);
+}
 .site-nav ul {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
-  gap: var(--space-5);
+  gap: 28px;
   flex-wrap: wrap;
 }
-
 .site-nav a {
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-text-muted);
+  letter-spacing: 0.14em;
+  color: var(--soft);
   text-decoration: none;
-  // Bigger tap target for mobile — min 44px vertical reach.
-  display: inline-block;
-  padding: 0.4em 0.25em;
-  border-bottom: 2px solid transparent;
-  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+  padding: 0.4em 0;
+  transition: color var(--duration) var(--ease);
 }
-
 .site-nav a:hover,
 .site-nav a[aria-current="page"] {
-  color: var(--color-ink);
-  border-bottom-color: var(--color-rust);
+  color: var(--rust);
+}
+@media (max-width: 56rem) {
+  .site-nav { width: 100%; }
+  .site-nav ul {
+    gap: 18px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 0.2em;
+  }
+}
+@media (max-width: 36rem) {
+  .site-header { padding: 22px 24px; }
 }
 
-// ── Footer ───────────────────────────────────
+// ── Footer (Survey register, dark ink ground) ────────────────────
+// Four-column grid: wordmark+blurb / Explore / Project / Connect
+// sitting above a thin license bar with a hairline ink-rule top
+// border. No cartogram, no coordinate strip.
 .site-footer {
   margin-top: var(--space-9);
-  padding: var(--space-7) 0 var(--space-6);
-  border-top: 1px solid var(--color-border);
-  background: var(--color-bg-alt);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
 }
-
-.site-footer__inner {
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 44px;
+  padding: 50px var(--space-page) 46px;
   max-width: var(--measure-full);
   margin: 0 auto;
-  padding: 0 var(--space-5);
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: 1fr;
 
-  @media (min-width: 36rem) {
-    grid-template-columns: repeat(2, 1fr);
+  @media (max-width: 64rem) {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    padding: 44px var(--space-page) 36px;
   }
-
-  @media (min-width: 64rem) {
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+  @media (max-width: 36rem) {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 36px 24px 28px;
   }
 }
-
-.site-footer h3 {
+.site-footer__wordmark {
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--paper);
+  margin: 0 0 16px;
+  line-height: 1.05;
+}
+.site-footer__blurb {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 360px;
+  margin: 0;
+}
+.site-footer__col {
+  padding-top: 6px;
+}
+.site-footer__col-head {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 10px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--color-ink);
-  margin: 0 0 var(--space-3);
+  color: var(--rust);
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink-rule);
 }
-
-.site-footer a {
-  color: var(--color-text-muted);
-  text-decoration-color: var(--color-dust);
-}
-
-.site-footer a:hover {
-  color: var(--color-rust);
-}
-
 .site-footer__links {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
 }
-
-.site-footer__links li {
-  padding: 0.15em 0;
+.site-footer__links a {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
 }
-
-.site-footer__sublinks {
-  list-style: none;
-  padding: 0.15em 0 0.2em var(--space-4);
-  margin: 0;
-  font-size: var(--font-size-xs);
+.site-footer__links a:hover {
+  color: var(--paper);
 }
-
-.site-footer__sublinks li {
-  padding: 0.1em 0;
+.site-footer__license {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px var(--space-page);
+  border-top: 1px solid var(--ink-rule);
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  max-width: var(--measure-full);
+  margin: 0 auto;
 }
-
-.site-footer__sublinks a {
-  letter-spacing: 0.04em;
+.site-footer__license a {
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-rule);
+  text-underline-offset: 2px;
+}
+.site-footer__license a:hover {
+  color: var(--paper);
+  text-decoration-color: var(--ink-soft);
+}
+@media (max-width: 56rem) {
+  .site-footer__license {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 16px var(--space-page);
+  }
+}
+@media (max-width: 36rem) {
+  .site-footer__license { padding: 14px 24px; }
 }
 
 // ── Hero ─────────────────────────────────────
