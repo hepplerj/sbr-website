@@ -3043,6 +3043,197 @@ textarea:focus-visible {
   }
 }
 
+/* ───────── Documents (annotated primary sources) ─────────
+   Step 1 foundation: section landing list, document metadata header,
+   and document body typography. The marginal-annotation sidebar
+   (gloss shortcode + JS sidenotes) lands in step 2 and will reuse
+   these structural rules. */
+
+.documents-list {
+  max-width: 56rem;
+  margin: 2rem auto 4rem;
+  padding: 0 1.5rem;
+}
+.documents-list__eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #6b7a5a);
+  margin: 0 0 0.5rem;
+}
+.documents-list__cards {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 56rem) {
+  .documents-list__cards { grid-template-columns: 1fr 1fr; }
+}
+.documents-list__card a {
+  display: block;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #d9ccb3;
+  border-radius: 6px;
+  background: #fffaf3;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.documents-list__card a:hover {
+  border-color: #a94b2b;
+  transform: translateY(-1px);
+}
+.documents-list__doctype {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7a5a;
+  margin: 0 0 0.4rem;
+}
+.documents-list__card h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+.documents-list__fulltitle {
+  font-size: 0.85rem;
+  color: #4a5640;
+  margin: 0 0 0.4rem;
+  font-style: italic;
+}
+.documents-list__citation {
+  font-size: 0.78rem;
+  color: #6b7a5a;
+  margin: 0;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Document page (single document view) */
+.document-page {
+  max-width: 56rem;
+  margin: 2rem auto 4rem;
+  padding: 0 1.5rem;
+}
+.document-page__eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #6b7a5a);
+  margin: 0 0 0.5rem;
+}
+.document-page__title {
+  font-size: 1.75rem;
+  line-height: 1.25;
+  margin: 0 0 1.5rem;
+}
+
+/* Metadata block at top — definition-list aesthetic, like a catalog card */
+.document-meta {
+  background: #fffaf3;
+  border: 1px solid #e0d6c5;
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+  margin: 0 0 2.5rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.document-meta__list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.4rem 1.25rem;
+  margin: 0;
+}
+.document-meta__row {
+  display: contents;
+}
+.document-meta__row dt {
+  font-weight: 600;
+  color: #6b7a5a;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding-top: 0.15rem;
+  white-space: nowrap;
+}
+.document-meta__row dd {
+  margin: 0;
+  color: #2b2b2b;
+}
+.document-meta__row--block dd {
+  font-size: 0.85rem;
+  color: #4a5640;
+  line-height: 1.55;
+}
+.document-meta__row--block dd p {
+  margin: 0 0 0.4rem;
+}
+.document-meta__row--block dd p:last-child { margin-bottom: 0; }
+.document-meta__retrieved {
+  font-size: 0.78rem;
+  color: #6b7a5a;
+  font-style: italic;
+}
+.document-meta__altsources {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.document-meta__altsources li {
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+}
+.document-meta__altnote {
+  color: #6b7a5a;
+  font-size: 0.78rem;
+}
+@media (max-width: 36rem) {
+  .document-meta__list { grid-template-columns: 1fr; gap: 0.15rem; }
+  .document-meta__row dt { padding-top: 0.5rem; }
+}
+
+/* Document body — typography tuned for statute reading */
+.document-body {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+.document-body h2 {
+  font-size: 1.15rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+.document-body h3 {
+  font-size: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.document-body ol {
+  padding-left: 2rem;
+  list-style-type: none;
+  counter-reset: subpara;
+}
+.document-body ol > li {
+  position: relative;
+  padding-left: 0.5rem;
+  margin-bottom: 1rem;
+  counter-increment: subpara;
+}
+.document-body ol > li::before {
+  content: "(" counter(subpara) ")";
+  position: absolute;
+  left: -2rem;
+  width: 2rem;
+  color: #6b7a5a;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.85rem;
+  text-align: right;
+  padding-right: 0.4rem;
+}
+.document-body p { margin-bottom: 1rem; line-height: 1.65; }
+
 /* ───────── Atlas (regional cosponsorship heatmap, etc.) ───────── */
 .atlas-page {
   max-width: 72rem;

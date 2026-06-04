@@ -1,0 +1,101 @@
+{{ define "main" }}
+{{- /* Document layout. A metadata header at top captures provenance
+       (source, retrieval date, citation, transcription notes), then
+       the document body. The marginal-annotation sidebar arrives in
+       step 2 — for now we render the body in a single prose column. */ -}}
+
+<article class="document-page">
+  <p class="document-page__eyebrow">
+    <a href="{{ "/documents/" | relURL }}">Documents</a>
+  </p>
+  <h1 class="document-page__title">{{ .Title }}</h1>
+
+  {{- /* ── Metadata header ─────────────────────────────────────────── */ -}}
+  <aside class="document-meta" aria-label="Document metadata">
+    <dl class="document-meta__list">
+      {{- with .Params.doctype }}
+        <div class="document-meta__row">
+          <dt>Type</dt>
+          <dd>{{ humanize . }}</dd>
+        </div>
+      {{- end }}
+      {{- with .Params.date }}
+        <div class="document-meta__row">
+          <dt>Date</dt>
+          <dd><time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time></dd>
+        </div>
+      {{- end }}
+      {{- with .Params.sponsors }}
+        <div class="document-meta__row">
+          <dt>Sponsor{{ if gt (len .) 1 }}s{{ end }}</dt>
+          <dd>{{ delimit . "; " }}</dd>
+        </div>
+      {{- end }}
+      {{- with .Params.authors }}
+        <div class="document-meta__row">
+          <dt>Author{{ if gt (len .) 1 }}s{{ end }}</dt>
+          <dd>{{ delimit . "; " }}</dd>
+        </div>
+      {{- end }}
+      {{- with .Params.jurisdiction }}
+        <div class="document-meta__row">
+          <dt>Jurisdiction</dt>
+          <dd>{{ humanize . }}</dd>
+        </div>
+      {{- end }}
+      {{- with .Params.citation }}
+        <div class="document-meta__row">
+          <dt>Citation</dt>
+          <dd>{{ . | markdownify }}</dd>
+        </div>
+      {{- end }}
+      {{- with .Params.source }}
+        <div class="document-meta__row">
+          <dt>Source</dt>
+          <dd>
+            {{- if .url -}}
+              <a href="{{ .url }}" rel="external">{{ .name }}</a>
+            {{- else -}}
+              {{ .name }}
+            {{- end }}
+            {{- with .retrieved }} <span class="document-meta__retrieved">retrieved {{ . | time.Format "January 2, 2006" }}</span>{{ end -}}
+          </dd>
+        </div>
+      {{- end }}
+      {{- with .Params.altSources }}
+        <div class="document-meta__row">
+          <dt>Alt. sources</dt>
+          <dd>
+            <ul class="document-meta__altsources">
+              {{- range . }}
+                <li>
+                  {{- if .url -}}
+                    <a href="{{ .url }}" rel="external">{{ .name }}</a>
+                  {{- else -}}
+                    {{ .name }}
+                  {{- end }}
+                  {{- with .note }} <span class="document-meta__altnote">({{ . }})</span>{{ end -}}
+                </li>
+              {{- end }}
+            </ul>
+          </dd>
+        </div>
+      {{- end }}
+      {{- with .Params.provenance }}
+        <div class="document-meta__row document-meta__row--block">
+          <dt>Provenance</dt>
+          <dd>{{ . | markdownify }}</dd>
+        </div>
+      {{- end }}
+    </dl>
+  </aside>
+
+  {{- /* ── Document body ───────────────────────────────────────────── */ -}}
+  <div class="document-body prose">
+    {{ .Content }}
+  </div>
+
+  {{ partial "cite.html" . }}
+  {{ partial "coins.html" . }}
+</article>
+{{ end }}

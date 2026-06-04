@@ -1,0 +1,29 @@
+{{ define "main" }}
+{{- $entries := .RegularPages.ByDate.Reverse -}}
+
+<section class="documents-list prose">
+  <header class="documents-list__intro">
+    <p class="documents-list__eyebrow">Documents</p>
+    <h1>{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+    {{- with .Params.lede }}<p class="lede">{{ . }}</p>{{ end }}
+    {{ .Content }}
+  </header>
+
+  {{- if $entries }}
+  <ul class="documents-list__cards">
+    {{- range $entries }}
+    <li class="documents-list__card">
+      <a href="{{ .RelPermalink }}">
+        <p class="documents-list__doctype">{{- with .Params.doctype }}{{ humanize . }}{{ else }}Document{{ end }}{{- with .Params.date }} · {{ .Format "2006" }}{{ end }}</p>
+        <h2>{{- with .Params.shortTitle }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h2>
+        {{- with .Params.shortTitle }}<p class="documents-list__fulltitle">{{ $.Title }}</p>{{ end }}
+        {{- with .Params.citation }}<p class="documents-list__citation">{{ . }}</p>{{ end }}
+      </a>
+    </li>
+    {{- end }}
+  </ul>
+  {{- else }}
+  <p><em>No documents yet.</em></p>
+  {{- end }}
+</section>
+{{ end }}
