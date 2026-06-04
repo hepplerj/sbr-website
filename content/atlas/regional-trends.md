@@ -13,8 +13,6 @@ atlas:
     - "**Hover** anywhere over a panel to see a dashed vertical guide-line at the nearest Congress. Small dots mark where the line crosses each region's series, and the year span shows at the top of the line."
     - "**Click** a panel to pin the position. A solid dark line stays at the pinned Congress; hovering elsewhere still shows the dashed preview without losing your pin. Click the same spot again or use the **Unpin** button to dismiss."
     - "A **detail panel** opens below the charts once you pin. The left column shows that policy area's value, bill count, and party breakdown for each of the three regions. Click any region row to populate the right column with that delegation's members."
-    - "The **right column** is a member list with name search and state-filter chips."
-    - "**Metric** controls the y-axis: per-member (delegation-size-adjusted), share-of-region (% of total cosponsorships), or raw total."
 ---
 
 This view plots cosponsorship attention across six CRS policy areas and twenty-four Congresses: the 96th (1979–1980) through the 119th (2025–2026). Each panel is one policy area, with three lines for each regional delegation I've created. This atlas asks "what does this delegation spend its cosponsorship attention on?"
