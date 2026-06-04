@@ -1,7 +1,7 @@
 ---
 title: "Cosponsorship on Federal Public-Lands Bills"
 date: 2026-04-19
-lede: "A network of legislators who cosponsored federal-public-lands legislation across the 96th through 118th Congresses (1979–2024). Nodes colored by party, sized by how many bills in the set each cosponsored."
+lede: "A network of legislators who cosponsored federal public lands legislation across the 96th through 118th Congresses (1979–2024). Nodes colored by party, sized by how many bills in the set each cosponsored."
 weight: 8
 draft: false
 viz: network
@@ -28,7 +28,7 @@ network:
 
 > This is a draft network under active development. The bill set will grow as additional bills are compiled from historical records. Follow the [changelog](/updates/) for notices when this network changes.
 
-This graph charts fifty-seven bills introduced in the 96th through 118th Congresses (1979–2024) on federal-public-lands matters:transfer of federal lands to states, disposal of "excess" federal acreage, Antiquities Act reform and rollback, grazing administration, monument-designation review, sage-grouse / ESA flexibility, and wilderness study areas. Legislators appear as nodes if they cosponsored at least **two** bills in the set. Edges connect pairs who cosponsored **two or more** of the same bills. 246 legislators meet the threshold; 2,249 edges connect them.
+This graph charts fifty-seven bills introduced in the 96th through 118th Congresses (1979–2024) on federal-public-lands matters:transfer of federal lands to states, disposal of "excess" federal acreage, Antiquities Act reform and rollback, grazing administration, monument-designation review, Endangered Species Act designations, and wilderness study areas. Legislators appear as nodes if they cosponsored at least **two** bills in the set. Edges connect pairs who cosponsored **two or more** of the same bills. 246 legislators meet the threshold; 2,249 edges connect them.
 
 **Click any legislator** to open a modal with their complete bill list from the dataset.
 
