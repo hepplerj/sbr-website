@@ -1,7 +1,7 @@
 ---
 title: "A Century of Cattle Prices"
 date: 2026-05-22
-lede: "Prices received by US ranchers for cattle and calves, 1910–2025, in 2024 dollars. The long rise to the 1973 peak, the decade-and-a-half real collapse to 1996, and the post-2014 recovery — the rancher's-eye view of the commodity that public-land grazing is fundamentally about."
+lede: "Prices received by US ranchers for cattle and calves, 1910–2025, in 2024 dollars."
 weight: 38
 draft: false
 viz: chart
@@ -38,15 +38,9 @@ chart:
     - { year: 2014, label: "Drought-driven herd shortage" }
 ---
 
-Cattle prices are the ranchers'-eye view of the commodity that federal range policy is fundamentally about. Three series here — adult cattle (≥500 lbs), finished steers and heifers ready for slaughter, and weaned calves — all in 2024 dollars so the long arc reads honestly across more than a century of inflation.
+Charted here are cattle prices for adult cattle (≥500 lbs), finished steers and heifers ready for slaughter, and weaned calves, based on 2024 prices.
 
-The shape of the chart is one of the more legible economic backdrops to the public-lands politics on this site. Real cattle prices climbed steadily from the Depression trough through the postwar decades, peaked in **1973** at the highest real level of the twentieth century, then fell — and kept falling — for more than two decades. By **1996** real prices reached a multi-decade trough, below where they had been at the end of World War II. The post-2014 recovery, driven by a multi-year drought in the southern Plains that culled the national herd, brought real prices back near 1970s levels.
-
-## How this lines up with the politics
-
-The 1973 peak and the long real-price decline that followed are difficult to read as anything other than backdrop to the **1979 Sagebrush Rebellion**. Western ranchers in 1979 had just lived through six years of falling real income on the central commodity of their business; the BLM was simultaneously executing the [Taylor Grazing Act](../timeline/) permit-and-allotment regime that FLPMA (1976) had codified as permanent. Federal regulatory expansion arrived at the moment that economic ground was eroding under ranchers' feet — and the political response in Nevada took the form of a state-sovereignty claim over federal land.
-
-The 1980s continuation of the price decline shows up on the [farm-bankruptcies chart](../farm-bankruptcies/) as the Farm Crisis. The mid-1990s real-price trough sits in the period that produced the Wise Use coalition and the county-supremacy movement. The 2014 spike, which gave ranchers a brief reprieve, is the year of the **Bunkerville standoff** — Cliven Bundy's unpaid grazing fees had been accumulating since 1993, but the standoff happened in a year of historically high real cattle prices. (None of this is mono-causal; commodity prices are one variable among several. The chart describes the income climate, not the trigger.)
+The shape of the chart is one of the more legible economic backdrops to the public lands and commodity politics on this site. Real cattle prices climbed steadily from the Depression through the postwar decades, peaked in 1973 at the highest real level of the twentieth century, then fell for more than two decades. By 1996 real prices reached a multi-decade trough, below where they had been at the end of World War II. The post-2014 recovery, driven by a multi-year drought in the southern Plains that culled the national herd, brought real prices back near 1970s levels.
 
 ## Data and method
 
