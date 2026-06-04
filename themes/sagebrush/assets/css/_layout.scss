@@ -643,34 +643,30 @@ canvas {
   max-width: var(--measure);
 }
 
-// ── Home plates — Survey numbered card row ─────────────────────
-// Four bordered-top plates (Pl. I-IV), each with a rust kicker, a
-// short title, body copy, and a View → link. Top border is the rust
-// rule that gives the row its plate-edition feel.
+// ── Home plates row ────────────────────────────────────────────
+// Full-bleed (edge-to-edge) row that fills the available space
+// between the hero and the footer. No section heading, no top
+// horizontal rule — the columns and their internal vertical
+// dividers are the entire structure.
+//
+// Flex-fill comes from making <main> a flex column on .page--home
+// and giving .home-plates `flex: 1`. The grid inside also flex-
+// fills its container vertically. Plate columns stretch via the
+// default grid `align-items: stretch`. The body of each plate
+// (.plate__body) absorbs the extra space via `flex: 1`.
 .home-plates {
-  max-width: var(--measure-full);
-  margin: 0 auto;
-  padding: var(--space-8) var(--space-page) var(--space-9);
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
-.home-plates__head {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--soft);
-  margin: 0 0 var(--space-5);
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--rule);
-}
-// Edge-to-edge columns with hairline dividers between, not boxed cards.
-// The grid gap is 0 so the columns butt against each other; the visual
-// separation is the `border-left` on every plate except the first.
-// Padding-left gives the content breathing room off the rule.
 .home-plates__grid {
+  flex: 1;
   display: grid;
   gap: 0;
   grid-template-columns: 1fr;
+  min-height: 22rem;   // sensible floor on short viewports
 
   @media (min-width: 48rem) {
     grid-template-columns: repeat(2, 1fr);
@@ -679,10 +675,19 @@ canvas {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+// Stretch the page's <main> to flex its children vertically — gives
+// .home-plates its room to grow on tall viewports.
+.page--home .site__main {
+  display: flex;
+  flex-direction: column;
+}
+.page--home .home-plates {
+  flex: 1;
+}
 .plate {
   display: flex;
   flex-direction: column;
-  padding: 8px 28px 4px 28px;
+  padding: 44px 32px 36px;
   background: transparent;
   border: 0;
   border-left: 1px solid var(--rule);
@@ -691,28 +696,22 @@ canvas {
 .plate:hover {
   background: color-mix(in srgb, var(--panel) 50%, transparent);
 }
-// First column has no left rule (it's flush with the page padding).
-// On narrow viewports the columns wrap, so the "first" in each row of
-// the grid also drops its left rule via :nth-child resets.
+// First column has no left rule (it would render at the screen edge).
+// On narrow-viewport reflows, "first-of-row" plates also drop their
+// rule so we never get a vertical hairline sitting on the page edge.
 .plate:first-child {
-  padding-left: 0;
   border-left: 0;
 }
 @media (max-width: 76rem) and (min-width: 48rem) {
-  // Two-column rows: every odd plate becomes a "first-of-row"
   .plate:nth-child(2n+1) {
-    padding-left: 0;
     border-left: 0;
   }
-  // Reset the override on first-child so it doesn't conflict
   .plate:nth-child(2n) {
-    padding-left: 28px;
     border-left: 1px solid var(--rule);
   }
 }
 @media (max-width: 48rem) {
-  // Single-column rows: every plate is a "first-of-row" — no left rule
-  .plate { padding-left: 0; border-left: 0; padding-top: 28px; }
+  .plate { border-left: 0; padding: 36px 32px 32px; }
   .plate + .plate { border-top: 1px solid var(--rule); }
 }
 .plate__num {
