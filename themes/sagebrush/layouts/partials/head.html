@@ -52,6 +52,7 @@
 {{- $hasNetwork       := or (.HasShortcode "network") .Params.network -}}
 {{- $hasChart         := or (.HasShortcode "chart") .Params.chart -}}
 {{- $hasAtlas         := .Params.atlas -}}
+{{- $hasDocument      := and (eq .Section "documents") (not .IsSection) -}}
 {{- $hasSightlinesList := and (eq .Section "sightlines") .IsSection -}}
 {{- $hasD3            := or $hasD3Map $hasNetwork $hasChart $hasAtlas $hasSightlinesList -}}
 {{- $hasLeaflet       := or (.HasShortcode "map") (and .Params.map (not $hasD3Map)) -}}
@@ -97,6 +98,14 @@
     {{- with resources.Get "js/sightlines-map.js" | fingerprint }}
       <script defer src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
     {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- /* documents.js — annotation runtime on document single pages.
+       No D3 dependency; self-contained vanilla JS. */ -}}
+{{- if $hasDocument }}
+  {{- with resources.Get "js/documents.js" | fingerprint }}
+    <script defer src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
   {{- end }}
 {{- end }}
 

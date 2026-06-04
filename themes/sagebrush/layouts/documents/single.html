@@ -10,7 +10,11 @@
   </p>
   <h1 class="document-page__title">{{ .Title }}</h1>
 
-  {{- /* ── Metadata header ─────────────────────────────────────────── */ -}}
+  {{- /* ── Metadata header ────────────────────────────────────────────
+       Rendered only for transcribed documents (those with a `doctype`).
+       Meta pages like the editorial statement set no doctype and skip
+       the block entirely, falling through to a pure-prose render. */ -}}
+  {{- if .Params.doctype }}
   <aside class="document-meta" aria-label="Document metadata">
     <dl class="document-meta__list">
       {{- with .Params.doctype }}
@@ -88,12 +92,37 @@
         </div>
       {{- end }}
     </dl>
+    {{- /* Editorial statement — small uppercase link tucked into the
+           bottom-right of the metadata block. Renders on every
+           transcribed document so the apparatus conventions are never
+           more than one click away. */ -}}
+    <p class="document-meta__editorial">
+      <a href="{{ "/editorial-statement/" | relURL }}">Editorial statement</a>
+    </p>
   </aside>
+  {{- end }}
 
-  {{- /* ── Document body ───────────────────────────────────────────── */ -}}
-  <div class="document-body prose">
-    {{ .Content }}
-  </div>
+  {{- /* ── Document body + (conditional) sidenote column ──────────────
+       Transcribed documents get the grid layout with a right-rail
+       sidebar populated by documents.js. Meta pages (editorial
+       statement and any future about-style entries) render as plain
+       prose at a slightly wider measure — they're essay-like, not
+       statute-like. */ -}}
+  {{- if .Params.doctype }}
+    <div class="document-layout">
+      <div class="document-body prose">
+        {{ .Content }}
+      </div>
+      <aside class="document-sidenotes" aria-label="Annotations">
+        {{- /* JS populates this from <template class="glossbody"> elements
+               inside .Content. The column is otherwise empty. */ -}}
+      </aside>
+    </div>
+  {{- else }}
+    <div class="document-body document-body--meta prose">
+      {{ .Content }}
+    </div>
+  {{- end }}
 
   {{ partial "cite.html" . }}
   {{ partial "coins.html" . }}

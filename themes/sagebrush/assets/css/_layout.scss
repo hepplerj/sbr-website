@@ -3195,9 +3195,24 @@ textarea:focus-visible {
 }
 
 /* Document body — typography tuned for statute reading */
+.document-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 40rem);
+  gap: 2rem;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+@media (min-width: 67.5rem) {
+  /* 1080px: room for body (40rem) + sidenotes (18rem) + gap (2rem) + page padding */
+  .document-layout {
+    grid-template-columns: minmax(0, 40rem) 18rem;
+    max-width: none;
+    margin: 0;
+  }
+}
 .document-body {
   max-width: 40rem;
-  margin: 0 auto;
+  margin: 0;
 }
 .document-body h2 {
   font-size: 1.15rem;
@@ -3233,6 +3248,222 @@ textarea:focus-visible {
   padding-right: 0.4rem;
 }
 .document-body p { margin-bottom: 1rem; line-height: 1.65; }
+
+/* Gloss span — visible highlight on annotated text. Subtle dashed
+   rust underline + slight background tint to signal "click for note." */
+.document-body .gloss,
+.gloss {
+  background: #fdf3e3;
+  border-bottom: 2px dashed #a94b2b;
+  padding: 0 0.1rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  border-radius: 1px;
+}
+.gloss:hover,
+.gloss:focus-visible {
+  background: #f7e0bb;
+  border-bottom-color: #6b2d18;
+  outline: none;
+}
+.gloss.is-active {
+  background: #fff5e3;
+  border-bottom-color: #6b2d18;
+  box-shadow: 0 0 0 2px rgba(169, 75, 43, 0.25);
+}
+.gloss__num {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.65em;
+  color: #a94b2b;
+  font-weight: 600;
+  margin-left: 0.15em;
+  vertical-align: super;
+  line-height: 0;
+}
+
+/* Sidenote column — populated by documents.js from <template> tags.
+   Hidden when there are no glosses on the page (JS adds .is-empty). */
+.document-sidenotes {
+  display: none;
+}
+@media (min-width: 67.5rem) {
+  .document-sidenotes {
+    display: block;
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+}
+.document-sidenotes.is-empty { display: none; }
+.document-sidenotes__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: gloss;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.document-sidenotes__card {
+  position: relative;
+  background: #fffaf3;
+  border: 1px solid #e0d6c5;
+  border-left: 3px solid #c9a978;
+  border-radius: 3px;
+  padding: 0.75rem 0.9rem 0.75rem 2.1rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #2b2b2b;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.document-sidenotes__card:hover {
+  border-color: #a94b2b;
+  border-left-color: #a94b2b;
+  background: #fff;
+}
+.document-sidenotes__card.is-active {
+  border-color: #a94b2b;
+  border-left-color: #6b2d18;
+  background: #fff5e3;
+}
+.document-sidenotes__num {
+  position: absolute;
+  left: 0.55rem;
+  top: 0.7rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a94b2b;
+}
+.document-sidenotes__body {
+  margin: 0;
+}
+.document-sidenotes__body p {
+  margin: 0 0 0.5rem;
+}
+.document-sidenotes__body p:last-child { margin-bottom: 0; }
+
+/* Inline expander — narrow-viewport fallback when the sidebar is
+   hidden. Inserted after the gloss span's containing paragraph. */
+.gloss-inline {
+  background: #fffaf3;
+  border: 1px solid #c9a978;
+  border-left: 3px solid #a94b2b;
+  border-radius: 3px;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.gloss-inline p { margin: 0 0 0.5rem; }
+.gloss-inline p:last-child { margin-bottom: 0; }
+
+/* Editorial statement link — tucked into the bottom-right of the
+   metadata block, small and tracked. Visual weight intentionally
+   below the per-document fields. */
+.document-meta__editorial {
+  margin: 0.75rem 0 0;
+  text-align: right;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.document-meta__editorial a {
+  color: #6b7a5a;
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  padding-bottom: 1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.document-meta__editorial a:hover {
+  color: #a94b2b;
+  border-bottom-color: #a94b2b;
+}
+
+/* Footnotes — Hugo emits `<div class="footnotes"><hr><ol>…</ol></div>`.
+   Styled here to feel like part of the document apparatus rather than
+   a tacked-on academic-paper convention. Renders below the body, before
+   the citation block. */
+.document-body .footnotes,
+.footnotes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #d9ccb3;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #2b2b2b;
+}
+.footnotes hr { display: none; }
+.footnotes::before {
+  content: "Footnotes";
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7a5a;
+  margin-bottom: 0.75rem;
+}
+.footnotes ol {
+  padding-left: 2rem;
+  list-style-type: none;
+  counter-reset: footnote;
+}
+.footnotes ol li {
+  position: relative;
+  padding-left: 0.5rem;
+  margin-bottom: 0.85rem;
+  counter-increment: footnote;
+}
+.footnotes ol li::before {
+  content: counter(footnote);
+  position: absolute;
+  left: -2rem;
+  width: 1.6rem;
+  color: #a94b2b;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: right;
+  padding-right: 0.3rem;
+}
+.footnotes ol li p { margin: 0 0 0.4rem; }
+.footnotes ol li p:last-child { margin-bottom: 0; }
+.footnote-backref {
+  margin-left: 0.35rem;
+  color: #6b7a5a;
+  text-decoration: none;
+  font-size: 0.85em;
+}
+.footnote-backref:hover { color: #a94b2b; }
+/* In-body footnote references — give them a hint they're clickable */
+.footnote-ref a {
+  color: #a94b2b;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.78em;
+  text-decoration: none;
+  font-weight: 600;
+}
+.footnote-ref a:hover { text-decoration: underline; }
+
+/* Sidenote column heading — a small "Annotations" label so the column
+   has visual orientation even when the cards are short. JS adds the
+   header only when there's at least one annotation. */
+.document-sidenotes__header {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7a5a;
+  margin: 0 0 0.65rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #d9ccb3;
+}
 
 /* ───────── Atlas (regional cosponsorship heatmap, etc.) ───────── */
 .atlas-page {
