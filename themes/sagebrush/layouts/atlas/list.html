@@ -3,26 +3,52 @@
        no template-level filter needed. */ -}}
 {{- $entries := .RegularPages -}}
 
-<section class="atlas-list prose">
-  <header class="atlas-list__intro">
-    <h1>{{ .Title }}</h1>
-    {{- with .Params.lede }}<p class="lede">{{ . }}</p>{{ end }}
-    {{ .Content }}
-  </header>
+{{- /* Atlas mode → display label for the card kicker. New modes drop
+       in here as the apparatus grows. */ -}}
+{{- $modeLabel := dict
+    "trends"     "Trends"
+    "heatmap"    "Heatmap"
+    "scorecard"  "Scorecard"
+    "table"      "Table"
+-}}
 
-  {{- if $entries }}
-  <ul class="atlas-list__cards">
-    {{- range $entries }}
-    <li class="atlas-list__card">
-      <a href="{{ .RelPermalink }}">
-        <h2>{{ .Title }}</h2>
-        {{- with .Params.lede }}<p>{{ . }}</p>{{ end }}
-      </a>
-    </li>
-    {{- end }}
-  </ul>
-  {{- else }}
-  <p><em>No atlas entries yet.</em></p>
+<header class="section-intro">
+  <p class="section-intro__eyebrow">{{ .Params.kicker | default "Atlas" }}</p>
+  <h1 class="section-intro__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+  {{- with .Params.lede }}
+    <p class="section-intro__lede">{{ . }}</p>
   {{- end }}
-</section>
+  {{- with .Content }}
+    <div class="section-intro__body">{{ . }}</div>
+  {{- end }}
+</header>
+
+<div class="atlas-content">
+  {{- if $entries }}
+    <ul class="atlas-grid">
+      {{- range $entries.ByWeight }}
+        {{- $mode := .Params.atlas.mode }}
+        {{- $kicker := index $modeLabel $mode | default "Atlas" }}
+        <li class="atlas-card">
+          <a class="atlas-card__link" href="{{ .RelPermalink }}">
+            {{- with .Params.thumbnail }}
+              <div class="atlas-card__thumb">
+                <img src="{{ . | relURL }}" alt="" loading="lazy">
+              </div>
+            {{- end }}
+            <div class="atlas-card__body">
+              <p class="atlas-card__type">{{ $kicker }}</p>
+              <h2 class="atlas-card__title">{{ .Title }}</h2>
+              {{- with .Params.lede }}
+                <p class="atlas-card__lede">{{ . | plainify | truncate 200 }}</p>
+              {{- end }}
+            </div>
+          </a>
+        </li>
+      {{- end }}
+    </ul>
+  {{- else }}
+    <p class="atlas-empty"><em>No atlas entries yet.</em></p>
+  {{- end }}
+</div>
 {{ end }}

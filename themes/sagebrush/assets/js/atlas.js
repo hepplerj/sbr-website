@@ -50,7 +50,7 @@
   const REGION_COLORS = {
     "great-plains": "#a94b2b",
     "rest-west":    "#1f2a44",
-    "corn-belt":    "#4a5640",
+    "corn-belt":    "#c2882e",
   };
 
   function initAtlas(container) {

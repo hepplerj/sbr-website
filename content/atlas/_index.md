@@ -1,5 +1,5 @@
 ---
-title: "Atlas"
+title: "Exploring historical data"
 lede: "Reference instruments: heatmaps, scorecards, and comparative tables for exploring federal land, agriculture, and conservation politics by region and over time."
 ---
 
