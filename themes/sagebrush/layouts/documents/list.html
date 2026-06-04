@@ -1,5 +1,9 @@
 {{ define "main" }}
-{{- $entries := .RegularPages.ByDate.Reverse -}}
+{{- /* Chronological order — oldest first. The institutional story
+       reads forward (Antiquities 1906 → Taylor 1934 → MUSY 1960 →
+       Wilderness 1964 → FLPMA 1976 → …) rather than back from the
+       current law. */ -}}
+{{- $entries := .RegularPages.ByDate -}}
 
 <section class="documents-list prose">
   <header class="documents-list__intro">

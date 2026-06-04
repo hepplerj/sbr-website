@@ -91,6 +91,52 @@
           <dd>{{ . | markdownify }}</dd>
         </div>
       {{- end }}
+
+      {{- /* ── Related documents (bidirectional) ──────────────────────
+           Forward links come from `.Params.relatedDocuments` (an array
+           of bundle slugs in this section). Backward links come from
+           every other document whose `relatedDocuments` list mentions
+           this one. The union is deduplicated and sorted by date so
+           the related list reads chronologically alongside the main
+           index. */ -}}
+      {{- /* `.File.ContentBaseName` returns the bundle directory name
+             ("flpma-1976") for page bundles, vs `.File.BaseFileName`
+             which returns "index" (the literal file basename). Use
+             ContentBaseName so the slug matches the relatedDocuments
+             frontmatter convention. */ -}}
+      {{- $current := .File.ContentBaseName -}}
+      {{- $forward := .Params.relatedDocuments | default slice -}}
+      {{- $backward := slice -}}
+      {{- with site.GetPage "/documents" -}}
+        {{- range .RegularPages -}}
+          {{- if in (.Params.relatedDocuments | default slice) $current -}}
+            {{- $backward = $backward | append .File.ContentBaseName -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $relatedSlugs := union $forward $backward | uniq -}}
+      {{- if $relatedSlugs }}
+        {{- $relatedPages := slice -}}
+        {{- range $relatedSlugs -}}
+          {{- with site.GetPage (printf "/documents/%s" .) -}}
+            {{- $relatedPages = $relatedPages | append . -}}
+          {{- end -}}
+        {{- end -}}
+        {{- $relatedPages = sort $relatedPages "Date" "asc" -}}
+        <div class="document-meta__row document-meta__row--related">
+          <dt>Related</dt>
+          <dd>
+            <ul class="document-meta__related-list">
+              {{- range $relatedPages }}
+                <li>
+                  <a href="{{ .RelPermalink }}">{{- with .Params.shortTitle }}{{ . }}{{ else }}{{ .Title }}{{ end -}}</a>
+                  {{- with .Params.date }} <span class="document-meta__related-year">{{ .Format "2006" }}</span>{{ end -}}
+                </li>
+              {{- end }}
+            </ul>
+          </dd>
+        </div>
+      {{- end }}
     </dl>
     {{- /* Editorial statement — small uppercase link tucked into the
            bottom-right of the metadata block. Renders on every

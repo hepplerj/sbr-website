@@ -25,6 +25,11 @@ provenance: |
   subsections — no substantive amendments. The cross-reference to the
   Mining and Minerals Policy Act of 1970 in (a)(12) is preserved.
 themes: [public-lands, sagebrush-rebellion-1979]
+relatedDocuments:
+  - antiquities-act-1906
+  - taylor-grazing-act-1934
+  - multiple-use-sustained-yield-1960
+  - wilderness-act-1964
 weight: 10
 draft: false
 toc: false

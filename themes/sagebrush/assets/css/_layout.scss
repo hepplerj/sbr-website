@@ -3362,6 +3362,38 @@ textarea:focus-visible {
 .gloss-inline p { margin: 0 0 0.5rem; }
 .gloss-inline p:last-child { margin-bottom: 0; }
 
+/* Related documents — a small chronological list of cross-references
+   (forward declarations + auto-resolved backlinks). Each item is a
+   link with a small year tag for orientation. */
+.document-meta__related-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.document-meta__related-list li {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.document-meta__related-list a {
+  color: #2b2b2b;
+  border-bottom: 1px solid #d09870;
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s;
+}
+.document-meta__related-list a:hover {
+  color: #a94b2b;
+  border-bottom-color: #a94b2b;
+}
+.document-meta__related-year {
+  color: #6b7a5a;
+  font-size: 0.78rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  margin-left: 0.25rem;
+}
+
 /* Editorial statement link — tucked into the bottom-right of the
    metadata block, small and tracked. Visual weight intentionally
    below the per-document fields. */
