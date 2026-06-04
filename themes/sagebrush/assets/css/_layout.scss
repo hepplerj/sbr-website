@@ -3206,7 +3206,7 @@ textarea:focus-visible {
   font-size: 0.9rem;
 }
 .atlas-viz__control { display: inline-flex; align-items: baseline; gap: 0.4rem; }
-.atlas-viz__control-label { color: #6b7a5a; font-size: 0.82rem; }
+.atlas-viz__control-label { color: var(--color-text-muted); font-size: 0.82rem; }
 .atlas-viz__metric-select {
   padding: 0.25rem 0.5rem;
   border: 1px solid #c9a978;
@@ -3250,7 +3250,7 @@ textarea:focus-visible {
   fill: #2b2b2b; font-size: 0.82rem; font-weight: 600;
 }
 .atlas-trend__axis text {
-  fill: #6b7a5a; font-size: 0.7rem;
+  fill: var(--color-text-muted); font-size: 0.7rem;
   font-family: "JetBrains Mono", ui-monospace, monospace;
 }
 .atlas-trend__axis path,
@@ -3258,7 +3258,7 @@ textarea:focus-visible {
 .atlas-trend__line { stroke-linecap: round; stroke-linejoin: round; }
 .atlas-viz__meta {
   margin-left: auto;
-  color: #6b7a5a;
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 .atlas-viz__svg-wrap { width: 100%; overflow-x: auto; }
@@ -3300,7 +3300,7 @@ textarea:focus-visible {
 .atlas-trend__hover-dot { pointer-events: none; }
 .atlas-trend__hover-label {
   font-size: 0.72rem;
-  fill: #6b7a5a;
+  fill: var(--color-text-muted);
   font-family: "JetBrains Mono", ui-monospace, monospace;
   pointer-events: none;
 }
@@ -3358,7 +3358,7 @@ textarea:focus-visible {
 }
 .atlas-trend__detail-sub {
   font-size: 0.78rem;
-  color: #6b7a5a;
+  color: var(--color-text-muted);
   margin: 0;
 }
 .atlas-trend__detail-metric { color: #4a5640; }
@@ -3382,7 +3382,7 @@ textarea:focus-visible {
 .atlas-trend__detail-empty,
 .atlas-trend__detail-loading {
   font-size: 0.85rem;
-  color: #6b7a5a;
+  color: var(--color-text-muted);
   font-style: italic;
   text-align: center;
   padding: 2rem 0.5rem;
@@ -3442,7 +3442,7 @@ textarea:focus-visible {
   flex-direction: column;
   gap: 0.1rem;
   font-size: 0.75rem;
-  color: #6b7a5a;
+  color: var(--color-text-muted);
   font-family: "JetBrains Mono", ui-monospace, monospace;
 }
 .atlas-trend__region-sub-line { white-space: nowrap; }
@@ -3467,7 +3467,7 @@ textarea:focus-visible {
 }
 .atlas-trend__right-sub {
   font-size: 0.78rem;
-  color: #6b7a5a;
+  color: var(--color-text-muted);
   margin: 0 0 0.6rem;
 }
 .atlas-trend__search {
@@ -3516,7 +3516,7 @@ textarea:focus-visible {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #6b7a5a;
+  color: var(--color-text-muted);
 }
 .atlas-trend__members-headers-count { text-align: right; }
 .atlas-trend__members {
@@ -3538,7 +3538,7 @@ textarea:focus-visible {
 .atlas-trend__no-match {
   display: block !important;
   text-align: center;
-  color: #6b7a5a;
+  color: var(--color-text-muted);
   font-style: italic;
   padding: 1rem 0;
   border-bottom: 0 !important;
@@ -3554,7 +3554,7 @@ textarea:focus-visible {
 .atlas-viz__pty--dem { background: #1f2a44; }
 .atlas-viz__pty--ind { background: #6b7a5a; }
 .atlas-viz__name { font-weight: 500; }
-.atlas-viz__st   { color: #6b7a5a; font-size: 0.78rem; }
+.atlas-viz__st   { color: var(--color-text-muted); font-size: 0.78rem; }
 .atlas-viz__ct   { text-align: right; font-family: "JetBrains Mono", ui-monospace, monospace; }
 
 // Respect OS-level motion preferences (WCAG 2.3.3).
