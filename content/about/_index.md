@@ -9,6 +9,8 @@ toc: true
 A <a href="/updates/">changelog</a> records additions, revisions, and corrections as the project develops.
 </aside>
 
+<p class="lede">An opening paragraph that frames the section — slightly larger, plain weight, set in ink to anchor the column.</p>
+
 *Governing Ground* is an in-progress research project on the politics of public lands in the American West during the second half of the twentieth century. It combines narrative history with interactive maps and network visualizations, and is intended for both scholarly and public audiences. This project serves as a companion to [my](https://jasonheppler.org) in-progress book on the Sagebrush Rebellion on the Northern Plains.
 
 The site is published as a static site built with [Hugo](https://gohugo.io), with all content, data, and code versioned on [GitHub](https://github.com/hepplerj/sbr-website).
@@ -25,7 +27,7 @@ Aside from my day job, I am a {{< define term="smallholder" >}} A farmer or ranc
 
 Find more on my [Homepage](https://jasonheppler.org).
 
-*While I work at George Mason University, this blog, like the rest of my writing and public expressions, should not be taken as a representation of my university's views.*
+*While I work at George Mason University, this project, like the rest of my writing and public expressions, should not be taken as a representation of my university's views.*
 
 ## Citation
 

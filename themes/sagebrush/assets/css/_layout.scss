@@ -3560,6 +3560,183 @@ textarea:focus-visible {
   border-bottom: 1px solid #d9ccb3;
 }
 
+/* ───────── About (Survey register) ─────────
+   Statement hero centered at the top of the page, then the editorial
+   body in a reading column. H2s inside the body render as Space Mono
+   uppercase rust section labels with a 1px rule, matching the design
+   handoff's section-label vocabulary. A small Colophon strip
+   (technical methodology, key-value) closes the page. */
+
+.about-page {
+  padding: 0 var(--space-page) 80px;
+}
+
+.about-statement {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 72px 0 64px;
+  text-align: center;
+  border-bottom: 1.5px solid var(--ink);
+}
+.about-statement__eyebrow {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 28px;
+}
+.about-statement__lede {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem);   // ~26–33px
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.34;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 0 auto;
+  max-width: 36ch;
+}
+.about-statement__lede em,
+.about-statement__lede i {
+  font-style: normal;   // *Governing Ground* reads as a work-title — drop the italic inside an italic block
+}
+
+/* Body — reading column, Survey body rhythm. Paragraph spacing comes
+   from the global `p { margin: 0 0 1.25em }` in _typography.scss; we
+   don't override it here. */
+.about-body {
+  max-width: 40rem;
+  margin: 56px auto 0;
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+/* H2s in the About body become Survey section labels */
+.about-body h2 {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 64px 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+  letter-spacing: 0.14em;
+}
+.about-body h3 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 36px 0 8px;
+}
+.about-body a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+  transition: color var(--duration) var(--ease), text-decoration-color var(--duration) var(--ease);
+}
+.about-body a:hover {
+  color: var(--rust);
+  text-decoration-color: var(--rust);
+}
+.about-body blockquote {
+  border-left: 3px solid var(--rust);
+  padding: 4px 0 4px 20px;
+  margin: 1.4em 0;
+  color: var(--soft);
+  font-family: var(--font-display);
+  font-size: 16.5px;
+  font-style: italic;
+  line-height: 1.55;
+}
+.about-body .prose-aside {
+  background: var(--panel);
+  border-left: 3px solid var(--sage);
+  border-radius: 0;
+  padding: 14px 18px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 1.5em 0;
+}
+.about-body .prose-aside a {
+  color: var(--rust);
+  text-decoration-color: var(--rust);
+}
+
+/* Colophon strip — technical methodology, key/value table style */
+.about-colophon {
+  max-width: 40rem;
+  margin: 72px auto 0;
+  padding-top: 36px;
+  border-top: 1.5px solid var(--ink);
+}
+.about-colophon__head {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 16px;
+}
+.about-colophon__list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: 0;
+}
+.about-colophon__list > div {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: baseline;
+}
+.about-colophon__list > div:last-child { border-bottom: 0; }
+.about-colophon__list dt {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0;
+}
+.about-colophon__list dd {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  color: var(--ink);
+}
+.about-colophon__list dd a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.about-colophon__list dd a:hover {
+  color: var(--rust);
+  text-decoration-color: var(--rust);
+}
+@media (max-width: 36rem) {
+  .about-colophon__list > div { grid-template-columns: 1fr; gap: 2px; }
+}
+
 /* ───────── Atlas (regional cosponsorship heatmap, etc.) ───────── */
 .atlas-page {
   max-width: 72rem;

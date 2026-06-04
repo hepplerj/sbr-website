@@ -1,0 +1,36 @@
+{{ define "main" }}
+{{- /* About — Survey register.
+       Statement hero (centered, large italic) + editorial body in a
+       reading column. The existing markdown sections (## The Author,
+       ## Citation, ## License) render as Survey section labels
+       (Space Mono uppercase rust with a 1px rule). A small Colophon
+       key-value strip lives in the layout (technical methodology,
+       AI-drafted by convention) — Jason can promote it into markdown
+       later if he wants editorial control over the entries. */ -}}
+
+<article class="about-page">
+
+  <header class="about-statement">
+    <p class="about-statement__eyebrow">About the project</p>
+    {{- with .Params.lede }}
+      <p class="about-statement__lede">{{ . | markdownify }}</p>
+    {{- end }}
+  </header>
+
+  <div class="about-body prose">
+    {{ .Content }}
+  </div>
+
+  <aside class="about-colophon" aria-label="Colophon">
+    <p class="about-colophon__head">Colophon</p>
+    <dl class="about-colophon__list">
+      <div><dt>Display &amp; body</dt><dd>Spectral</dd></div>
+      <div><dt>Labels &amp; data</dt><dd>JetBrains Mono</dd></div>
+      <div><dt>Maps</dt><dd>Leaflet · D3</dd></div>
+      <div><dt>Built with</dt><dd>Hugo</dd></div>
+      <div><dt>Source</dt><dd><a href="https://github.com/hepplerj/sbr-website">github.com/hepplerj/sbr-website</a></dd></div>
+    </dl>
+  </aside>
+
+</article>
+{{ end }}

@@ -64,8 +64,8 @@
   // UPPERCASE with letter-spacing in the rules that consume --font-ui).
   --font-display: "Spectral", Georgia, serif;
   --font-body:    "Spectral", Georgia, serif;
-  --font-ui:      "Space Mono", "IBM Plex Mono", ui-monospace, monospace;
-  --font-mono:    "Space Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-ui:      "JetBrains Mono", "SF Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-mono:    "JetBrains Mono", "SF Mono", "IBM Plex Mono", ui-monospace, monospace;
 
   // Type scale (kept compatible with existing rules)
   --font-size-xs:   0.781rem;
