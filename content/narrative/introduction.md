@@ -13,12 +13,6 @@ In the summer of 1979, the Nevada legislature passed Assembly Bill 413 asserting
 
 But 1979 was neither the first nor the last such uprising. Resistance to federal land authority is a common feature of the American West's politics---the grazing controversies that followed the Taylor Grazing Act of 1934, the postwar fights over National Forest expansion, the Sagebrush Rebellion in the 1980s, the county-supremacy movement and the Wise Use coalition of the 1990s, and the armed standoffs at Bundy Ranch in 2014 and Malheur in 2016. This project seeks to explore this long history through related debates and conflicts through coalitions, legislators, and people.
 
-<aside class="pullquote">
-
-Resistance to federal land authority is a common feature of the American West's politics.
-
-</aside>
-
 ## *The* Sagebrush Rebellion
 
 We can center the story of the Sagebrush Rebellion in Nevada. In 1964 Congress established the Public Land Law Review Commission under Public Law 88-606 to evaluate the federal lands for either their continued management or their disposal "in a manner to provide the maximum benefit for the general public."[^2]

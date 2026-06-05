@@ -9,11 +9,9 @@
        at the bottom uses to toggle visibility on filter clicks. */ -}}
 
 {{- $pages := .RegularPages.ByDate.Reverse -}}
-{{- $featured := index $pages 0 -}}
-{{- $rest := after 1 $pages -}}
 
-{{- /* Per-genre counts across the whole list (featured + rest), used
-       in the filter rail. Hugo's `where` filters via .Params.genre. */ -}}
+{{- /* Per-genre counts across the whole list, used in the filter
+       rail. Hugo's `where` filters via .Params.genre. */ -}}
 {{- $countAll    := len $pages -}}
 {{- $countEssay  := len (where $pages "Params.genre" "essay") -}}
 {{- $countField  := len (where $pages "Params.genre" "field-note") -}}
@@ -29,50 +27,34 @@
     <p class="writing-header__kicker">{{ .Title }}</p>
     <div class="writing-header__row">
       <h1 class="writing-header__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
-      {{- with .Params.lede }}<p class="writing-header__desc">{{ . | markdownify }}</p>{{ end }}
+      {{- /* Lede may contain inline markdown (links, emphasis). Use a
+             <div> wrapper so markdownify's own <p> wrapping doesn't
+             produce nested <p>s (which browsers auto-close, breaking
+             the class-targeted styling). */ -}}
+      {{- with .Params.lede }}<div class="writing-header__desc">{{ . | markdownify }}</div>{{ end }}
     </div>
   </header>
 
   <div class="writing-filter" role="group" aria-label="Filter by genre">
     <div class="writing-filter__btns">
-      <button type="button" class="writing-filter__btn is-active" data-genre="">
-        All <span class="writing-filter__count">{{ printf "%02d" $countAll }}</span>
+      <button type="button" class="writing-filter__btn is-active" data-genre="" aria-pressed="true">
+        All <span class="writing-filter__count">{{ printf "(%02d)" $countAll }}</span>
       </button>
-      <button type="button" class="writing-filter__btn" data-genre="essay">
-        Essays <span class="writing-filter__count">{{ printf "%02d" $countEssay }}</span>
+      <button type="button" class="writing-filter__btn" data-genre="essay" aria-pressed="false">
+        Essays <span class="writing-filter__count">{{ printf "(%02d)" $countEssay }}</span>
       </button>
-      <button type="button" class="writing-filter__btn" data-genre="field-note">
-        Field notes <span class="writing-filter__count">{{ printf "%02d" $countField }}</span>
+      <button type="button" class="writing-filter__btn" data-genre="field-note" aria-pressed="false">
+        Field notes <span class="writing-filter__count">{{ printf "(%02d)" $countField }}</span>
       </button>
-      <button type="button" class="writing-filter__btn" data-genre="method">
-        Methods <span class="writing-filter__count">{{ printf "%02d" $countMethod }}</span>
+      <button type="button" class="writing-filter__btn" data-genre="method" aria-pressed="false">
+        Methods <span class="writing-filter__count">{{ printf "(%02d)" $countMethod }}</span>
       </button>
     </div>
-    <p class="writing-filter__tally"><span data-tally-num>{{ printf "%02d" $countAll }}</span> showing</p>
   </div>
 
-  {{- with $featured }}
-    {{- $authors := slice -}}
-    {{- with .Params.authors }}{{ $authors = . }}{{- else }}{{- with .Params.author }}{{ $authors = slice . }}{{ end }}{{ end -}}
-    <a class="writing-featured" data-genre="{{ .Params.genre | default "essay" }}" href="{{ .RelPermalink }}">
-      <p class="writing-featured__kicker">Featured essay</p>
-      <h2 class="writing-featured__title">{{ .Title }}</h2>
-      {{- with or .Params.lede .Description }}
-        <p class="writing-featured__deck">{{ . | markdownify }}</p>
-      {{- end }}
-      <p class="writing-featured__meta">
-        {{- if $authors }}<span>By {{ delimit $authors ", " " and " }}</span>{{ end }}
-        {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
-        {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
-        {{- with .Params.place }}<span>{{ . }}</span>{{ end }}
-      </p>
-      <p class="writing-featured__cta">Read the essay <span aria-hidden="true">&rarr;</span></p>
-    </a>
-  {{- end }}
-
-  {{- if $rest }}
+  {{- if $pages }}
     <ol class="writing-list">
-      {{- range $i, $page := $rest }}
+      {{- range $i, $page := $pages }}
         {{- $authors := slice -}}
         {{- with .Params.authors }}{{ $authors = . }}{{- else }}{{- with .Params.author }}{{ $authors = slice . }}{{ end }}{{ end -}}
         <li class="writing-list__item" data-genre="{{ .Params.genre | default "essay" }}">
@@ -96,33 +78,51 @@
     </ol>
   {{- end }}
 
-  {{- with .Content }}
-    <aside class="writing-archive-note">{{ . }}</aside>
-  {{- end }}
+  {{- /* No archive note: the RSS link lives in the header lede
+         (frontmatter `lede:` value rendered via markdownify), so the
+         page ends cleanly with the last numbered entry. If a future
+         archive-style note is needed, restore the .Content render and
+         re-add the .writing-archive-note CSS rule. */ -}}
 
 </article>
 
 <script>
-  // Writing index filter rail — vanilla JS, no dependencies.
-  // Click a filter button → hide non-matching [data-genre] rows.
-  // The empty data-genre on "All" means "show everything."
+  // Writing index filter rail — multi-select, mirrors the bibliography
+  // pattern. Click a genre button to toggle it in/out of the active
+  // set; "All" clears the set. An item is visible when the set is
+  // empty or the item's genre is in the set.
+  //
+  // The items query is intentionally scoped to .writing-list__item and
+  // .writing-featured — both have a data-genre attribute, but so do
+  // the filter buttons; a plain `[data-genre]` selector would hide the
+  // buttons themselves on filter.
   (function () {
     var btns = document.querySelectorAll('.writing-filter__btn');
-    var items = document.querySelectorAll('[data-genre]');
-    var tally = document.querySelector('[data-tally-num]');
+    var items = document.querySelectorAll('.writing-list__item[data-genre], .writing-featured[data-genre]');
+    var active = new Set();
     if (!btns.length || !items.length) return;
+
+    function refresh() {
+      btns.forEach(function (b) {
+        var g = b.dataset.genre;
+        var on = g === '' ? active.size === 0 : active.has(g);
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      items.forEach(function (el) {
+        var g = el.dataset.genre || '';
+        var visible = active.size === 0 || active.has(g);
+        el.classList.toggle('is-hidden', !visible);
+      });
+    }
 
     btns.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var genre = btn.dataset.genre;
-        btns.forEach(function (b) { b.classList.toggle('is-active', b === btn); });
-        var shown = 0;
-        items.forEach(function (el) {
-          var match = !genre || el.dataset.genre === genre;
-          el.classList.toggle('is-hidden', !match);
-          if (match) shown++;
-        });
-        if (tally) tally.textContent = String(shown).padStart(2, '0');
+        var g = btn.dataset.genre;
+        if (g === '') { active.clear(); }
+        else if (active.has(g)) { active.delete(g); }
+        else { active.add(g); }
+        refresh();
       });
     });
   })();
