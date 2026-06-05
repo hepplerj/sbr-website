@@ -1,6 +1,6 @@
 ---
 title: "Welcome to Governing Ground"
-genre: methods
+genre: method
 number: 2
 date: 2026-05-04
 lede: "Studying conflicts over federal lands in the Great Plains and North American West"
