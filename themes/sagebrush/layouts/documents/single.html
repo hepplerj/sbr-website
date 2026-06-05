@@ -5,48 +5,38 @@
        step 2 — for now we render the body in a single prose column. */ -}}
 
 <article class="document-page">
-  <p class="document-page__eyebrow">
-    <a href="{{ "/documents/" | relURL }}">Documents</a>
-  </p>
-  <h1 class="document-page__title">{{ .Title }}</h1>
+  <header class="document-page__header">
+    <p class="document-page__eyebrow">
+      <a href="{{ "/documents/" | relURL }}">Documents</a>
+    </p>
+    <h1 class="document-page__title">{{ .Title }}</h1>
+  </header>
 
   {{- /* ── Metadata header ────────────────────────────────────────────
-       Rendered only for transcribed documents (those with a `doctype`).
-       Meta pages like the editorial statement set no doctype and skip
-       the block entirely, falling through to a pure-prose render. */ -}}
+       Transcribed documents (those with a `doctype`) get a compact
+       identifier strip directly below the title and a collapsible
+       "About this document" apparatus block that holds full
+       provenance / citation / source / related links. Meta pages
+       like the editorial statement set no doctype and fall through
+       to a pure-prose render. */ -}}
   {{- if .Params.doctype }}
-  <aside class="document-meta" aria-label="Document metadata">
+
+  {{- /* Compact strip — JetBrains Mono · separated; the orienting
+         facts a reader needs at a glance. */ -}}
+  <p class="document-strip" aria-label="Document identifier">
+    {{- $bits := slice -}}
+    {{- with .Params.doctype }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Type</span> %s" (humanize .)) }}{{ end -}}
+    {{- with .Params.date }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Date</span> <time datetime=\"%s\">%s</time>" (.Format "2006-01-02") (.Format "January 2, 2006")) }}{{ end -}}
+    {{- with .Params.sponsors }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Sponsor%s</span> %s" (cond (gt (len .) 1) "s" "") (delimit . "; ")) }}{{ end -}}
+    {{- with .Params.authors }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Author%s</span> %s" (cond (gt (len .) 1) "s" "") (delimit . "; ")) }}{{ end -}}
+    {{- with .Params.jurisdiction }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Jurisdiction</span> %s" (humanize .)) }}{{ end -}}
+    {{ delimit $bits "<span class=\"document-strip__sep\" aria-hidden=\"true\">·</span>" | safeHTML }}
+  </p>
+
+  <details class="document-apparatus">
+    <summary>About this document</summary>
+    <aside class="document-meta" aria-label="Document metadata">
     <dl class="document-meta__list">
-      {{- with .Params.doctype }}
-        <div class="document-meta__row">
-          <dt>Type</dt>
-          <dd>{{ humanize . }}</dd>
-        </div>
-      {{- end }}
-      {{- with .Params.date }}
-        <div class="document-meta__row">
-          <dt>Date</dt>
-          <dd><time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time></dd>
-        </div>
-      {{- end }}
-      {{- with .Params.sponsors }}
-        <div class="document-meta__row">
-          <dt>Sponsor{{ if gt (len .) 1 }}s{{ end }}</dt>
-          <dd>{{ delimit . "; " }}</dd>
-        </div>
-      {{- end }}
-      {{- with .Params.authors }}
-        <div class="document-meta__row">
-          <dt>Author{{ if gt (len .) 1 }}s{{ end }}</dt>
-          <dd>{{ delimit . "; " }}</dd>
-        </div>
-      {{- end }}
-      {{- with .Params.jurisdiction }}
-        <div class="document-meta__row">
-          <dt>Jurisdiction</dt>
-          <dd>{{ humanize . }}</dd>
-        </div>
-      {{- end }}
       {{- with .Params.citation }}
         <div class="document-meta__row">
           <dt>Citation</dt>
@@ -146,6 +136,7 @@
       <a href="{{ "/editorial-statement/" | relURL }}">Editorial statement</a>
     </p>
   </aside>
+  </details>
   {{- end }}
 
   {{- /* ── Document body + (conditional) sidenote column ──────────────

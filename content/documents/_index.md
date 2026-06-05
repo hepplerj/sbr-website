@@ -1,7 +1,7 @@
 ---
-title: "Intentional Archive"
-heading: "An intentional archive"
-lede: "Primary documents — statutes, proclamations, court filings, hearings, letters — transcribed and annotated to bolster the arguments of this project."
+title: "An intentional archive"
+heading: "Documents"
+lede: "Primary documents transcribed and annotated to support the arguments of this project."
 toc: false
 ---
 
