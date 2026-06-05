@@ -8,7 +8,7 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline bibliography clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline bibliography clean-data site site-fast serve
 
 data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline bibliography
 
@@ -56,6 +56,15 @@ cattle-prices:
 
 farm-income:
 	$(PY) scripts/build_farm_income.py
+# One-time refresh of the unitedstates/congress-legislators bioguide
+# lookup used to backfill state/party/district when per-bill records
+# arrive incomplete (mostly pre-108th Congress). Writes
+# scripts/.cache/legislators.json (committed). Re-run only when newly
+# elected legislators need to be added to the cache — the historical
+# roster is fixed.
+fetch-legislators:
+	$(PY) scripts/legislators.py
+
 cosponsorship:
 	$(PY) scripts/build_cosponsorship_network.py
 

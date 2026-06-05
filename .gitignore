@@ -29,6 +29,9 @@ __pycache__/
 
 # Pipeline caches (BILLSTATUS bulk ZIPs, etc.)
 scripts/.cache/
+# …except the legislators lookup, which is committed so the network
+# builds work without a one-off fetch step on every machine.
+!scripts/.cache/legislators.json
 
 # Node (if we add tooling later)
 node_modules/

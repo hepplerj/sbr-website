@@ -246,6 +246,14 @@ Sources currently wired up:
 - USGS physiographic divisions (Fenneman 1928) — one-time shell-script
   conversion via ogr2ogr
 - Two local BibTeX files at repo root (bibliography)
+- `unitedstates/congress-legislators` YAML roster (every US legislator
+  since 1789, keyed by bioguide ID) — used to backfill state/party/
+  district when the per-bill records from the Congress.gov API arrive
+  incomplete (mostly for pre-108th Congresses). Refresh with
+  `make fetch-legislators`; cached at `scripts/.cache/legislators.json`
+  (committed). The fetch script uses a purpose-built minimal YAML
+  reader so the stdlib-only invariant is preserved (see
+  `scripts/legislators.py` for the parser).
 
 When upstream URLs change, edit the source URL at the top of the
 affected script.
