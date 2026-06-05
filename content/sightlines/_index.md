@@ -1,6 +1,6 @@
 ---
-title: "Sightlines"
-heading: "Visualizing this history"
+title: "Visualizing this history"
+heading: "Sightlines"
 lede: "Maps, networks, and charts for reading the sagebrush rebellions against their landscapes, coalitions, and conditions."
 ---
 
