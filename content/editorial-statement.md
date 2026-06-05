@@ -1,5 +1,6 @@
 ---
 title: "Editorial statement"
+kicker: "Apparatus"
 lede: "Sourcing, transcription, and annotation conventions used in the Governing Ground documents archive."
 weight: 1
 draft: true

@@ -1,15 +1,7 @@
 <header class="site-header">
   <div class="site-header__inner">
-    {{- /* Stack the wordmark so "Ground" sits below "Governing".
-           Split the site title on its first space to get the two
-           words as individual lines. */ -}}
-    {{- $words := split .Site.Title " " -}}
     <h1 class="site-title">
-      <a href="{{ "/" | relURL }}">
-        {{- range $i, $w := $words -}}
-          <span class="site-title__line">{{ $w }}</span>
-        {{- end -}}
-      </a>
+      <a href="{{ "/" | relURL }}">{{ .Site.Title }}</a>
     </h1>
     <nav class="site-nav" aria-label="Primary">
       <ul>

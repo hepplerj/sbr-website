@@ -1,5 +1,8 @@
 ---
 title: "Glossary"
+kicker: "Reference"
+heading: "Working vocabulary"
+hideMeta: true
 date: 2026-05-22
 lede: "A short reference for the cattle, range, federal-lands, and movement vocabulary this project uses."
 toc: true

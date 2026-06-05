@@ -1,5 +1,6 @@
 ---
 title: "On Generative AI"
+kicker: "Disclosure"
 lede: "Transparency about which parts of Governing Ground were produced with AI assistance."
 date: 2026-04-22
 ---
