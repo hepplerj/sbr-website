@@ -3560,6 +3560,596 @@ textarea:focus-visible {
   border-bottom: 1px solid #d9ccb3;
 }
 
+/* ───────── Writing index (Survey register) ─────────
+   The essay index. Title block with rust kicker + huge H1 + a
+   right-aligned description, then a featured-lead block (most
+   recent essay) followed by a numbered row list. */
+
+.writing-page {
+  max-width: var(--measure-full);
+  margin: 0 auto;
+  padding: 56px var(--space-page) 100px;
+}
+
+/* Header — rust kicker spans full width above the title row */
+.writing-header {
+  border-bottom: 1.5px solid var(--ink);
+  padding-bottom: 36px;
+  margin-bottom: 48px;
+}
+.writing-header__kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 28px;
+}
+.writing-header__row {
+  display: grid;
+  grid-template-columns: 1fr 24rem;
+  gap: 56px;
+  align-items: end;
+
+  @media (max-width: 56rem) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+.writing-header__title {
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 6vw, 4.5rem);   // ~54–72px per spec
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0;
+}
+.writing-header__desc {
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--soft);
+  margin: 0 0 8px;
+  max-width: 22rem;
+}
+
+/* Filter rail — sticky segmented buttons + a per-genre count badge
+   on each. Active button is ink-fill with rust count; inactive is
+   outline-rule with soft text. The tally on the right reflects the
+   current visible count after a filter is applied. */
+.writing-filter {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding: 18px 0;
+  margin-bottom: 36px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.writing-filter__btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+.writing-filter__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-right: 0;
+  border-radius: 0;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+  cursor: pointer;
+  transition: background var(--duration) var(--ease),
+              color var(--duration) var(--ease),
+              border-color var(--duration) var(--ease);
+}
+.writing-filter__btn:last-child { border-right: 1px solid var(--rule); }
+.writing-filter__btn:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.writing-filter__btn.is-active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.writing-filter__count {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--soft);
+  letter-spacing: 0.04em;
+}
+.writing-filter__btn:hover .writing-filter__count,
+.writing-filter__btn.is-active .writing-filter__count {
+  color: var(--rust);
+}
+.writing-filter__tally {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0;
+}
+.writing-filter__tally [data-tally-num] { color: var(--ink); }
+
+/* Hidden state for filtered-out rows */
+.is-hidden { display: none !important; }
+
+/* Featured lead — large rust-kicked block above the numbered list. */
+.writing-featured {
+  display: block;
+  margin: 0 0 48px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--duration) var(--ease);
+}
+.writing-featured:hover {
+  background: color-mix(in srgb, var(--panel) 40%, transparent);
+}
+.writing-featured__kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 18px;
+}
+.writing-featured__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3vw, 2.4rem);  // ~30–38px
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0 0 18px;
+  max-width: 32ch;
+}
+.writing-featured__deck {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--soft);
+  margin: 0 0 18px;
+  max-width: 40rem;
+}
+.writing-featured__meta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0 0 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.writing-featured__meta time { color: var(--ink); }
+.writing-featured__meta span:first-child { color: var(--ink); }
+.writing-featured__cta {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0;
+  transition: color var(--duration) var(--ease);
+}
+.writing-featured:hover .writing-featured__cta { color: var(--rust); }
+
+/* Numbered row list — №01, №02, …, each row a clickable card */
+.writing-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.writing-list__item {
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.writing-list__item:last-child { border-bottom: 1px solid var(--rule); }
+.writing-list__link {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr 9rem;
+  gap: 36px;
+  align-items: start;
+  padding: 32px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--duration) var(--ease);
+}
+.writing-list__link:hover {
+  background: color-mix(in srgb, var(--panel) 40%, transparent);
+}
+// Big editorial numeral — Spectral italic, vertically centered within
+// the row. Takes the typographic № sign + two digits as a single mark.
+.writing-list__num {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 4vw, 3.4rem);    // ~42–54px
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--rust);
+  margin: 0;
+  align-self: center;
+}
+.writing-list__main {
+  min-width: 0;
+}
+.writing-list__title {
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+.writing-list__deck {
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--soft);
+  margin: 0 0 12px;
+}
+.writing-list__meta {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.writing-list__meta time { color: var(--ink); }
+.writing-list__cta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 6px 0 0;
+  text-align: right;
+}
+.writing-list__link:hover .writing-list__cta { color: var(--rust); }
+
+@media (max-width: 56rem) {
+  .writing-list__link {
+    grid-template-columns: 5.5rem 1fr;
+    gap: 22px;
+    padding: 26px 0;
+  }
+  .writing-list__cta { display: none; }   // CTA folds — whole row is clickable
+}
+@media (max-width: 36rem) {
+  .writing-list__link {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  // On a single-column stack, the numeral becomes a label-sized accent
+  // sitting just above the title rather than a column of its own.
+  .writing-list__num {
+    align-self: start;
+    font-size: 1.6rem;
+  }
+}
+
+/* Archive note — sits below the list as a small editorial caption */
+.writing-archive-note {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1.5px solid var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--soft);
+  max-width: 40rem;
+}
+
+/* ───────── Narrative essay (Survey register) ─────────
+   Long-form reading page. Breadcrumb at top, centered article
+   header, body in a generous reading column. The body uses
+   .prose.prose--essay so the existing drop-cap rule in
+   _typography.scss takes effect on the first paragraph. */
+
+.narrative-page {
+  max-width: var(--measure-full);
+  margin: 0 auto;
+  padding: 36px var(--space-page) 80px;
+}
+
+.narrative-breadcrumb {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0 0 56px;
+}
+.narrative-breadcrumb a {
+  color: var(--soft);
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
+}
+.narrative-breadcrumb a:hover { color: var(--rust); }
+.narrative-breadcrumb__sep { margin: 0 12px; color: var(--rule); }
+.narrative-breadcrumb__current { color: var(--ink); }
+
+.narrative-header {
+  max-width: 56rem;     // ~910px per design spec
+  margin: 0 auto 64px;
+  text-align: center;
+}
+.narrative-header__kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 24px;
+}
+.narrative-header__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4.6vw, 3.6rem);   // ~38–58px
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0 0 28px;
+  max-width: 22ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+.narrative-header__deck {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.6vw, 1.31rem);  // ~18–21px
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--soft);
+  max-width: 39rem;
+  margin: 0 auto 28px;
+}
+.narrative-header__meta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+.narrative-header__meta time { color: var(--ink); }
+.narrative-header__byline { color: var(--ink); }
+
+/* Body — wider than Design's 620px spec to land closer to ~70ch at
+   19px Spectral. The Design measure assumes a Tufte margin column for
+   sidenotes (250px right rail) — without that, the body can breathe
+   wider without crossing the comfortable-reading-measure line. Easy
+   to dial back if it overruns. */
+.narrative-body {
+  max-width: 46rem;     // ~736px (was 39rem ~620px per Design spec)
+  margin: 0 auto;
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.narrative-body p { margin: 0 0 1.1em; }
+
+/* H2 / H3 in the body — Spectral display headings, sized down from
+   the page H1 so the visual hierarchy reads "title → section → body". */
+.narrative-body h2 {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 56px 0 18px;
+  max-width: 28ch;
+}
+.narrative-body h2 em { font-style: italic; }
+.narrative-body h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 36px 0 12px;
+}
+
+.narrative-body a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+  transition: color var(--duration) var(--ease), text-decoration-color var(--duration) var(--ease);
+}
+.narrative-body a:hover {
+  color: var(--rust);
+  text-decoration-color: var(--rust);
+}
+
+/* Regular blockquote — calmer treatment for ordinary cited passages
+   inside an essay. Sage left rail + italic Spectral, slightly smaller
+   than body. Use a .pullquote (below) for the emphatic pull-quote
+   treatment. */
+.narrative-body blockquote {
+  margin: 32px 0;
+  padding: 4px 0 4px 22px;
+  border: 0;
+  border-left: 3px solid var(--sage);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--soft);
+}
+.narrative-body blockquote p { margin: 0 0 0.6em; }
+.narrative-body blockquote p:last-child { margin-bottom: 0; }
+
+/* Pull-quote — emphatic break in the body, full-measure ink rules
+   above and below, Spectral italic 500. Author-set inline in markdown:
+       <aside class="pullquote">
+       A short, memorable line from the essay that earns its own beat.
+       </aside>
+   Works inside .narrative-body (or any prose container). */
+.pullquote {
+  margin: 56px 0;
+  padding: 28px 0;
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.1vw, 1.7rem);   // ~23–27px
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+}
+.pullquote p { margin: 0; }
+.pullquote p + p { margin-top: 0.6em; }
+.pullquote cite {
+  display: block;
+  margin-top: 16px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-style: normal;
+  color: var(--soft);
+}
+
+/* Drop cap on first paragraph — override the rust drop cap to ink so
+   it doesn't clash with the rust kicker above. */
+.narrative-body.prose--essay > p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 4.5em;
+  line-height: 0.85;
+  float: left;
+  margin: 0.05em 0.08em 0 -0.02em;
+  color: var(--ink);
+}
+
+/* Footnote refs — small rust JetBrains Mono superscript inline. */
+.narrative-body .footnote-ref a {
+  color: var(--rust);
+  font-family: var(--font-ui);
+  font-size: 0.78em;
+  font-weight: 700;
+  text-decoration: none;
+}
+.narrative-body .footnote-ref a:hover {
+  text-decoration: underline;
+}
+
+/* The global .footnotes rule (added during the documents work) styles
+   the notes section at the bottom of the page. Slight overrides here:
+   pin the notes column to the body's reading measure so they line up. */
+.narrative-page .footnotes {
+  max-width: 46rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Read-next cards — two columns with a hairline gutter. */
+.narrative-continue {
+  max-width: var(--measure-full);
+  margin: 80px auto 0;
+  padding-top: 56px;
+  border-top: 1.5px solid var(--ink);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+
+  @media (max-width: 48rem) {
+    grid-template-columns: 1fr;
+  }
+}
+.continue-card {
+  display: block;
+  padding: 20px 32px;
+  text-decoration: none;
+  color: inherit;
+  border-left: 1px solid var(--rule);
+  transition: background var(--duration) var(--ease);
+}
+.continue-card:first-child { border-left: 0; }
+@media (max-width: 48rem) {
+  .continue-card { border-left: 0; padding: 24px 0; }
+  .continue-card + .continue-card { border-top: 1px solid var(--rule); }
+}
+.continue-card:hover {
+  background: color-mix(in srgb, var(--panel) 50%, transparent);
+}
+.continue-card__kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 10px;
+}
+.continue-card--prev .continue-card__kicker { color: var(--soft); }
+.continue-card__title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+.continue-card__deck {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
 /* ───────── About (Survey register) ─────────
    Statement hero centered at the top of the page, then the editorial
    body in a reading column. H2s inside the body render as Space Mono
