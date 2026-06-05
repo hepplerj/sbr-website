@@ -23,7 +23,13 @@
   --rule:         #cdc2a9;   // 1px hairline borders & dividers
   --ink:          #28323b;   // body text, 1.5px strong borders, dark bg
   --ink-panel:    #222a31;   // cartogram paper on dark (footer)
-  --soft:         #5b6b78;   // secondary text, muted slate
+  --soft:         #4a5664;   // secondary text, muted slate.
+  // Was #5b6b78 → ~4.72:1 contrast on --paper (just over WCAG AA's
+  // 4.5:1 floor, no margin). Darkened to #4a5664 → ~6.06:1, comfortably
+  // AA-strong, still visibly distinct from --ink (#28323b). Used for
+  // ledes, meta rows, captions, theme labels, and the small italic
+  // descriptions in section headers — all sub-18px contexts where the
+  // higher floor matters most.
   --rust:         #a2502c;   // primary accent — kickers, active states, hot end of ramps
   --sage:         #6b7257;   // secondary accent — network/chart greens, cold end of ramps
   --ramp-mid:     #d8c9ad;   // mid-point of the warming/choropleth ramps
