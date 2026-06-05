@@ -26,8 +26,6 @@ chart:
         description: "Post-WWI commodity collapse hit cattle alongside row crops. Real prices spent most of the decade well below the wartime peak." }
     - { start: 1930, end: 1940, label: "Dust Bowl",
         description: "Cattle prices collapsed early in the Depression; the Taylor Grazing Act (1934) followed three years of historically low real prices." }
-    - { start: 1973, end: 1979, label: "1970s cattle boom",
-        description: "Real cattle prices peaked in 1973 at the highest level of the century. A drawn-out collapse over the next six years coincided with the political mobilization that became the 1979 Sagebrush Rebellion." }
     - { start: 1980, end: 1987, label: "Farm Crisis",
         description: "Real cattle prices fell further through the early 1980s, compounding the broader rural credit collapse documented on the farm-bankruptcies chart." }
     - { start: 2000, end: 2024, label: "Western megadrought",

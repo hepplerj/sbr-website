@@ -27,10 +27,10 @@
       {{- end }}
     </h1>
     <p class="hero__lede">{{ .Site.Params.description | markdownify }}</p>
-    <div class="hero__cta">
+    <!-- <div class="hero__cta">
       <a class="btn btn--outline" href="{{ "/atlas/" | relURL }}">Enter the Atlas <span aria-hidden="true">&rarr;</span></a>
       <a class="btn btn--outline" href="{{ "/narrative/" | relURL }}">Begin reading</a>
-    </div>
+    </div> -->
   </div>
 
   {{- with .Site.Params.heroCredit }}
@@ -51,28 +51,24 @@
 <section class="home-plates" aria-label="Four ways into the project">
   <div class="home-plates__grid">
     <article class="plate">
-      <p class="plate__num">Pl. I</p>
-      <p class="plate__eyebrow">Sightlines</p>
-      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}">Geographies</a></h2>
+      <p class="plate__eyebrow">Maps</p>
+      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}#maps">Geographies</a></h2>
       <p class="plate__body">Where federal land sits — grazing allotments, wilderness designations, the Bankhead-Jones land-utilization projects, and the flashpoints of conflict.</p>
-      <a class="plate__cta" href="{{ "/sightlines/" | relURL }}">View &rarr;</a>
+      <a class="plate__cta" href="{{ "/sightlines/" | relURL }}#maps">View &rarr;</a>
     </article>
     <article class="plate">
-      <p class="plate__num">Pl. II</p>
       <p class="plate__eyebrow">Writing</p>
       <h2 class="plate__title"><a href="{{ "/narrative/" | relURL }}">Essays &amp; field notes</a></h2>
       <p class="plate__body">Long-form history of public-lands politics and the digital method behind the project.</p>
       <a class="plate__cta" href="{{ "/narrative/" | relURL }}">View &rarr;</a>
     </article>
     <article class="plate">
-      <p class="plate__num">Pl. III</p>
       <p class="plate__eyebrow">Networks</p>
-      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}#networks">People &amp; orgs</a></h2>
+      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}#networks">People &amp; organizations</a></h2>
       <p class="plate__body">The coalitions behind the rebellions — ranchers, legislators, think tanks, militias, and the ties between them.</p>
       <a class="plate__cta" href="{{ "/sightlines/" | relURL }}#networks">View &rarr;</a>
     </article>
     <article class="plate">
-      <p class="plate__num">Pl. IV</p>
       <p class="plate__eyebrow">Charts</p>
       <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}#charts">Conditions over time</a></h2>
       <p class="plate__body">A century of temperature, drought, farm stress, and aridification — the conditions that shaped land use and conflict.</p>
