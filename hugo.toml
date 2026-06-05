@@ -6,6 +6,7 @@ enableGitInfo = false
 enableEmoji = false
 
 [params]
+  version = "1.0.0"   # bump on release; rendered in the footer license bar
   subtitle = "A century of sagebrush rebellions"
   description = "A history of recurring fights over land, power, and federal authority in the American West from the 1930s to the 2020s."
   author = "Jason A. Heppler"
@@ -41,11 +42,11 @@ enableEmoji = false
   [[menu.main]]
     name = "About"
     url = "/about/"
-    weight = 40
+    weight = 50
   [[menu.main]]
     name = "Writing"
     url = "/narrative/"
-    weight = 50
+    weight = 40
 
 [markup]
   [markup.goldmark]
@@ -73,6 +74,29 @@ enableEmoji = false
   tag = "tags"
   theme = "themes"
   place = "places"
+
+# Related-content scoring for the narrative singles' "Related" section.
+# Hugo ranks every other page against the current one using these
+# indices and returns the highest-scoring matches via
+# `.Site.RegularPages.Related .`. Themes (the project's primary
+# thematic taxonomy) weighted highest; tags and places fill in; recency
+# breaks ties via the `date` index. Lower threshold = more permissive.
+[related]
+  threshold = 60
+  includeNewer = true
+  toLower = true
+  [[related.indices]]
+    name = "themes"
+    weight = 100
+  [[related.indices]]
+    name = "tags"
+    weight = 80
+  [[related.indices]]
+    name = "places"
+    weight = 40
+  [[related.indices]]
+    name = "date"
+    weight = 10
 
 [build]
   [[build.cachebusters]]

@@ -67,7 +67,7 @@ canvas {
 }
 
 // ── Header (Survey register) ─────────────────────────────────────
-// Wordmark in Spectral 26px/600 on the left; nav in Space Mono 11px
+// Wordmark in Zilla Slab 26px/600 on the left; nav in Source Sans 11px
 // UPPERCASE with 0.14em tracking on the right. Strong 1.5px ink rule
 // on the bottom. No sticky / blur / meta strip — the design-handoff
 // flourishes the project explicitly didn't want.
@@ -141,11 +141,14 @@ canvas {
 // Four-column grid: wordmark+blurb / Explore / Project / Connect
 // sitting above a thin license bar with a hairline ink-rule top
 // border. No cartogram, no coordinate strip.
+// Footer uses the sans-serif UI family throughout (wordmark stays
+// slab-serif via .site-footer__wordmark). Sans reads more
+// chrome-like and stands apart from the body prose above it.
 .site-footer {
   margin-top: var(--space-9);
   background: var(--ink);
   color: var(--paper);
-  font-family: var(--font-body);
+  font-family: var(--font-ui);
 }
 .site-footer__grid {
   display: grid;
@@ -176,12 +179,12 @@ canvas {
   line-height: 1.05;
 }
 .site-footer__blurb {
-  font-family: var(--font-body);
+  font-family: var(--font-ui);
   font-size: 15px;
   line-height: 1.6;
   color: var(--ink-soft);
   max-width: 360px;
-  margin: 0;
+  margin: 0 0 16px;
 }
 .site-footer__col {
   padding-top: 6px;
@@ -206,21 +209,62 @@ canvas {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 4px;
 }
 .site-footer__links a {
-  font-family: var(--font-body);
-  font-size: 16px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.35;
   color: var(--ink-soft);
-  text-decoration: none;
-  transition: color var(--duration) var(--ease);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-rule);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color var(--duration) var(--ease),
+              text-decoration-color var(--duration) var(--ease);
 }
 .site-footer__links a:hover {
   color: var(--paper);
+  text-decoration-color: var(--paper);
 }
+// Credit colophon — author + copyright + last-built date. Sits in
+// the brand column under the wordmark + blurb, so it inherits the
+// column's left edge (no centered max-width, no horizontal padding
+// that would indent it inside the column).
+.site-footer__credit {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 360px;
+
+  // Inline link in the credit prose (e.g. author homepage) gets the
+  // same hairline-underline treatment as the column links instead of
+  // inheriting the global ink/rust prose-link recipe.
+  a {
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-decoration-color: var(--ink-rule);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color var(--duration) var(--ease),
+                text-decoration-color var(--duration) var(--ease);
+
+    &:hover {
+      color: var(--paper);
+      text-decoration-color: var(--paper);
+    }
+  }
+}
+
+// Three columns: license · centered version · built-with. The
+// outer spans sit at the edges; .site-footer__version sits centered
+// in the row via the explicit text-align column.
 .site-footer__license {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 16px;
   padding: 18px var(--space-page);
@@ -233,6 +277,9 @@ canvas {
   max-width: var(--measure-full);
   margin: 0 auto;
 }
+.site-footer__license > :first-child { text-align: left; justify-self: start; }
+.site-footer__license > .site-footer__version { text-align: center; justify-self: center; }
+.site-footer__license > :last-child { text-align: right; justify-self: end; }
 .site-footer__license a {
   color: var(--ink-soft);
   text-decoration: underline;
@@ -245,10 +292,15 @@ canvas {
 }
 @media (max-width: 56rem) {
   .site-footer__license {
-    flex-direction: column;
-    align-items: flex-start;
+    grid-template-columns: 1fr;
     gap: 6px;
     padding: 16px var(--space-page);
+  }
+  .site-footer__license > :first-child,
+  .site-footer__license > .site-footer__version,
+  .site-footer__license > :last-child {
+    text-align: left;
+    justify-self: start;
   }
 }
 @media (max-width: 36rem) {
@@ -305,7 +357,7 @@ canvas {
   width: 100%;
 }
 
-// Kicker — Space Mono UPPERCASE tracked, set in paper so it reads
+// Kicker — Source Sans UPPERCASE tracked, set in paper so it reads
 // cleanly over the dark photo (rust was tonally too close to the
 // photograph's mid-warms to hold).
 .hero__kicker {
@@ -319,7 +371,7 @@ canvas {
   margin: 0 0 var(--space-4);
 }
 
-// Stacked title — "Governing / Ground", Spectral 700 at 78px, tight
+// Stacked title — "Governing / Ground", Zilla Slab 700 at 78px, tight
 .hero__title {
   font-family: var(--font-display);
   font-size: clamp(3.5rem, 8vw, 5.5rem);
@@ -333,7 +385,7 @@ canvas {
   display: block;
 }
 
-// Italic Spectral standfirst, max ~460px
+// Italic Source Serif standfirst, max ~460px
 .hero__lede {
   font-family: var(--font-body);
   font-size: clamp(1.1rem, 1.4vw, 1.31rem);   // ~17.5–21px
@@ -393,22 +445,24 @@ canvas {
   position: absolute;
   bottom: var(--space-3);
   right: var(--space-4);
-  max-width: 34rem;
+  max-width: none;
   margin: 0;
   z-index: 2;
   text-align: right;
+  white-space: nowrap;
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 10.5px;            // small enough to hold one line on desktop
   line-height: 1.35;
   color: var(--color-cream);
   opacity: 0.72;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 
-  // On narrow viewports let the credit stretch left without clipping.
-  @media (max-width: 40rem) {
+  // On narrow viewports allow wrap rather than horizontal overflow.
+  @media (max-width: 48rem) {
     left: var(--space-4);
-    max-width: none;
+    white-space: normal;
+    text-align: left;
   }
 
   a {
@@ -496,7 +550,7 @@ canvas {
 
 // ── Section index lists (Survey register) ────
 // Matches the .sightlines-page__header / .writing-header pattern: a
-// rust JetBrains Mono kicker over a stacked H1 + italic Spectral lede,
+// rust Source Sans kicker over a stacked Zilla Slab H1 + italic Source Serif lede,
 // with a 1.5px ink rule sealing the bottom. Used by _default/list.html
 // consumers (sources, data, updates, ai, etc.).
 .section-intro {
@@ -645,7 +699,7 @@ canvas {
 
 // Body paragraphs rendered inside the section header (e.g. the
 // /updates/ changelog intro). Matches the .prose reading column —
-// 46rem at 19px Spectral — so the kicker → title → lede → body
+// 46rem at 19px Source Serif — so the kicker → title → lede → body
 // rhythm reads as a continuous flow.
 .section-intro__body {
   max-width: 46rem;
@@ -967,7 +1021,7 @@ canvas {
 // ── Page header (single pages, Survey register) ──
 // Used by _default/single.html — glossary, editorial-statement, ai,
 // sources, and other one-off pages. Matches the section header chrome:
-// rust JetBrains Mono kicker over a stacked H1 + italic Spectral lede,
+// rust Source Sans kicker over a stacked Zilla Slab H1 + italic Source Serif lede,
 // sealed below by a 1.5px ink rule.
 .page-header {
   max-width: var(--measure-full);
@@ -1171,19 +1225,163 @@ canvas {
 // ── Sightlines viz page ──────────────────────
 // Used by layouts/sightlines/single.html. The narrative sidebar (1/3) sits
 // left and the viz (2/3) right, filling the viewport below the sticky nav.
-// Title and lede live at the top of the scrollable sidebar rather than in
-// a full-width bar, so the viz gets the full viewport height minus the nav.
-.map-page {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  grid-template-rows: calc(100vh - 4rem);
-  position: relative;
-  background: var(--color-bg);
+// ─────────────────────────────────────────────
+// Sightlines single (Survey register)
+// Stacked layout: banded header → full-bleed viz → 46rem prose body.
+// Replaces the earlier 1fr/2fr grid with viewport-height viz that
+// squeezed chart legibility on common monitor widths.
+// ─────────────────────────────────────────────
+
+.sightlines-single {
+  display: flex;
+  flex-direction: column;
+}
+
+// Banded header — same panel-band treatment as Documents / Writing.
+// Full-bleed via the constrained-wrapper breakout pattern (its parent
+// here is the natural document flow, not a max-width wrapper, so a
+// simple max-width: none + side padding does the trick).
+.sightlines-single__header {
+  background: var(--panel);
+  box-shadow: inset 0 -1px 0 var(--rule);
+  padding: var(--space-section) var(--space-page) var(--space-6);
+  margin: 0 0 var(--space-section);
+
+  > * {
+    max-width: var(--measure-full);
+    margin-left: auto;
+    margin-right: auto;
+  }
 
   @media (max-width: 56rem) {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    padding: var(--space-7) var(--space-5) var(--space-5);
   }
+}
+.sightlines-single__kicker {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--rust);
+  margin: 0 0 var(--space-4);
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1.5px solid transparent;
+    padding-bottom: 0.15em;
+    transition: border-color var(--duration) var(--ease);
+    &:hover { border-bottom-color: var(--rust); }
+  }
+}
+.sightlines-single__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+.sightlines-single__lede {
+  font-family: var(--font-body);
+  font-size: clamp(1.15rem, 1.6vw, 1.3rem);
+  font-style: italic;
+  color: var(--soft);
+  line-height: 1.5;
+  max-width: 44rem;
+  margin: var(--space-4) 0 0;
+}
+.sightlines-single__meta {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--soft);
+  margin: var(--space-5) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45em;
+}
+.sightlines-single__meta-tag {
+  color: var(--soft);
+}
+.sightlines-single__meta-sep {
+  color: var(--rule);
+  margin: 0 0.25em;
+  user-select: none;
+}
+
+// Full-bleed viz block. Charts (SVG with viewBox) auto-scale to width;
+// maps/networks need an explicit min-height to render. Capped at 85vh
+// so a really wide monitor doesn't produce an absurdly tall block.
+.sightlines-single__viz {
+  position: relative;
+  width: 100%;
+  margin: 0 0 var(--space-section);
+  background: var(--paper);
+}
+
+// Maps & networks need explicit pixel/vh heights — Leaflet and D3-force
+// don't know how big to render otherwise.
+.sightlines-single__viz--map,
+.sightlines-single__viz--network {
+  min-height: 70vh;
+  max-height: 85vh;
+  // Keep them inside a content frame so they don't bleed all the way
+  // to the viewport edges — maps especially benefit from a quiet
+  // gutter around the rendered tile area.
+  max-width: var(--measure-full);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 var(--space-page);
+
+  @media (max-width: 56rem) {
+    padding: 0 var(--space-5);
+  }
+}
+
+// Chart viz block — full-bleed at the viewport, with internal padding
+// for the SVG to breathe. The SVG's viewBox preserves aspect, so this
+// just becomes the chart's reading width.
+.sightlines-single__viz--chart {
+  padding: 0 var(--space-page);
+
+  @media (max-width: 56rem) {
+    padding: 0 var(--space-5);
+  }
+}
+
+// Prose body sits at the standard reading column.
+.sightlines-single__body {
+  max-width: 46rem;
+  margin: 0 auto var(--space-section);
+  padding: 0 var(--space-page);
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink);
+
+  @media (max-width: 56rem) {
+    padding: 0 var(--space-5);
+  }
+}
+
+// ─────────────────────────────────────────────
+// (Legacy) .map-page — kept for any rules below that target it for
+// chart-specific styling; the new sightlines-single layout doesn't
+// use this selector, but several .climate-page__viz / .network-page
+// rules still chain through it. Reduce to a no-op container so it
+// can't conflict with the new stacked layout when those scoped rules
+// reference it.
+// ─────────────────────────────────────────────
+.map-page {
+  display: block;
+  position: relative;
+  background: var(--color-bg);
 }
 
 .map-page__about-header {
@@ -1566,6 +1764,64 @@ canvas {
   max-height: calc(100% - 2rem);
   overflow-y: auto;
 }
+// When the color toggle is mounted alongside, bump the legend up so
+// the toggle has clearance at the bottom-right of the viz. JS adds
+// `.has-color-toggle` to the legend element when it emits the toggle.
+.network-viz__legend.has-color-toggle {
+  bottom: calc(var(--space-3) + 2.6rem);
+  max-height: calc(100% - 4.5rem);
+}
+
+// Color-mode toggle (Party | Region) — only mounted when the network
+// frontmatter supplies a `regionpalette`. Sits at the original
+// bottom-right corner (where the legend used to live) so a tall
+// legend can never overlap it.
+.network-viz__color-toggle {
+  position: absolute;
+  bottom: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs, 0.72rem);
+  pointer-events: auto;
+}
+.network-viz__color-toggle-label {
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: 0.15em;
+}
+// Squared chips, matching the Survey filter/chip vocabulary used
+// elsewhere on the site (no border-radius, hairline ink border on
+// active state).
+.network-viz__color-toggle-btn {
+  padding: 0.3em 0.7em;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--soft);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  transition: background var(--duration) var(--ease),
+              color var(--duration) var(--ease),
+              border-color var(--duration) var(--ease);
+
+  &:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  &.is-active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+}
 
 // ── Category filter bar ──────────────────────────────────────────────
 .network-viz__filter {
@@ -1887,7 +2143,7 @@ canvas {
    features) and the sightlines-map.js wiring; only surfaces change. */
 
 // Survey-style page header — kicker (rust JetBrains Mono uppercase)
-// over a big Spectral H1 with a right-aligned description, on a
+// over a big Zilla Slab H1 with a right-aligned description, on a
 // 1.5px ink rule.
 .sightlines-page__header {
   max-width: var(--measure-full);
@@ -2162,7 +2418,7 @@ canvas {
   min-width: 0;     // prevents grid blowout
 }
 
-// Group sections — Survey header pattern: rust kicker over Spectral
+// Group sections — Survey header pattern: rust kicker over Zilla Slab
 // display title over a soft italic description, on a 1px rule.
 .sightlines-group {
   padding: 56px 0 0;
@@ -2501,6 +2757,7 @@ canvas {
   cursor: pointer;
   transition: r 120ms var(--ease), stroke-width 120ms var(--ease);
 }
+
 
 // Era strip: a thin line for each period, label above. No filled box.
 // Muted neutral by default, picks up rust on hover.
@@ -3399,7 +3656,7 @@ textarea:focus-visible {
 
 /* ── Document single page (Survey register) ───────────────────────
    Same header chrome as .page-header / .section-intro: rust
-   JetBrains Mono kicker over a stacked Spectral H1, sealed below by
+   Source Sans kicker over a stacked Zilla Slab H1, sealed below by
    a 1.5px ink rule. The metadata block + body sit at the same
    --measure-full / --space-page page frame as the rest of Survey. */
 .document-page {
@@ -3525,7 +3782,7 @@ textarea:focus-visible {
 
 /* ── Document metadata block (Survey register) ─────────────────────
    Apparatus card flattened: no rounded tan box. Two-column definition
-   list — JetBrains Mono uppercase labels in --soft, Spectral values
+   list — Source Sans uppercase labels in --soft, Source Serif values
    in --ink, hairline divider per row. Reads as a structured catalog
    entry rather than a chrome panel. */
 .document-meta {
@@ -3630,7 +3887,7 @@ textarea:focus-visible {
 }
 
 /* ── Document body (Survey register) ───────────────────────────────
-   46rem reading column at 19px Spectral — matches Writing essays and
+   46rem reading column at 19px Source Serif — matches Writing essays and
    the default .prose. Sidenote rail sits at 18rem on wide viewports. */
 .document-layout {
   display: grid;
@@ -3965,7 +4222,6 @@ textarea:focus-visible {
   color: #6b7a5a;
   margin: 0 0 0.65rem;
   padding-bottom: 0.4rem;
-  border-bottom: 1px solid #d9ccb3;
 }
 
 /* ───────── Writing index (Survey register) ─────────
@@ -4123,7 +4379,7 @@ textarea:focus-visible {
 .writing-list__link:hover {
   background: color-mix(in srgb, var(--panel) 40%, transparent);
 }
-// Big editorial numeral — Spectral italic, vertically centered within
+// Big editorial numeral — Zilla Slab italic, vertically centered within
 // the row. Takes the typographic № sign + two digits as a single mark.
 .writing-list__num {
   font-family: var(--font-display);
@@ -4285,7 +4541,7 @@ textarea:focus-visible {
 .narrative-header__byline { color: var(--ink); }
 
 /* Body — wider than Design's 620px spec to land closer to ~70ch at
-   19px Spectral. The Design measure assumes a Tufte margin column for
+   19px Source Serif. The Design measure assumes a Tufte margin column for
    sidenotes (250px right rail) — without that, the body can breathe
    wider without crossing the comfortable-reading-measure line. Easy
    to dial back if it overruns. */
@@ -4300,7 +4556,7 @@ textarea:focus-visible {
 
 .narrative-body p { margin: 0 0 1.1em; }
 
-/* H2 / H3 in the body — Spectral display headings, sized down from
+/* H2 / H3 in the body — Zilla Slab display headings, sized down from
    the page H1 so the visual hierarchy reads "title → section → body". */
 .narrative-body h2 {
   font-family: var(--font-display);
@@ -4335,7 +4591,7 @@ textarea:focus-visible {
 }
 
 /* Regular blockquote — calmer treatment for ordinary cited passages
-   inside an essay. Sage left rail + italic Spectral, slightly smaller
+   inside an essay. Sage left rail + italic Source Serif, slightly smaller
    than body. Use a .pullquote (below) for the emphatic pull-quote
    treatment. */
 .narrative-body blockquote {
@@ -4354,7 +4610,7 @@ textarea:focus-visible {
 .narrative-body blockquote p:last-child { margin-bottom: 0; }
 
 /* Pull-quote — emphatic break in the body, full-measure ink rules
-   above and below, Spectral italic 500. Author-set inline in markdown:
+   above and below, Source Serif italic 500. Author-set inline in markdown:
        <aside class="pullquote">
        A short, memorable line from the essay that earns its own beat.
        </aside>
@@ -4422,6 +4678,71 @@ textarea:focus-visible {
 }
 
 /* Read-next cards — two columns with a hairline gutter. */
+/* Related essays — Hugo-relatedness picks. Sits above the prev/next
+   block as a hairline-divided list of up to three matches. Rust kicker
+   over a stacked list; each item is a clickable Spectral title + lede
+   + meta. Matches the editorial rhythm of the rest of the essay page. */
+.narrative-related {
+  max-width: 46rem;
+  margin: 64px auto 0;
+  padding-top: 28px;
+  border-top: 1px solid var(--rule);
+}
+.narrative-related__kicker {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 20px;
+}
+.narrative-related__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.narrative-related__item {
+  border-bottom: 1px solid var(--rule);
+}
+.narrative-related__link {
+  display: block;
+  padding: 18px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--duration) var(--ease);
+}
+.narrative-related__link:hover {
+  background: color-mix(in srgb, var(--panel) 35%, transparent);
+}
+.narrative-related__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink);
+  margin: 0 0 6px;
+  transition: color var(--duration) var(--ease);
+}
+.narrative-related__link:hover .narrative-related__title { color: var(--rust); }
+.narrative-related__deck {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--soft);
+  margin: 0 0 6px;
+  max-width: 36rem;
+}
+.narrative-related__meta {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--soft);
+  margin: 0;
+}
+
+/* Read-next cards — two columns with a hairline gutter. */
 .narrative-continue {
   max-width: var(--measure-full);
   margin: 80px auto 0;
@@ -4480,7 +4801,7 @@ textarea:focus-visible {
 
 /* ───────── About (Survey register) ─────────
    Statement hero centered at the top of the page, then the editorial
-   body in a reading column. H2s inside the body render as Space Mono
+   body in a reading column. H2s inside the body render as Source Sans
    uppercase rust section labels with a 1px rule, matching the design
    handoff's section-label vocabulary. A small Colophon strip
    (technical methodology, key-value) closes the page. */

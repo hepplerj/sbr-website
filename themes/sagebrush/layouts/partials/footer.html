@@ -1,18 +1,23 @@
 {{- /* Survey-register footer — dark navy (ink) ground with paper text.
-       Four-column grid (wordmark + blurb / Explore / Project / Connect)
-       sitting above a thin license bar. No cartogram, no coordinate
-       strip — the Design-handoff flourishes that the project doesn't
-       want at this stage.
+       Four-column grid (wordmark + blurb / Explore / Project / Credit)
+       sitting above a credit colophon line and a thin license bar.
 
-       Link content kept faithful to the existing navigation; only the
-       fourth column ("Connect") is genuinely new — it gathers the
-       author, GitHub, email-style, and feeds into one place. */ -}}
+       The credit colophon (`.site-footer__credit`) auto-refreshes its
+       © end year and "Last updated" date from Hugo's `now` on every
+       build — no manual edits needed when a year rolls or a deploy
+       happens. */ -}}
 <footer class="site-footer">
   <div class="site-footer__grid">
 
     <div class="site-footer__brand">
       <p class="site-footer__wordmark">{{ .Site.Title }}</p>
       <p class="site-footer__blurb">{{ .Site.Params.description }}</p>
+      <p class="site-footer__credit">
+        {{ .Site.Title }} is a project created, developed, and written by
+        <a href="https://jasonheppler.org">{{ .Site.Params.author }}</a>.
+        &copy; 2025&ndash;{{ now.Format "2006" }}.
+        Last updated {{ now.Format "January 2, 2006" }}.
+      </p>
     </div>
 
     <nav class="site-footer__col" aria-label="Footer — explore">
@@ -38,12 +43,9 @@
       </ul>
     </nav>
 
-    <nav class="site-footer__col" aria-label="Footer — connect">
-      <p class="site-footer__col-head">Connect</p>
+    <nav class="site-footer__col" aria-label="Footer — credit">
+      <p class="site-footer__col-head">Credit</p>
       <ul class="site-footer__links">
-        {{- with .Site.Params.author }}
-          <li><a href="https://jasonheppler.org">{{ . }}</a></li>
-        {{- end }}
         {{- with .Site.Params.social.github }}
           <li><a href="https://github.com/{{ . }}">GitHub</a></li>
         {{- end }}
@@ -54,8 +56,11 @@
   </div>
 
   <div class="site-footer__license">
-    <span>&copy; 2025&ndash;{{ .Date | time.Format "2006" }} {{ .Site.Params.author }}</span>
     <span>Text &mdash; <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND 4.0</a> &middot; Code &mdash; <a href="https://github.com/hepplerj/sbr-website/blob/main/LICENSE">MIT</a></span>
+    {{- /* Site version — bumped manually in hugo.toml `params.version`. */ -}}
+    {{- with .Site.Params.version }}
+      <span class="site-footer__version">v. {{ . }}</span>
+    {{- end }}
     <span>Built with Hugo &middot; governingground.org</span>
   </div>
 </footer>

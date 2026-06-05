@@ -4,6 +4,8 @@ genre: essay
 date: 2026-04-26
 lede: "In the summer of 1979, the Nevada legislature voted to claim 48 million acres of federally owned land. The legislation failed, but the politics that followed did not."
 place: "Nevada"
+themes: [public-lands, sagebrush-rebellion-1979]
+tags: [BLM, public-trust-doctrine, PLLRC]
 weight: 10
 draft: false
 toc: true

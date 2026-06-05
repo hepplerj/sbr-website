@@ -47,6 +47,35 @@
     {{ .Content }}
   </div>
 
+  {{- /* Related essays — driven by Hugo's relatedness scoring against
+         the `themes`, `tags`, `places`, and `date` indices defined in
+         hugo.toml's [related] block. Filter to /narrative/ so we don't
+         surface sightlines/documents/atlas pages, and cap at three.
+         Skip entirely if there are no matches (e.g. an essay with no
+         themes/tags will return nothing). */ -}}
+  {{- $related := first 3 (where (.Site.RegularPages.Related .) "Section" "narrative") -}}
+  {{- if $related }}
+    <aside class="narrative-related" aria-labelledby="related-heading">
+      <p class="narrative-related__kicker" id="related-heading">Related essays</p>
+      <ul class="narrative-related__list">
+        {{- range $related }}
+          <li class="narrative-related__item">
+            <a class="narrative-related__link" href="{{ .RelPermalink }}">
+              <h3 class="narrative-related__title">{{ .Title }}</h3>
+              {{- with or .Params.lede .Description }}
+                <p class="narrative-related__deck">{{ . | plainify | truncate 160 }}</p>
+              {{- end }}
+              <p class="narrative-related__meta">
+                {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
+                {{- if .ReadingTime }} <span>· {{ .ReadingTime }} min</span>{{ end }}
+              </p>
+            </a>
+          </li>
+        {{- end }}
+      </ul>
+    </aside>
+  {{- end }}
+
   {{- /* Read-next cards — Hugo's PrevInSection / NextInSection give us
          the chronological siblings within /narrative/. Skip the block
          entirely when neither exists. */ -}}
