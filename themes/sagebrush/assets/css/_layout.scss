@@ -3160,66 +3160,148 @@ textarea:focus-visible {
    (gloss shortcode + JS sidenotes) lands in step 2 and will reuse
    these structural rules. */
 
+/* Documents section landing — wrapper for the shared row-list. */
 .documents-list {
-  max-width: 56rem;
-  margin: 2rem auto 4rem;
-  padding: 0 1.5rem;
+  max-width: var(--measure-full);
+  margin: 0 auto;
+  padding: 0 var(--space-page) 100px;
 }
-.documents-list__eyebrow {
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-text-muted, #6b7a5a);
-  margin: 0 0 0.5rem;
-}
-.documents-list__cards {
-  list-style: none;
-  padding: 0;
-  margin: 2rem 0 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-@media (min-width: 56rem) {
-  .documents-list__cards { grid-template-columns: 1fr 1fr; }
-}
-.documents-list__card a {
+.documents-list__note {
   display: block;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid #d9ccb3;
-  border-radius: 6px;
-  background: #fffaf3;
-  color: inherit;
-  text-decoration: none;
-  transition: border-color 0.15s, transform 0.15s;
-}
-.documents-list__card a:hover {
-  border-color: #a94b2b;
-  transform: translateY(-1px);
-}
-.documents-list__doctype {
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #6b7a5a;
-  margin: 0 0 0.4rem;
-}
-.documents-list__card h2 {
-  font-size: 1.15rem;
-  margin: 0 0 0.35rem;
-  line-height: 1.3;
-}
-.documents-list__fulltitle {
-  font-size: 0.85rem;
-  color: #4a5640;
-  margin: 0 0 0.4rem;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--soft);
+  max-width: 40rem;
   font-style: italic;
 }
-.documents-list__citation {
-  font-size: 0.78rem;
-  color: #6b7a5a;
+.documents-list__empty {
+  font-family: var(--font-body);
+  color: var(--soft);
+  font-style: italic;
+  padding: 24px 0;
+}
+
+/* ───────── Shared row-list (Documents, Atlas, et al.) ─────────
+   Single-column hairline-rule list, each row a 3-column grid:
+   tag (vertically centered, rust uppercase) · main (title + sub +
+   meta stacked) · "VIEW →" CTA. Modeled on the Writing index and
+   sightlines list so all the Survey-register listing pages read of
+   a piece.
+
+   The shared rules live here; section-scoped wrappers
+   (.documents-list, .atlas-list) provide the container padding and
+   any per-section accents (notes, empty states). */
+.row-list {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  border-top: 1px solid var(--rule);
+}
+.row-list__item {
+  margin: 0;
+  border-bottom: 1px solid var(--rule);
+}
+.row-list__link {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr) 7rem;
+  gap: 32px;
+  align-items: center;
+  padding: 24px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--duration) var(--ease);
+}
+.row-list__link:hover {
+  background: color-mix(in srgb, var(--panel) 40%, transparent);
+}
+.row-list__tag {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0;
+  justify-self: start;
+  padding: 4px 9px;
+  border: 1px solid var(--rust);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.row-list__tag-year {
+  color: var(--soft);
+  border-left: 1px solid var(--rule);
+  padding-left: 8px;
+  margin-left: 4px;
+  letter-spacing: 0.08em;
+}
+.row-list__main {
+  min-width: 0;
+}
+.row-list__title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  color: var(--ink);
+  line-height: 1.15;
+}
+.row-list__sub {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--soft);
+  margin: 0 0 8px;
+  max-width: 52rem;
+}
+.row-list__meta {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--soft);
+  line-height: 1.4;
+  margin: 0;
+}
+.row-list__meta a {
+  color: var(--soft);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+}
+.row-list__cta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-align: right;
+  margin: 0;
+  transition: color var(--duration) var(--ease);
+}
+.row-list__cta::after { content: " \2192"; }
+.row-list__link:hover .row-list__cta { color: var(--rust); }
+
+@media (max-width: 56rem) {
+  .row-list__link {
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 22px;
+    padding: 22px 0;
+  }
+  .row-list__cta { display: none; }
+}
+@media (max-width: 36rem) {
+  .row-list__link {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 22px 0;
+  }
+  .row-list__tag { justify-self: start; }
 }
 
 /* Document page (single document view) */
@@ -4422,111 +4504,28 @@ textarea:focus-visible {
   margin: 0 auto;
 }
 
-.atlas-content {
-  max-width: var(--measure-wide);
+/* Atlas section landing — thin wrapper around the shared row-list. */
+.atlas-list {
+  max-width: var(--measure-full);
   margin: 0 auto;
-  padding: 0 var(--space-5) var(--space-8);
-  min-width: 0;
+  padding: 0 var(--space-page) 100px;
 }
-
-.atlas-grid {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: 1fr;
-
-  @media (min-width: 36rem) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: 64rem) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.atlas-card {
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  transition: transform var(--duration) var(--ease),
-    box-shadow var(--duration) var(--ease),
-    border-color var(--duration) var(--ease);
-  display: flex;
-}
-
-.atlas-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px var(--color-shadow);
-  border-color: var(--color-sage);
-}
-
-.atlas-card__link {
-  display: flex;
-  flex-direction: column;
-  text-decoration: none;
-  color: inherit;
-  flex: 1;
-
-  &:hover {
-    color: inherit;
-  }
-}
-
-.atlas-card__thumb {
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-top-left-radius: var(--radius);
-  border-top-right-radius: var(--radius);
-  background: var(--color-cream-dark);
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-}
-
-.atlas-card__body {
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-5);
-  flex: 1;
-}
-
-.atlas-card__type {
-  font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--color-rust);
-  margin: 0 0 var(--space-2);
-}
-
-.atlas-card__title {
-  font-family: var(--font-display);
-  font-size: var(--font-size-lg);
-  margin: 0 0 var(--space-3);
-  color: var(--color-heading);
-  line-height: 1.2;
-}
-
-.atlas-card__lede {
+.atlas-list__empty {
   font-family: var(--font-body);
-  color: var(--color-text);
-  margin: 0;
-  font-size: var(--font-size-sm);
-  line-height: 1.55;
-  flex: 1;
+  color: var(--soft);
+  font-style: italic;
+  padding: 24px 0;
 }
-
-.atlas-empty {
-  max-width: var(--measure);
-  margin: 0 auto;
-  padding: 0 var(--space-5);
-  color: var(--color-text-muted);
+.atlas-list__note {
+  display: block;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--soft);
+  max-width: 40rem;
+  font-style: italic;
 }
 
 .atlas-viz__controls {

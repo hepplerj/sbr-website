@@ -1,33 +1,47 @@
 {{ define "main" }}
-{{- /* Chronological order — oldest first. The institutional story
-       reads forward (Antiquities 1906 → Taylor 1934 → MUSY 1960 →
-       Wilderness 1964 → FLPMA 1976 → …) rather than back from the
-       current law. */ -}}
+{{- /* Documents section landing — Survey register.
+
+       Survey header (kicker · H1 · description) followed by a
+       chronological row list of transcribed documents. The
+       institutional story reads forward (Antiquities 1906 → Taylor
+       1934 → MUSY 1960 → Wilderness 1964 → FLPMA 1976 → …) rather
+       than back from current law. */ -}}
 {{- $entries := .RegularPages.ByDate -}}
 
-<section class="documents-list prose">
-  <header class="documents-list__intro">
-    <p class="documents-list__eyebrow">Documents</p>
-    <h1>{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
-    {{- with .Params.lede }}<p class="lede">{{ . }}</p>{{ end }}
-    {{ .Content }}
-  </header>
+<header class="sightlines-page__header">
+  <p class="sightlines-page__kicker">{{ .Title }}</p>
+  <div class="sightlines-page__row">
+    <h1 class="sightlines-page__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+    {{- with .Params.lede }}<p class="sightlines-page__desc">{{ . | markdownify }}</p>{{ end }}
+  </div>
+</header>
 
+<section class="documents-list">
   {{- if $entries }}
-  <ul class="documents-list__cards">
-    {{- range $entries }}
-    <li class="documents-list__card">
-      <a href="{{ .RelPermalink }}">
-        <p class="documents-list__doctype">{{- with .Params.doctype }}{{ humanize . }}{{ else }}Document{{ end }}{{- with .Params.date }} · {{ .Format "2006" }}{{ end }}</p>
-        <h2>{{- with .Params.shortTitle }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h2>
-        {{- with .Params.shortTitle }}<p class="documents-list__fulltitle">{{ $.Title }}</p>{{ end }}
-        {{- with .Params.citation }}<p class="documents-list__citation">{{ . }}</p>{{ end }}
-      </a>
-    </li>
-    {{- end }}
-  </ul>
+    <ul class="row-list">
+      {{- range $entries }}
+        <li class="row-list__item">
+          <a class="row-list__link" href="{{ .RelPermalink }}">
+            <p class="row-list__tag">
+              {{- with .Params.doctype }}{{ humanize . }}{{ else }}Document{{ end -}}
+              {{- with .Params.date }} <span class="row-list__tag-year">{{ .Format "2006" }}</span>{{ end -}}
+            </p>
+            <div class="row-list__main">
+              <h2 class="row-list__title">{{- with .Params.shortTitle }}{{ . }}{{ else }}{{ .Title }}{{ end -}}</h2>
+              {{- with .Params.shortTitle }}<p class="row-list__sub">{{ $.Title }}</p>{{ end }}
+              {{- with .Params.citation }}<p class="row-list__meta">{{ . | markdownify }}</p>{{ end }}
+            </div>
+            <p class="row-list__cta">View</p>
+          </a>
+        </li>
+      {{- end }}
+    </ul>
   {{- else }}
-  <p><em>No documents yet.</em></p>
+    <p class="documents-list__empty"><em>No documents yet.</em></p>
+  {{- end }}
+
+  {{- with .Content }}
+    <aside class="documents-list__note">{{ . }}</aside>
   {{- end }}
 </section>
 {{ end }}
