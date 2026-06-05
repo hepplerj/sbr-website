@@ -65,12 +65,17 @@
   --color-shadow:       transparent;   // shadows are out
 
   // ─── Typography ─────────────────────────────────────────────────────
-  // Two families do all the work — Spectral for display + body,
-  // Space Mono for every label / kicker / meta / nav / button (always
-  // UPPERCASE with letter-spacing in the rules that consume --font-ui).
-  --font-display: "Spectral", Georgia, serif;
-  --font-body:    "Spectral", Georgia, serif;
-  --font-ui:      "JetBrains Mono", "SF Mono", "IBM Plex Mono", ui-monospace, monospace;
+  // Four-family stack restored after a Spectral-only experiment:
+  //   • --font-display — Zilla Slab (slab-serif display + kickers)
+  //   • --font-body    — Source Serif 4 (long-form reading)
+  //   • --font-ui      — Source Sans 3 (labels, meta, nav, buttons)
+  //   • --font-mono    — JetBrains Mono (code only)
+  // --font-ui is plain humanist sans, not uppercase by default —
+  // rules that want the small uppercase chip look apply
+  // `text-transform: uppercase; letter-spacing: 0.16-0.22em` themselves.
+  --font-display: "Zilla Slab", "Roboto Slab", Georgia, serif;
+  --font-body:    "Source Serif 4", "Source Serif Pro", Georgia, "Iowan Old Style", serif;
+  --font-ui:      "Source Sans 3", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono:    "JetBrains Mono", "SF Mono", "IBM Plex Mono", ui-monospace, monospace;
 
   // Type scale (kept compatible with existing rules)
