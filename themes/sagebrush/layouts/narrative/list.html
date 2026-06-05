@@ -2,13 +2,17 @@
 {{- /* Writing index — Survey register.
 
        Header block (rust kicker + big "Writing" H1 + description),
-       then a sticky filter rail (All / Essays / Field Notes / Methods)
-       with per-genre counts. Below the rail: a featured-lead block
-       (most recent essay) followed by a numbered row list. Each row
-       and the featured block carry a `data-genre` attribute that JS
-       at the bottom uses to toggle visibility on filter clicks. */ -}}
+       then a sticky two-row filter rail: a Genre row (All / Essays /
+       Field Notes / Methods) above a Tag row populated from each
+       essay's frontmatter `tags:` list. Each row's buttons multi-
+       select via a Set; across rows the filters AND-combine. Items
+       carry `data-genre` and `data-tags` (comma-separated) so the
+       inline JS at the bottom can compute visibility client-side. */ -}}
 
-{{- $pages := .RegularPages.ByDate.Reverse -}}
+{{- /* Oldest first — the project reads forward chronologically:
+       № 01 is the earliest essay, № 02 the next, etc. Switch back to
+       `.ByDate.Reverse` if a most-recent-first ordering is wanted. */ -}}
+{{- $pages := .RegularPages.ByDate -}}
 
 {{- /* Per-genre counts across the whole list, used in the filter
        rail. Hugo's `where` filters via .Params.genre. */ -}}
@@ -16,6 +20,38 @@
 {{- $countEssay  := len (where $pages "Params.genre" "essay") -}}
 {{- $countField  := len (where $pages "Params.genre" "field-note") -}}
 {{- $countMethod := len (where $pages "Params.genre" "method") -}}
+
+{{- /* Tag inventory — collect every distinct `tags:` value across all
+       essays, sort alphabetically, and count how many essays carry
+       each. Empty tag list → no tag row rendered. */ -}}
+{{- $allTags := slice -}}
+{{- range $pages -}}
+  {{- range .Params.tags -}}{{ $allTags = $allTags | append . }}{{ end -}}
+{{- end -}}
+{{- $tagsSorted := $allTags | uniq | sort -}}
+{{- $tagCounts  := dict -}}
+{{- range $tagsSorted -}}
+  {{- $tagCounts = merge $tagCounts (dict . (len (where $pages "Params.tags" "intersect" (slice .)))) -}}
+{{- end -}}
+
+{{- /* Display labels for each tag slug. Default behavior: replace
+       hyphens with spaces and capitalize the first letter. Tags that
+       are already all-uppercase (acronyms like BLM, PLLRC) pass
+       through unchanged so they keep their canonical typography.
+       Slugs stay slugs in YAML (canonical, URL-friendly, easy to
+       match across essays); these labels are display-only. */ -}}
+{{- $prettyTag := dict -}}
+{{- range $tagsSorted -}}
+  {{- $label := . -}}
+  {{- if not (eq . (upper .)) -}}
+    {{- /* `replace` takes (s, old, new) — `s` is the FIRST arg, not the
+           piped one (Hugo's pipe passes the piped value as the LAST
+           arg). So call replace directly with `.` as the first arg,
+           then pipe the result into strings.FirstUpper. */ -}}
+    {{- $label = strings.FirstUpper (replace . "-" " ") -}}
+  {{- end -}}
+  {{- $prettyTag = merge $prettyTag (dict . $label) -}}
+{{- end -}}
 
 <article class="writing-page">
 
@@ -35,21 +71,40 @@
     </div>
   </header>
 
-  <div class="writing-filter" role="group" aria-label="Filter by genre">
-    <div class="writing-filter__btns">
-      <button type="button" class="writing-filter__btn is-active" data-genre="" aria-pressed="true">
-        All <span class="writing-filter__count">{{ printf "(%02d)" $countAll }}</span>
-      </button>
-      <button type="button" class="writing-filter__btn" data-genre="essay" aria-pressed="false">
-        Essays <span class="writing-filter__count">{{ printf "(%02d)" $countEssay }}</span>
-      </button>
-      <button type="button" class="writing-filter__btn" data-genre="field-note" aria-pressed="false">
-        Field notes <span class="writing-filter__count">{{ printf "(%02d)" $countField }}</span>
-      </button>
-      <button type="button" class="writing-filter__btn" data-genre="method" aria-pressed="false">
-        Methods <span class="writing-filter__count">{{ printf "(%02d)" $countMethod }}</span>
-      </button>
+  <div class="writing-filter" role="group" aria-label="Filter writing">
+    <div class="writing-filter__row">
+      <p class="writing-filter__label" id="writing-filter-genre">Genre</p>
+      <div class="writing-filter__btns" role="group" aria-labelledby="writing-filter-genre">
+        <button type="button" class="writing-filter__btn is-active" data-dim="genre" data-val="" aria-pressed="true">
+          All <span class="writing-filter__count">{{ printf "(%02d)" $countAll }}</span>
+        </button>
+        <button type="button" class="writing-filter__btn" data-dim="genre" data-val="essay" aria-pressed="false">
+          Essays <span class="writing-filter__count">{{ printf "(%02d)" $countEssay }}</span>
+        </button>
+        <button type="button" class="writing-filter__btn" data-dim="genre" data-val="field-note" aria-pressed="false">
+          Field notes <span class="writing-filter__count">{{ printf "(%02d)" $countField }}</span>
+        </button>
+        <button type="button" class="writing-filter__btn" data-dim="genre" data-val="method" aria-pressed="false">
+          Methods <span class="writing-filter__count">{{ printf "(%02d)" $countMethod }}</span>
+        </button>
+      </div>
     </div>
+
+    {{- if $tagsSorted }}
+    <div class="writing-filter__row">
+      <p class="writing-filter__label" id="writing-filter-tag">Tag</p>
+      <div class="writing-filter__btns" role="group" aria-labelledby="writing-filter-tag">
+        <button type="button" class="writing-filter__btn is-active" data-dim="tag" data-val="" aria-pressed="true">
+          All <span class="writing-filter__count">{{ printf "(%02d)" $countAll }}</span>
+        </button>
+        {{- range $tag := $tagsSorted }}
+          <button type="button" class="writing-filter__btn" data-dim="tag" data-val="{{ $tag }}" aria-pressed="false">
+            {{ index $prettyTag $tag | default $tag }} <span class="writing-filter__count">{{ printf "(%02d)" (index $tagCounts $tag) }}</span>
+          </button>
+        {{- end }}
+      </div>
+    </div>
+    {{- end }}
   </div>
 
   {{- if $pages }}
@@ -57,9 +112,18 @@
       {{- range $i, $page := $pages }}
         {{- $authors := slice -}}
         {{- with .Params.authors }}{{ $authors = . }}{{- else }}{{- with .Params.author }}{{ $authors = slice . }}{{ end }}{{ end -}}
-        <li class="writing-list__item" data-genre="{{ .Params.genre | default "essay" }}">
+        {{- /* Essay number — authoritative via frontmatter `number:`, so
+               the № stays bound to the essay regardless of how this list
+               is sorted (oldest-first, newest-first, future filters,
+               etc.). Falls back to the loop index when an essay has no
+               explicit number, so unnumbered drafts still get a stable
+               numeral while you decide what number to assign. */ -}}
+        {{- $num := .Params.number | default (add $i 1) -}}
+        <li class="writing-list__item"
+            data-genre="{{ .Params.genre | default "essay" }}"
+            data-tags="{{ delimit (.Params.tags | default slice) "," }}">
           <a class="writing-list__link" href="{{ .RelPermalink }}">
-            <p class="writing-list__num">{{ printf "№%02d" (add $i 1) }}</p>
+            <p class="writing-list__num">{{ printf "№%02d" $num }}</p>
             <div class="writing-list__main">
               <h2 class="writing-list__title">{{ .Title }}</h2>
               {{- with or .Params.lede .Description }}
@@ -69,6 +133,9 @@
                 {{- if $authors }}<span>By {{ delimit $authors ", " " and " }}</span>{{ end }}
                 {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
                 {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
+                {{- with .Params.tags }}<span class="writing-list__meta-tags">
+                  {{- range $i, $t := . -}}{{ if $i }} · {{ end }}{{ index $prettyTag $t | default $t }}{{- end -}}
+                </span>{{ end }}
               </p>
             </div>
             <p class="writing-list__cta">Read <span aria-hidden="true">&rarr;</span></p>
@@ -87,41 +154,74 @@
 </article>
 
 <script>
-  // Writing index filter rail — multi-select, mirrors the bibliography
-  // pattern. Click a genre button to toggle it in/out of the active
-  // set; "All" clears the set. An item is visible when the set is
-  // empty or the item's genre is in the set.
+  // Writing index filter rail — two dimensions (genre + tag) with
+  // multi-select inside each row and AND across rows.
   //
-  // The items query is intentionally scoped to .writing-list__item and
-  // .writing-featured — both have a data-genre attribute, but so do
-  // the filter buttons; a plain `[data-genre]` selector would hide the
-  // buttons themselves on filter.
+  // - Each button has `data-dim` (genre|tag) and `data-val`. An empty
+  //   data-val means the "All" reset button for its dimension.
+  // - Clicking a value toggles it in/out of that dimension's Set.
+  //   Clicking "All" clears the Set (i.e. "show everything for this
+  //   dimension").
+  // - An item is visible when, for every dimension whose Set is non-
+  //   empty, the item satisfies that dimension. Genre: equality
+  //   against item.data-genre. Tag: any active tag must appear in
+  //   item.data-tags (a comma-separated list).
   (function () {
     var btns = document.querySelectorAll('.writing-filter__btn');
-    var items = document.querySelectorAll('.writing-list__item[data-genre], .writing-featured[data-genre]');
-    var active = new Set();
+    var items = document.querySelectorAll('.writing-list__item[data-genre]');
     if (!btns.length || !items.length) return;
+
+    var active = { genre: new Set(), tag: new Set() };
+
+    function itemTags(el) {
+      var raw = el.dataset.tags || '';
+      if (!raw) return [];
+      return raw.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+    }
+
+    function itemMatches(el) {
+      if (active.genre.size > 0 && !active.genre.has(el.dataset.genre || '')) {
+        return false;
+      }
+      if (active.tag.size > 0) {
+        var tags = itemTags(el);
+        for (var i = 0; i < tags.length; i++) {
+          if (active.tag.has(tags[i])) return true && _matchesGenre(el);
+        }
+        return false;
+      }
+      return true;
+    }
+
+    // Internal helper kept for clarity in the tag branch above.
+    function _matchesGenre(el) {
+      return active.genre.size === 0 || active.genre.has(el.dataset.genre || '');
+    }
 
     function refresh() {
       btns.forEach(function (b) {
-        var g = b.dataset.genre;
-        var on = g === '' ? active.size === 0 : active.has(g);
+        var dim = b.dataset.dim;
+        var val = b.dataset.val;
+        var set = active[dim];
+        if (!set) return;
+        var on = val === '' ? set.size === 0 : set.has(val);
         b.classList.toggle('is-active', on);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
       items.forEach(function (el) {
-        var g = el.dataset.genre || '';
-        var visible = active.size === 0 || active.has(g);
-        el.classList.toggle('is-hidden', !visible);
+        el.classList.toggle('is-hidden', !itemMatches(el));
       });
     }
 
     btns.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var g = btn.dataset.genre;
-        if (g === '') { active.clear(); }
-        else if (active.has(g)) { active.delete(g); }
-        else { active.add(g); }
+        var dim = btn.dataset.dim;
+        var val = btn.dataset.val;
+        var set = active[dim];
+        if (!set) return;
+        if (val === '') { set.clear(); }
+        else if (set.has(val)) { set.delete(val); }
+        else { set.add(val); }
         refresh();
       });
     });

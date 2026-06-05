@@ -4299,13 +4299,29 @@ textarea:focus-visible {
   z-index: 5;
   background: var(--paper);
   border-bottom: 1px solid var(--rule);
-  padding: 18px 0;
+  padding: 16px 0 18px;
   margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+// Each filter dimension (Genre, Tag, ...) is its own row: a small
+// uppercase label on the left, button group to the right.
+.writing-filter__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 12px 14px;
+}
+.writing-filter__label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0;
+  min-width: 3.25rem;
 }
 .writing-filter__btns {
   display: flex;
@@ -4424,6 +4440,13 @@ textarea:focus-visible {
   gap: 14px;
 }
 .writing-list__meta time { color: var(--ink); }
+// Tags render in their natural case (e.g. "BLM · public-trust-doctrine")
+// so they stand apart from the uppercase author/date/reading-time
+// chips that surround them in the meta row.
+.writing-list__meta-tags {
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
 .writing-list__cta {
   font-family: var(--font-ui);
   font-size: 10px;

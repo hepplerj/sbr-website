@@ -1,12 +1,12 @@
 ---
 title: "Welcome to Governing Ground"
-genre: essay
+genre: methods
+number: 2
 date: 2026-05-04
 lede: "Studying conflicts over federal lands in the Great Plains and North American West"
 place:
 themes: [public-lands, rural-economy]
-tags: [introduction, methodology]
-weight: 10
+tags: [methodology]
 draft: false
 toc: false
 ---
