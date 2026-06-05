@@ -1,5 +1,5 @@
 ---
-title: "Federal Land Policy and Management Act of 1976 § 102 (Declaration of Policy)"
+title: "Federal Land Policy and Management Act of 1976"
 shortTitle: "FLPMA § 102"
 date: 1976-10-21
 doctype: statute

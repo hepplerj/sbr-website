@@ -3520,7 +3520,6 @@ textarea:focus-visible {
   display: block;
   margin-top: 40px;
   padding-top: 24px;
-  border-top: 1px solid var(--rule);
   font-family: var(--font-body);
   font-size: 14.5px;
   color: var(--soft);
@@ -3966,7 +3965,7 @@ textarea:focus-visible {
 .document-body .gloss,
 .gloss {
   background: var(--panel);
-  border-bottom: 2px dashed var(--rust);
+  // border-bottom: 2px dashed var(--rust);
   padding: 0 0.1rem;
   cursor: pointer;
   transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease);

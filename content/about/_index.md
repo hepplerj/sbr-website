@@ -5,15 +5,17 @@ lede: "A history of the sagebrush rebellions—their origins, their coalitions, 
 toc: true
 ---
 
+<p class="lede">Nearly a third of the American West is federal land. Those lands have been a century-long provocation. <em>Governing Ground</em> is a digital history of the Sagebrush Rebellions, recurring movements between the 1930s to the present over the transfer, ownership, management, and control of federal lands.</p>
+
+This project is an ongoing research project on the politics of public lands in the American West during the second half of the twentieth century. It combines narrative history with interactive maps and network visualizations, and is intended for both scholarly and public audiences. It also serves as a companion to [my](https://jasonheppler.org) in-progress book on the Sagebrush Rebellion on the Northern Plains.
+
+*Governing Ground* treats these episodes over land conflicts not as isolated events but as a continuous, unresolved tension over who governs the ground: what ownership of these lands mean, who gets to decide what happens to these lands, how those defintions shift over time, and what that tells us about politics, culture, and power.
+
+This site joins narrative history and other forms of writing with interative data visualizations to drive arguments. The project builds upon open federal data, archival sources, and public records to drive it's arguments.
+
 <aside class="prose-aside">
 A <a href="/updates/">changelog</a> records additions, revisions, and corrections as the project develops.
 </aside>
-
-<p class="lede">An opening paragraph that frames the section — slightly larger, plain weight, set in ink to anchor the column.</p>
-
-*Governing Ground* is an in-progress research project on the politics of public lands in the American West during the second half of the twentieth century. It combines narrative history with interactive maps and network visualizations, and is intended for both scholarly and public audiences. This project serves as a companion to [my](https://jasonheppler.org) in-progress book on the Sagebrush Rebellion on the Northern Plains.
-
-The site is published as a static site built with [Hugo](https://gohugo.io), with all content, data, and code versioned on [GitHub](https://github.com/hepplerj/sbr-website).
 
 ## The author
 

@@ -28,7 +28,6 @@
             </p>
             <div class="row-list__main">
               <h2 class="row-list__title">{{- with .Params.shortTitle }}{{ . }}{{ else }}{{ .Title }}{{ end -}}</h2>
-              {{- with .Params.shortTitle }}<p class="row-list__sub">{{ $.Title }}</p>{{ end }}
               {{- with .Params.citation }}<p class="row-list__meta">{{ . | markdownify }}</p>{{ end }}
             </div>
             <p class="row-list__cta">View</p>

@@ -13,7 +13,7 @@ network:
   infoprompt: "Hover a node for party, state, and bills cosponsored. Click a legislator to open their full bill list. Drag to rearrange."
   legendtitle: "Party"
   chargestrength: -180
-  linkdistance: 155
+  linkdistance: 255
   palette:
     republican:  "#a94b2b"
     democrat:    "#1f2a44"

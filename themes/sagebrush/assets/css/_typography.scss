@@ -140,9 +140,8 @@ hr {
 // Matches the Survey "lead sentence" treatment (21px ink). Sits at
 // the top of essays, About sections, sightline ledes, etc.
 .lede {
-  font-family: var(--font-display);
   font-size: 21px;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.5;
   color: var(--ink);
   letter-spacing: -0.005em;
