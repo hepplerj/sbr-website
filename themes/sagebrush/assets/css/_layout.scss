@@ -4297,7 +4297,6 @@ textarea:focus-visible {
   top: 0;
   z-index: 5;
   background: var(--paper);
-  border-bottom: 1px solid var(--rule);
   padding: 16px 0 18px;
   margin-bottom: 36px;
   display: flex;
@@ -4439,13 +4438,6 @@ textarea:focus-visible {
   gap: 14px;
 }
 .writing-list__meta time { color: var(--ink); }
-// Tags render in their natural case (e.g. "BLM · public-trust-doctrine")
-// so they stand apart from the uppercase author/date/reading-time
-// chips that surround them in the meta row.
-.writing-list__meta-tags {
-  text-transform: none;
-  letter-spacing: 0.04em;
-}
 .writing-list__cta {
   font-family: var(--font-ui);
   font-size: 10px;
@@ -4561,6 +4553,42 @@ textarea:focus-visible {
 }
 .narrative-header__meta time { color: var(--ink); }
 .narrative-header__byline { color: var(--ink); }
+
+// Tag chips beneath the essay header. Centered to match the
+// centered article header above (max-width 56rem). Each chip is a
+// hairline-outlined link that hovers to a rust-filled chip — a
+// quiet way to surface the essay's tags without competing with
+// the lede.
+.narrative-header__tags {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.narrative-header__tags li { margin: 0; }
+.narrative-header__tag {
+  display: inline-block;
+  padding: 4px 10px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--soft);
+  text-decoration: none;
+  border: 1px solid var(--rule);
+  transition: background var(--duration) var(--ease),
+              color var(--duration) var(--ease),
+              border-color var(--duration) var(--ease);
+
+  &:hover {
+    background: var(--panel);
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+}
 
 /* Body — wider than Design's 620px spec to land closer to ~70ch at
    19px Source Serif. The Design measure assumes a Tufte margin column for

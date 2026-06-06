@@ -41,6 +41,24 @@
       {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
       {{- with .Params.place }}<span>{{ . }}</span>{{ end }}
     </p>
+
+    {{- /* Tag chips. Each links to /tags/<slug>/ where readers can
+           browse other essays sharing the tag (rendered by the
+           taxonomy term template). Slugs are pretty-printed for
+           display: hyphens → spaces + first-letter capitalized,
+           except all-caps acronyms (BLM, PLLRC) which pass through
+           unchanged. */ -}}
+    {{- with .Params.tags }}
+      <ul class="narrative-header__tags" aria-label="Tags">
+        {{- range $t := . -}}
+          {{- $label := $t -}}
+          {{- if not (eq $t (upper $t)) -}}
+            {{- $label = strings.FirstUpper (replace $t "-" " ") -}}
+          {{- end -}}
+          <li><a class="narrative-header__tag" href="{{ printf "/tags/%s/" (urlize $t) | relURL }}">{{ $label }}</a></li>
+        {{- end -}}
+      </ul>
+    {{- end }}
   </header>
 
   <div class="narrative-body prose prose--essay">

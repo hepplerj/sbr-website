@@ -1,21 +1,40 @@
 {{ define "main" }}
-{{- /* Writing index — Survey register.
+{{- /* Taxonomy term page — Survey register.
 
-       Header block (rust kicker + big "Writing" H1 + description),
-       then a sticky single-row filter rail (Genre only: All / Essays
-       / Field Notes / Methods) with per-genre counts. The rows
-       themselves carry no tag chips — tags surface on the essay
-       single page instead, where each one links to /tags/<slug>/
-       (rendered by layouts/_default/term.html, which reuses this
-       file's row pattern). */ -}}
+       Hugo renders this template for every taxonomy term URL:
+         /tags/blm/, /tags/great-basin/,
+         /themes/public-lands/, /places/nevada/, etc.
 
-{{- /* Oldest first — the project reads forward chronologically:
-       № 01 is the earliest essay, № 02 the next, etc. Switch back to
-       `.ByDate.Reverse` if a most-recent-first ordering is wanted. */ -}}
-{{- $pages := .RegularPages.ByDate -}}
+       Shape mirrors the Writing index (narrative/list.html): a
+       banded Survey header (rust kicker · big title · italic deck)
+       above a numbered row list of pages carrying the term. Same
+       genre filter, same row pattern, same tag chips below each row.
 
-{{- /* Per-genre counts across the whole list, used in the filter
-       rail. Hugo's `where` filters via .Params.genre. */ -}}
+       For now this template is unscoped — it'll fire for any
+       taxonomy. If a section-specific term page is needed later
+       (e.g. /tags/<slug>/ to show ONLY essays vs sightlines), copy
+       this file under layouts/narrative/term.html and scope its
+       Page query. */ -}}
+
+{{- $term     := .Title -}}
+{{- $taxonomy := .Data.Singular | default .Section -}}
+
+{{- /* Pretty label for the term slug. Same rules as the meta tags
+       on the Writing index: acronyms pass through; everything else
+       gets hyphens → spaces + first-letter capitalized. The term's
+       displayed title (.Title) is already Hugo-capitalized which
+       isn't what we want for tags like "BLM" → "Blm", so derive a
+       label from the slug instead via the page's .Data.Term. */ -}}
+{{- $slug := .Data.Term -}}
+{{- $label := $slug -}}
+{{- if not (eq $slug (upper $slug)) -}}
+  {{- $label = strings.FirstUpper (replace $slug "-" " ") -}}
+{{- end -}}
+
+{{- /* Oldest first, matching the Writing index reading order. */ -}}
+{{- $pages := .Pages.ByDate -}}
+
+{{- /* Per-genre counts inside this term's set, for the filter row. */ -}}
 {{- $countAll    := len $pages -}}
 {{- $countEssay  := len (where $pages "Params.genre" "essay") -}}
 {{- $countField  := len (where $pages "Params.genre" "field-note") -}}
@@ -24,52 +43,58 @@
 <article class="writing-page">
 
   <header class="writing-header">
-    {{- /* Kicker reads from frontmatter `title`. Author-editable in
-           content/narrative/_index.md. The big H1 uses `heading` so
-           the two can vary independently (e.g. title: "Essays &
-           field notes" / heading: "Writing"). */ -}}
-    <p class="writing-header__kicker">{{ .Title }}</p>
+    {{- /* Kicker tells the reader what kind of grouping this is —
+           "Tag", "Theme", "Place". The big H1 is the pretty-printed
+           term itself. Optional one-liner via .Description (set on a
+           per-term basis by creating content/tags/<slug>/_index.md
+           if you want custom copy; falls back to a generic line). */ -}}
+    <p class="writing-header__kicker">{{ humanize $taxonomy }}</p>
     <div class="writing-header__row">
-      <h1 class="writing-header__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
-      {{- /* Lede may contain inline markdown (links, emphasis). Use a
-             <div> wrapper so markdownify's own <p> wrapping doesn't
-             produce nested <p>s (which browsers auto-close, breaking
-             the class-targeted styling). */ -}}
-      {{- with .Params.lede }}<div class="writing-header__desc">{{ . | markdownify }}</div>{{ end }}
+      <h1 class="writing-header__title">{{ $label }}</h1>
+      {{- $desc := .Description -}}
+      {{- if not $desc -}}
+        {{- $desc = printf "Essays and field notes tagged %s." $label -}}
+      {{- end -}}
+      <div class="writing-header__desc"><p>{{ $desc | markdownify }}</p></div>
     </div>
   </header>
 
-  <div class="writing-filter" role="group" aria-label="Filter writing">
+  {{- /* Genre filter — same shape as the Writing index. Skipped when
+         the term has fewer than two essays (one-essay pages don't
+         benefit from a filter). */ -}}
+  {{- if gt $countAll 1 }}
+  <div class="writing-filter" role="group" aria-label="Filter by genre">
     <div class="writing-filter__row">
-      <p class="writing-filter__label" id="writing-filter-genre">Genre</p>
-      <div class="writing-filter__btns" role="group" aria-labelledby="writing-filter-genre">
+      <p class="writing-filter__label" id="term-filter-genre">Genre</p>
+      <div class="writing-filter__btns" role="group" aria-labelledby="term-filter-genre">
         <button type="button" class="writing-filter__btn is-active" data-genre="" aria-pressed="true">
           All <span class="writing-filter__count">{{ printf "(%02d)" $countAll }}</span>
         </button>
+        {{- if gt $countEssay 0 }}
         <button type="button" class="writing-filter__btn" data-genre="essay" aria-pressed="false">
           Essays <span class="writing-filter__count">{{ printf "(%02d)" $countEssay }}</span>
         </button>
+        {{- end }}
+        {{- if gt $countField 0 }}
         <button type="button" class="writing-filter__btn" data-genre="field-note" aria-pressed="false">
           Field notes <span class="writing-filter__count">{{ printf "(%02d)" $countField }}</span>
         </button>
+        {{- end }}
+        {{- if gt $countMethod 0 }}
         <button type="button" class="writing-filter__btn" data-genre="method" aria-pressed="false">
           Methods <span class="writing-filter__count">{{ printf "(%02d)" $countMethod }}</span>
         </button>
+        {{- end }}
       </div>
     </div>
   </div>
+  {{- end }}
 
   {{- if $pages }}
     <ol class="writing-list">
       {{- range $i, $page := $pages }}
         {{- $authors := slice -}}
         {{- with .Params.authors }}{{ $authors = . }}{{- else }}{{- with .Params.author }}{{ $authors = slice . }}{{ end }}{{ end -}}
-        {{- /* Essay number — authoritative via frontmatter `number:`, so
-               the № stays bound to the essay regardless of how this list
-               is sorted (oldest-first, newest-first, future filters,
-               etc.). Falls back to the loop index when an essay has no
-               explicit number, so unnumbered drafts still get a stable
-               numeral while you decide what number to assign. */ -}}
         {{- $num := .Params.number | default (add $i 1) -}}
         <li class="writing-list__item" data-genre="{{ .Params.genre | default "essay" }}">
           <a class="writing-list__link" href="{{ .RelPermalink }}">
@@ -92,28 +117,15 @@
     </ol>
   {{- end }}
 
-  {{- /* No archive note: the RSS link lives in the header lede
-         (frontmatter `lede:` value rendered via markdownify), so the
-         page ends cleanly with the last numbered entry. If a future
-         archive-style note is needed, restore the .Content render and
-         re-add the .writing-archive-note CSS rule. */ -}}
-
 </article>
 
 <script>
-  // Writing index filter rail — Genre dimension only, multi-select.
-  // Click a genre button to toggle it in/out of the active set;
-  // clicking "All" clears the set. An item is visible when the set
-  // is empty or the item's genre is in the set.
-  //
-  // Tags are NOT filtered here — they live as links in each row's
-  // tag list and lead to the per-tag taxonomy page.
+  // Same single-dimension genre filter as the Writing index.
   (function () {
     var btns = document.querySelectorAll('.writing-filter__btn');
     var items = document.querySelectorAll('.writing-list__item[data-genre]');
     var active = new Set();
     if (!btns.length || !items.length) return;
-
     function refresh() {
       btns.forEach(function (b) {
         var g = b.dataset.genre;
@@ -127,7 +139,6 @@
         el.classList.toggle('is-hidden', !visible);
       });
     }
-
     btns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var g = btn.dataset.genre;
