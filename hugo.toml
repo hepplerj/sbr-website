@@ -6,7 +6,7 @@ enableGitInfo = false
 enableEmoji = false
 
 [params]
-  version = "1.0.0"   # bump on release; rendered in the footer license bar
+  version = "1.0.5"   # bump on release; rendered in the footer license bar
   subtitle = "A century of sagebrush rebellions"
   description = "A history of recurring fights over land, power, and federal authority in the American West from the 1930s to the 2020s."
   author = "Jason A. Heppler"
@@ -27,10 +27,6 @@ enableEmoji = false
     name = "Atlas"
     url = "/atlas/"
     weight = 15
-  [[menu.main]]
-    name = "Documents"
-    url = "/documents/"
-    weight = 18
   [[menu.main]]
     name = "Data"
     url = "/data/"
