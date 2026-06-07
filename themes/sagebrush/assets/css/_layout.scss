@@ -2708,6 +2708,20 @@ canvas {
   height: auto;
 }
 
+// Vertical chart types (stripes-stacked = multiple region ribbons;
+// small-multiples = multiple stacked panels) get a smaller max-width
+// AND a viewport-height cap, because at the new full-width sightlines
+// layout they would otherwise produce charts taller than a laptop
+// screen. The viewBox is preserved by the SVG; this just shrinks the
+// rendered footprint so the chart fits a single screen comfortably.
+.chart-viz--stripes-stacked svg,
+.chart-viz--small-multiples svg {
+  max-width: 1000px;
+  max-height: 80vh;
+  width: auto;
+  margin: 0 auto;
+}
+
 .chart-viz--stripes svg {
   aspect-ratio: 1200 / 260;
 }
