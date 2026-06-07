@@ -9,10 +9,17 @@
        (rendered by layouts/_default/term.html, which reuses this
        file's row pattern). */ -}}
 
-{{- /* Oldest first — the project reads forward chronologically:
-       № 01 is the earliest essay, № 02 the next, etc. Switch back to
-       `.ByDate.Reverse` if a most-recent-first ordering is wanted. */ -}}
-{{- $pages := .RegularPages.ByDate -}}
+{{- /* Sort by essay `number:` (set in frontmatter) so the displayed
+       numerals (№01, №02, …) match the reading order one-to-one. The
+       project reads forward through the number sequence: №01 is the
+       first essay, №<n> the most recent.
+
+       Hugo's .ByParam sorts numerically when the param is a number,
+       ascending. Essays without an explicit `number:` (e.g. fresh
+       drafts before the author has picked one) sort to the top under
+       this rule — visible only in `-D` builds. Bump the archetype's
+       placeholder if that becomes noisy. */ -}}
+{{- $pages := .RegularPages.ByParam "number" -}}
 
 {{- /* Per-genre counts across the whole list, used in the filter
        rail. Hugo's `where` filters via .Params.genre. */ -}}

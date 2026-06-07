@@ -31,8 +31,11 @@
   {{- $label = strings.FirstUpper (replace $slug "-" " ") -}}
 {{- end -}}
 
-{{- /* Oldest first, matching the Writing index reading order. */ -}}
-{{- $pages := .Pages.ByDate -}}
+{{- /* Sort by essay `number:` so the displayed numerals (№01, №02, …)
+       on this term page match the reading order in the Writing index.
+       The visible numbers stay bound to each essay regardless of which
+       term they're filtered through. */ -}}
+{{- $pages := .Pages.ByParam "number" -}}
 
 {{- /* Per-genre counts inside this term's set, for the filter row. */ -}}
 {{- $countAll    := len $pages -}}
