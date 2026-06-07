@@ -66,168 +66,253 @@ canvas {
   flex: 1;
 }
 
-// ── Header ───────────────────────────────────
+// ── Header (Survey register) ─────────────────────────────────────
+// Wordmark in Zilla Slab 26px/600 on the left; nav in Source Sans 11px
+// UPPERCASE with 0.14em tracking on the right. Strong 1.5px ink rule
+// on the bottom. No sticky / blur / meta strip — the design-handoff
+// flourishes the project explicitly didn't want.
 .site-header {
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  backdrop-filter: saturate(120%) blur(6px);
-  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  padding: 26px var(--space-page);
+  border-bottom: 1.5px solid var(--ink);
+  background: var(--paper);
 }
-
 .site-header__inner {
   max-width: var(--measure-full);
   margin: 0 auto;
-  padding: 0 var(--space-5);
   display: flex;
-  // Center alignment is more forgiving than baseline once the title
-  // and nav use different fonts / sizes / padding boxes.
+  // align-items: center — the wordmark (mixed-case Zilla Slab 24px,
+  // with descenders) and the nav links (all-caps Source Sans 14px,
+  // no descenders) have different baseline geometries. `baseline`
+  // alignment puts them on the same alphabetic line but their
+  // optical centers don't match, which reads as the wordmark
+  // floating slightly above the nav. `center` aligns the vertical
+  // midpoints of each child, which is what the eye perceives as
+  // "in line."
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3) var(--space-5);
+  gap: var(--space-5);
   flex-wrap: wrap;
-
-  @media (max-width: 36rem) {
-    padding: 0 var(--space-4);
-    gap: var(--space-3);
-  }
 }
-
-.site-nav {
-  @media (max-width: 36rem) {
-    width: 100%;
-
-    ul {
-      gap: var(--space-3);
-      overflow-x: auto;
-      white-space: nowrap;
-      padding-bottom: 0.25em;
-    }
-  }
-}
-
 .site-title {
+  margin: 0;
   font-family: var(--font-display);
   font-weight: 700;
-  // Bumped from --font-size-md (~1rem). Clamp scales gently with
-  // viewport width so it doesn't crowd the nav on smaller screens.
-  font-size: clamp(1.2rem, 1.6vw, 1.5rem);
+  font-size: 24px;
+  line-height: 1.1;
   letter-spacing: -0.01em;
-  line-height: 1;
-  margin: 0;
-
-  a {
-    color: var(--color-ink);
-    text-decoration: none;
-  }
-
-  a:hover {
-    color: var(--color-rust);
-  }
+  white-space: nowrap;
 }
-
-// ── Navigation ───────────────────────────────
+.site-title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.site-title a:hover {
+  color: var(--rust);
+}
 .site-nav ul {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
-  gap: var(--space-5);
+  gap: 28px;
   flex-wrap: wrap;
 }
-
 .site-nav a {
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
+  font-size: 14px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-text-muted);
+  letter-spacing: 0.14em;
+  color: var(--ink);
   text-decoration: none;
-  // Bigger tap target for mobile — min 44px vertical reach.
-  display: inline-block;
-  padding: 0.4em 0.25em;
-  border-bottom: 2px solid transparent;
-  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+  padding: 0.4em 0;
+  transition: color var(--duration) var(--ease);
 }
-
 .site-nav a:hover,
 .site-nav a[aria-current="page"] {
-  color: var(--color-ink);
-  border-bottom-color: var(--color-rust);
+  color: var(--rust);
+}
+@media (max-width: 56rem) {
+  .site-nav { width: 100%; }
+  .site-nav ul {
+    gap: 18px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 0.2em;
+  }
+}
+@media (max-width: 36rem) {
+  .site-header { padding: 22px 24px; }
 }
 
-// ── Footer ───────────────────────────────────
+// ── Footer (Survey register, dark ink ground) ────────────────────
+// Four-column grid: wordmark+blurb / Explore / Project / Connect
+// sitting above a thin license bar with a hairline ink-rule top
+// border. No cartogram, no coordinate strip.
+// Footer uses the sans-serif UI family throughout (wordmark stays
+// slab-serif via .site-footer__wordmark). Sans reads more
+// chrome-like and stands apart from the body prose above it.
 .site-footer {
   margin-top: var(--space-9);
-  padding: var(--space-7) 0 var(--space-6);
-  border-top: 1px solid var(--color-border);
-  background: var(--color-bg-alt);
+  background: var(--ink);
+  color: var(--paper);
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
 }
-
-.site-footer__inner {
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 44px;
+  padding: 50px var(--space-page) 46px;
   max-width: var(--measure-full);
   margin: 0 auto;
-  padding: 0 var(--space-5);
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: 1fr;
 
-  @media (min-width: 36rem) {
-    grid-template-columns: repeat(2, 1fr);
+  @media (max-width: 64rem) {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    padding: 44px var(--space-page) 36px;
   }
-
-  @media (min-width: 64rem) {
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+  @media (max-width: 36rem) {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 36px 24px 28px;
   }
 }
-
-.site-footer h3 {
+.site-footer__wordmark {
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--paper);
+  margin: 0 0 16px;
+  line-height: 1.05;
+}
+.site-footer__blurb {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 360px;
+  margin: 0 0 16px;
+}
+.site-footer__col {
+  padding-top: 6px;
+}
+.site-footer__col-head {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--color-ink);
-  margin: 0 0 var(--space-3);
+  // Was rust on ink — failed the legibility check; switched to paper
+  // (full brightness) for the column heads. The rust accent still
+  // signals the column-head role via the wordmark/blurb pairing.
+  color: var(--paper);
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink-rule);
 }
-
-.site-footer a {
-  color: var(--color-text-muted);
-  text-decoration-color: var(--color-dust);
-}
-
-.site-footer a:hover {
-  color: var(--color-rust);
-}
-
 .site-footer__links {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-
-.site-footer__links li {
-  padding: 0.15em 0;
+.site-footer__links a {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-rule);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color var(--duration) var(--ease),
+              text-decoration-color var(--duration) var(--ease);
 }
-
-.site-footer__sublinks {
-  list-style: none;
-  padding: 0.15em 0 0.2em var(--space-4);
+.site-footer__links a:hover {
+  color: var(--paper);
+  text-decoration-color: var(--paper);
+}
+// Credit colophon — author + copyright + last-built date. Sits in
+// the brand column under the wordmark + blurb, so it inherits the
+// column's left edge (no centered max-width, no horizontal padding
+// that would indent it inside the column).
+.site-footer__credit {
   margin: 0;
-  font-size: var(--font-size-xs);
+  padding: 0;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 360px;
+
+  // Inline link in the credit prose (e.g. author homepage) gets the
+  // same hairline-underline treatment as the column links instead of
+  // inheriting the global ink/rust prose-link recipe.
+  a {
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-decoration-color: var(--ink-rule);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color var(--duration) var(--ease),
+                text-decoration-color var(--duration) var(--ease);
+
+    &:hover {
+      color: var(--paper);
+      text-decoration-color: var(--paper);
+    }
+  }
 }
 
-.site-footer__sublinks li {
-  padding: 0.1em 0;
+// Three columns: license · centered version · built-with. The
+// outer spans sit at the edges; .site-footer__version sits centered
+// in the row via the explicit text-align column.
+.site-footer__license {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 18px var(--space-page);
+  border-top: 1px solid var(--ink-rule);
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  max-width: var(--measure-full);
+  margin: 0 auto;
 }
-
-.site-footer__sublinks a {
-  letter-spacing: 0.04em;
+.site-footer__license > :first-child { text-align: left; justify-self: start; }
+.site-footer__license > .site-footer__version { text-align: center; justify-self: center; }
+.site-footer__license > :last-child { text-align: right; justify-self: end; }
+.site-footer__license a {
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-rule);
+  text-underline-offset: 2px;
+}
+.site-footer__license a:hover {
+  color: var(--paper);
+  text-decoration-color: var(--ink-soft);
+}
+@media (max-width: 56rem) {
+  .site-footer__license {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 16px var(--space-page);
+  }
+  .site-footer__license > :first-child,
+  .site-footer__license > .site-footer__version,
+  .site-footer__license > :last-child {
+    text-align: left;
+    justify-self: start;
+  }
+}
+@media (max-width: 36rem) {
+  .site-footer__license { padding: 14px 24px; }
 }
 
 // ── Hero ─────────────────────────────────────
@@ -274,83 +359,118 @@ canvas {
   position: relative;
   max-width: var(--measure-full);
   margin: 0 auto;
-  padding: var(--space-8) var(--space-5);
-  color: var(--color-cream);
+  padding: var(--space-8) var(--space-page);
+  color: var(--paper);
   z-index: 1;
   width: 100%;
 }
 
-.hero__eyebrow {
+// Kicker — Source Sans UPPERCASE tracked, set in paper so it reads
+// cleanly over the dark photo (rust was tonally too close to the
+// photograph's mid-warms to hold).
+.hero__kicker {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
-  color: var(--color-sage-light);
-  margin: 0 0 var(--space-3);
+  letter-spacing: 0.18em;
+  color: var(--paper);
+  opacity: 0.88;
+  margin: 0 0 var(--space-4);
 }
 
+// Stacked title — "Governing / Ground", Zilla Slab 700 at 78px, tight
 .hero__title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-size: clamp(3.5rem, 8vw, 5.5rem);
   font-weight: 700;
-  line-height: 1;
+  line-height: 0.92;
   letter-spacing: -0.02em;
-  margin: 0 0 var(--space-4);
-  color: var(--color-cream);
-  max-width: 18ch;
+  margin: 0 0 var(--space-5);
+  color: var(--paper);
+}
+.hero__title-line {
+  display: block;
 }
 
+// Italic Source Serif standfirst, max ~460px
 .hero__lede {
   font-family: var(--font-body);
-  font-size: var(--font-size-md);
-  line-height: 1.5;
-  max-width: 38rem;
-  color: var(--color-cream);
-  margin: 0 0 var(--space-5);
+  font-size: clamp(1.1rem, 1.4vw, 1.31rem);   // ~17.5–21px
+  font-weight: 400;
   font-style: italic;
-  opacity: 0.92;
+  line-height: 1.5;
+  max-width: 32rem;
+  color: var(--paper);
+  margin: 0 0 var(--space-6);
+  opacity: 0.94;
 }
 
+// CTA row — filled + outline buttons
 .hero__cta {
-  display: inline-block;
-  padding: 0.75em 1.5em;
-  background: var(--color-rust);
-  color: var(--color-cream);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  text-decoration: none;
-  border-radius: var(--radius-sm);
-  transition: background var(--duration) var(--ease), transform var(--duration) var(--ease);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 
-.hero__cta:hover {
-  background: var(--color-rust-dark);
-  color: var(--color-cream);
-  transform: translateY(-1px);
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  border-radius: 0;
+  transition: background var(--duration) var(--ease),
+              border-color var(--duration) var(--ease),
+              color var(--duration) var(--ease);
+}
+.btn--filled {
+  background: var(--ink);
+  color: var(--paper);
+  border: 1.5px solid var(--ink);
+}
+.btn--filled:hover {
+  background: var(--rust);
+  border-color: var(--rust);
+  color: var(--paper);
+}
+.btn--outline {
+  background: transparent;
+  color: var(--paper);
+  border: 1.5px solid var(--paper);
+}
+.btn--outline:hover {
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .hero__credit {
   position: absolute;
   bottom: var(--space-3);
   right: var(--space-4);
-  max-width: 34rem;
+  max-width: none;
   margin: 0;
   z-index: 2;
   text-align: right;
+  white-space: nowrap;
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 10.5px;            // small enough to hold one line on desktop
   line-height: 1.35;
   color: var(--color-cream);
   opacity: 0.72;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 
-  // On narrow viewports let the credit stretch left without clipping.
-  @media (max-width: 40rem) {
+  // On narrow viewports allow wrap rather than horizontal overflow.
+  @media (max-width: 48rem) {
     left: var(--space-4);
-    max-width: none;
+    white-space: normal;
+    text-align: left;
   }
 
   a {
@@ -372,14 +492,27 @@ canvas {
   padding: 0 var(--space-5);
 }
 
+// Prose measure matches the Writing essay (.narrative-body): 46rem
+// reading column at 19px body, so /ai/, /editorial-statement/,
+// /glossary/, and other default-single pages get the same comfortable
+// reading width and rhythm. The narrow --measure (40rem) is still
+// available via `.prose--narrow` for cases that need it.
 .prose {
-  max-width: var(--measure);
+  max-width: 46rem;
   margin: 0 auto;
   padding: 0 var(--space-5);
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink);
 }
 
 .prose--wide {
   max-width: var(--measure-wide);
+}
+
+.prose--narrow {
+  max-width: var(--measure);
 }
 
 // Figures fill the prose reading column. Prior attempts at a wider
@@ -405,25 +538,38 @@ canvas {
 
 .prose figcaption {
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  font-size: 0.8125rem;            // 13px — small, archival
+  font-weight: 500;
+  color: var(--soft);
   line-height: 1.5;
-  margin-top: 0.75em;
-  padding-left: 0.75em;
-  border-left: 2px solid var(--color-sage);
+  margin-top: 0.85em;
+  padding-left: 0.85em;
+  border-left: 1.5px solid var(--rust);
 }
 
 .figure__number {
-  font-weight: 600;
-  color: var(--color-ink);
-  margin-right: 0.35em;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  margin-right: 0.5em;
 }
 
-// ── Section index lists ──────────────────────
+// ── Section index lists (Survey register) ────
+// Matches the .sightlines-page__header / .writing-header pattern: a
+// rust Source Sans kicker over a stacked Zilla Slab H1 + italic Source Serif lede,
+// with a 1.5px ink rule sealing the bottom. Used by _default/list.html
+// consumers (sources, data, updates, ai, etc.).
 .section-intro {
-  max-width: var(--measure);
-  margin: 0 auto var(--space-8);
-  padding: var(--space-8) var(--space-5) 0;
+  max-width: var(--measure-full);
+  margin: 0 auto var(--space-section);
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome — was section/6, now 5/3 for less ceremony before content
+  border-bottom: 1.5px solid var(--ink);
+
+  @media (max-width: 56rem) {
+    padding: var(--space-4) var(--space-5) var(--space-3);
+  }
 }
 
 // ── Search page + Pagefind UI theming ────────
@@ -462,286 +608,346 @@ canvas {
   padding: 0 var(--space-5);
 }
 
-// ── 404 / error page ─────────────────────────
+// ── 404 / error page (Survey register) ───────
 .error-page {
-  max-width: var(--measure);
+  max-width: var(--measure-wide);
   margin: 0 auto;
-  padding: var(--space-9) var(--space-5);
+  padding: var(--space-9) var(--space-page) var(--space-9);
   text-align: center;
+
+  @media (max-width: 56rem) {
+    padding: var(--space-8) var(--space-5);
+  }
 }
 .error-page__code {
   font-family: var(--font-mono);
-  font-size: clamp(3rem, 12vw, 6rem);
+  font-size: clamp(3rem, 11vw, 5.5rem);
   font-weight: 500;
   line-height: 1;
-  color: var(--color-dust);
+  letter-spacing: 0.04em;
+  color: var(--rule);
   margin: 0;
 }
 .error-page__title {
   font-family: var(--font-display);
-  font-size: var(--font-size-2xl);
-  color: var(--color-navy);
-  margin: var(--space-3) 0 var(--space-4);
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 500;
+  line-height: 1.08;
+  color: var(--ink);
+  margin: var(--space-4) 0 var(--space-4);
 }
 .error-page__lede {
   font-family: var(--font-body);
-  font-size: var(--font-size-md);
-  color: var(--color-text-muted);
-  line-height: 1.5;
-  max-width: 40rem;
-  margin: 0 auto var(--space-6);
+  font-size: clamp(1.1rem, 1.5vw, 1.25rem);
+  font-style: italic;
+  color: var(--soft);
+  line-height: 1.55;
+  max-width: 38rem;
+  margin: 0 auto var(--space-7);
 }
 .error-page__links {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--space-3) var(--space-5);
+  gap: var(--space-4) var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--rule);
   a {
     font-family: var(--font-ui);
-    font-size: var(--font-size-sm);
+    font-size: 0.6875rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-text-muted);
+    letter-spacing: 0.18em;
+    color: var(--ink);
     text-decoration: none;
-    border-bottom: 2px solid transparent;
-    padding-bottom: 0.2em;
+    border-bottom: 1.5px solid transparent;
+    padding-bottom: 0.25em;
     transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
-    &:hover { color: var(--color-ink); border-bottom-color: var(--color-rust); }
+    &:hover { color: var(--rust); border-bottom-color: var(--rust); }
   }
 }
 
 .section-intro__eyebrow {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 0.6875rem;            // 11px
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.25em;
-  color: var(--color-rust);
-  margin: 0 0 var(--space-3);
-}
-
-.section-intro__title {
-  font-size: var(--font-size-3xl);
+  letter-spacing: 0.22em;
+  color: var(--rust);
   margin: 0 0 var(--space-4);
 }
 
-.section-intro__lede {
-  font-size: var(--font-size-md);
-  color: var(--color-text-muted);
-  line-height: 1.5;
-  font-style: italic;
+// Title stacks above the lede sitewide — the wide side-by-side row
+// was tried briefly but the stacked rhythm reads as more editorial
+// (title sits on its own line, lede behaves like a deck below).
+.section-intro__row {
+  display: block;
 }
 
+.section-intro__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.section-intro__lede {
+  font-family: var(--font-body);
+  font-size: clamp(1.15rem, 1.6vw, 1.3rem);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--soft);
+  line-height: 1.5;
+  max-width: 44rem;
+  margin: var(--space-4) 0 0;
+}
+
+// Body paragraphs rendered inside the section header (e.g. the
+// /updates/ changelog intro). Matches the .prose reading column —
+// 46rem at 19px Source Serif — so the kicker → title → lede → body
+// rhythm reads as a continuous flow.
+.section-intro__body {
+  max-width: 46rem;
+  margin: var(--space-6) 0 0;
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink);
+
+  p { margin: 0 0 1.1em; }
+  p:last-child { margin-bottom: 0; }
+  a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid var(--rust);
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
+}
+
+// ── Generic entries list (Survey row pattern) ──
+// Used by section list pages that haven't moved to .row-list yet
+// (Updates, generic sections). Hairline dividers, no boxes, no shadows.
+// Matches the visual weight of .row-list / .writing-list.
+// No top rule — the .section-intro above already supplies a 1.5px
+// ink seal. A second rule here just reads as a heavy double band.
+// The list itself closes with its last-child bottom rule.
 .entries {
-  max-width: var(--measure-wide);
-  margin: 0 auto;
-  padding: 0 var(--space-5) var(--space-8);
+  max-width: var(--measure-full);
+  margin: 0 auto var(--space-section);
+  padding: 0 var(--space-page);
   list-style: none;
-  display: grid;
-  gap: var(--space-6);
+  display: block;
+
+  @media (max-width: 56rem) {
+    padding: 0 var(--space-5);
+  }
 }
 
 .entry {
-  padding: var(--space-5) 0;
-  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--rule);
 
   &:last-child {
-    border-bottom: none;
+    border-bottom: 1.5px solid var(--ink);
   }
 }
 
 .entry__title {
   font-family: var(--font-display);
-  font-size: var(--font-size-xl);
-  font-weight: 600;
-  margin: 0 0 var(--space-2);
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 500;
+  line-height: 1.18;
+  color: var(--ink);
+  margin: 0 0 var(--space-3);
 
   a {
-    color: var(--color-heading);
+    color: inherit;
     text-decoration: none;
+    background-image: linear-gradient(var(--rust), var(--rust));
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size var(--duration) var(--ease), color var(--duration) var(--ease);
   }
 
   a:hover {
-    color: var(--color-rust);
+    color: var(--rust);
+    background-size: 100% 1px;
   }
 }
 
 .entry__meta {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 0.6875rem;            // 11px
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--color-text-muted);
+  letter-spacing: 0.16em;
+  color: var(--soft);
   margin: 0 0 var(--space-3);
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-5);
   flex-wrap: wrap;
 }
 
 .entry__summary {
-  color: var(--color-text);
-  max-width: var(--measure);
-}
-
-// ── Home intro (sits between hero and section cards) ────────
-// Editorial register — bigger than body prose, narrower than cards,
-// softly separated from what's below with a thin rule rather than
-// another background color.
-.home-grid {
-  max-width: var(--measure-full);
-  margin: 0 auto;
-  padding: var(--space-7) var(--space-5);
-  display: grid;
-  gap: var(--space-7);
-  grid-template-columns: 1fr;
-
-  @media (min-width: 64rem) {
-    grid-template-columns: 5fr 7fr;
-    gap: var(--space-8);
-    align-items: start;
-  }
-}
-
-.home-intro {
-  max-width: none;
-  margin: 0;
-  padding: 0;
-}
-
-.home-intro__inner {
-  max-width: none;
-  margin: 0;
   font-family: var(--font-body);
   font-size: var(--font-size-base);
-  line-height: 1.65;
-  color: var(--color-ink);
-  padding-bottom: var(--space-6);
+  line-height: 1.55;
+  color: var(--ink);
+  max-width: 46rem;
+  margin: 0;
 }
 
-.home-intro__inner p {
-  margin: 0 0 1em;
-}
-
-.home-intro__inner p:first-child {
-  font-size: 1.25rem;
-}
-
-.home-intro__inner p:last-child {
-  margin-bottom: 0;
-  font-size: var(--font-size-base);
-  font-family: var(--font-ui);
-  color: var(--color-text-muted);
-  letter-spacing: 0.01em;
-  margin-top: var(--space-5);
-}
-
-// ── Home sections ────────────────────────────
-.home-sections {
+// ── Home plates row ────────────────────────────────────────────
+// Full-bleed (edge-to-edge) row that fills the available space
+// between the hero and the footer. No section heading, no top
+// horizontal rule — the columns and their internal vertical
+// dividers are the entire structure.
+//
+// Flex-fill comes from making <main> a flex column on .page--home
+// and giving .home-plates `flex: 1`. The grid inside also flex-
+// fills its container vertically. Plate columns stretch via the
+// default grid `align-items: stretch`. The body of each plate
+// (.plate__body) absorbs the extra space via `flex: 1`.
+.home-plates {
   max-width: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: 1fr;
-
-  @media (min-width: 36rem) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.home-card {
-  padding: var(--space-6);
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
   display: flex;
   flex-direction: column;
 }
+.home-plates__grid {
+  flex: 1;
+  display: grid;
+  gap: 0;
+  grid-template-columns: 1fr;
+  min-height: 22rem;   // sensible floor on short viewports
 
-.home-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--color-shadow);
-}
-
-.home-card__eyebrow {
-  font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--color-rust);
-  margin: 0 0 var(--space-3);
-}
-
-.home-card__title {
-  font-family: var(--font-display);
-  font-size: var(--font-size-lg);
-  margin: 0 0 var(--space-3);
-
-  a {
-    color: var(--color-heading);
-    text-decoration: none;
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(2, 1fr);
   }
-
-  a:hover {
-    color: var(--color-rust);
+  @media (min-width: 76rem) {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
-
-.home-card__body {
-  color: var(--color-text);
-  margin: 0 0 var(--space-4);
+// Stretch the page's <main> to flex its children vertically — gives
+// .home-plates its room to grow on tall viewports.
+.page--home .site__main {
+  display: flex;
+  flex-direction: column;
+}
+.page--home .home-plates {
   flex: 1;
 }
-
-.home-card__cta {
+.plate {
+  display: flex;
+  flex-direction: column;
+  padding: 44px 32px 36px;
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--rule);
+  transition: background var(--duration) var(--ease);
+}
+.plate:hover {
+  background: color-mix(in srgb, var(--panel) 50%, transparent);
+}
+// First column has no left rule (it would render at the screen edge).
+// On narrow-viewport reflows, "first-of-row" plates also drop their
+// rule so we never get a vertical hairline sitting on the page edge.
+.plate:first-child {
+  border-left: 0;
+}
+@media (max-width: 76rem) and (min-width: 48rem) {
+  .plate:nth-child(2n+1) {
+    border-left: 0;
+  }
+  .plate:nth-child(2n) {
+    border-left: 1px solid var(--rule);
+  }
+}
+@media (max-width: 48rem) {
+  .plate { border-left: 0; padding: 36px 32px 32px; }
+  .plate + .plate { border-top: 1px solid var(--rule); }
+}
+.plate__num {
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--color-rust);
+  color: var(--rust);
+  margin: 0 0 6px;
+}
+.plate__eyebrow {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0 0 14px;
+}
+.plate__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+.plate__title a {
+  color: inherit;
   text-decoration: none;
-
-  &::after {
-    content: " →";
-  }
-
-  &:hover {
-    color: var(--color-rust-dark);
-  }
+}
+.plate__title a:hover {
+  color: var(--rust);
+}
+.plate__body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--soft);
+  margin: 0 0 20px;
+  flex: 1;
+}
+.plate__cta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding-bottom: 14px;
+  transition: color var(--duration) var(--ease);
+}
+.plate__cta:hover {
+  color: var(--rust);
 }
 
 // ── Two-column body for pages with TOC opt-in ─
 // Sticky table-of-contents on the left; prose on the right. The
 // header uses the same grid so title/lede line up under the prose
 // column rather than getting pushed sideways.
-.page--with-toc {
-  .page-header {
-    max-width: var(--measure-full);
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: minmax(180px, 14rem) minmax(0, var(--measure));
-    gap: var(--space-6);
-
-    @media (max-width: 56rem) {
-      display: block;
-      max-width: var(--measure);
-    }
-  }
-
-  // Header children all sit in the prose column (right side of grid)
-  // so they line up with the body content below.
-  .page-header>* {
-    grid-column: 2;
-
-    @media (max-width: 56rem) {
-      grid-column: auto;
-    }
-  }
-}
+// Earlier versions of this file pushed the .page-header into a
+// two-column grid on TOC pages so the title/lede aligned with the
+// prose column. That override dropped the header's --space-section
+// bottom margin (so the TOC slid up against the ink rule) and shifted
+// the rust kicker inboard (so the header didn't visually match
+// non-TOC pages). The Survey chrome assumes the header is full-bleed;
+// the TOC + prose grid lives below it instead. Don't reintroduce the
+// header grid here.
 
 .page-body {
   display: grid;
-  grid-template-columns: minmax(180px, 14rem) minmax(0, var(--measure));
+  grid-template-columns: minmax(180px, 14rem) minmax(0, 46rem);
   gap: var(--space-6);
   max-width: var(--measure-full);
   margin: 0 auto;
@@ -820,47 +1026,64 @@ canvas {
   }
 }
 
-// ── Page header (single pages) ───────────────
+// ── Page header (single pages, Survey register) ──
+// Used by _default/single.html — glossary, editorial-statement, ai,
+// sources, and other one-off pages. Matches the section header chrome:
+// rust Source Sans kicker over a stacked Zilla Slab H1 + italic Source Serif lede,
+// sealed below by a 1.5px ink rule.
 .page-header {
-  max-width: var(--measure);
-  margin: 0 auto;
-  padding: var(--space-8) var(--space-5) var(--space-5);
+  max-width: var(--measure-full);
+  margin: 0 auto var(--space-section);
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome
+  border-bottom: 1.5px solid var(--ink);
   text-align: left;
+
+  @media (max-width: 56rem) {
+    padding: var(--space-4) var(--space-5) var(--space-3);
+  }
 }
 
 .page-header__eyebrow {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 0.6875rem;            // 11px
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.25em;
-  color: var(--color-rust);
-  margin: 0 0 var(--space-3);
+  letter-spacing: 0.22em;
+  color: var(--rust);
+  margin: 0 0 var(--space-4);
 }
 
 .page-header__title {
-  font-size: clamp(2rem, 5vw, var(--font-size-3xl));
-  line-height: 1.05;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--ink);
   margin: 0 0 var(--space-4);
 }
 
 .page-header__lede {
   font-family: var(--font-body);
-  font-size: var(--font-size-md);
-  color: var(--color-text-muted);
+  font-size: clamp(1.15rem, 1.6vw, 1.3rem);
   font-style: italic;
+  font-weight: 400;
+  color: var(--soft);
   line-height: 1.5;
-  max-width: var(--measure-narrow);
+  max-width: 44rem;
+  margin: 0;
 }
 
 .page-header__meta {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 0.6875rem;            // 11px
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-text-muted);
-  margin: var(--space-4) 0 0;
+  letter-spacing: 0.16em;
+  color: var(--soft);
+  margin: var(--space-5) 0 0;
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-5);
   flex-wrap: wrap;
 }
 
@@ -1010,19 +1233,163 @@ canvas {
 // ── Sightlines viz page ──────────────────────
 // Used by layouts/sightlines/single.html. The narrative sidebar (1/3) sits
 // left and the viz (2/3) right, filling the viewport below the sticky nav.
-// Title and lede live at the top of the scrollable sidebar rather than in
-// a full-width bar, so the viz gets the full viewport height minus the nav.
-.map-page {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  grid-template-rows: calc(100vh - 4rem);
-  position: relative;
-  background: var(--color-bg);
+// ─────────────────────────────────────────────
+// Sightlines single (Survey register)
+// Stacked layout: banded header → full-bleed viz → 46rem prose body.
+// Replaces the earlier 1fr/2fr grid with viewport-height viz that
+// squeezed chart legibility on common monitor widths.
+// ─────────────────────────────────────────────
+
+.sightlines-single {
+  display: flex;
+  flex-direction: column;
+}
+
+// Banded header — same panel-band treatment as Documents / Writing.
+// Full-bleed via the constrained-wrapper breakout pattern (its parent
+// here is the natural document flow, not a max-width wrapper, so a
+// simple max-width: none + side padding does the trick).
+.sightlines-single__header {
+  background: var(--panel);
+  box-shadow: inset 0 -1px 0 var(--rule);
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome
+  margin: 0 0 var(--space-section);
+
+  > * {
+    max-width: var(--measure-full);
+    margin-left: auto;
+    margin-right: auto;
+  }
 
   @media (max-width: 56rem) {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    padding: var(--space-7) var(--space-5) var(--space-5);
   }
+}
+.sightlines-single__kicker {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--rust);
+  margin: 0 0 var(--space-4);
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1.5px solid transparent;
+    padding-bottom: 0.15em;
+    transition: border-color var(--duration) var(--ease);
+    &:hover { border-bottom-color: var(--rust); }
+  }
+}
+.sightlines-single__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+.sightlines-single__lede {
+  font-family: var(--font-body);
+  font-size: clamp(1.15rem, 1.6vw, 1.3rem);
+  font-style: italic;
+  color: var(--soft);
+  line-height: 1.5;
+  max-width: 44rem;
+  margin: var(--space-4) 0 0;
+}
+.sightlines-single__meta {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--soft);
+  margin: var(--space-5) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45em;
+}
+.sightlines-single__meta-tag {
+  color: var(--soft);
+}
+.sightlines-single__meta-sep {
+  color: var(--rule);
+  margin: 0 0.25em;
+  user-select: none;
+}
+
+// Full-bleed viz block. Charts (SVG with viewBox) auto-scale to width;
+// maps/networks need an explicit min-height to render. Capped at 85vh
+// so a really wide monitor doesn't produce an absurdly tall block.
+.sightlines-single__viz {
+  position: relative;
+  width: 100%;
+  margin: 0 0 var(--space-section);
+  background: var(--paper);
+}
+
+// Maps & networks need explicit pixel/vh heights — Leaflet and D3-force
+// don't know how big to render otherwise.
+.sightlines-single__viz--map,
+.sightlines-single__viz--network {
+  min-height: 70vh;
+  max-height: 85vh;
+  // Keep them inside a content frame so they don't bleed all the way
+  // to the viewport edges — maps especially benefit from a quiet
+  // gutter around the rendered tile area.
+  max-width: var(--measure-full);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 var(--space-page);
+
+  @media (max-width: 56rem) {
+    padding: 0 var(--space-5);
+  }
+}
+
+// Chart viz block — full-bleed at the viewport, with internal padding
+// for the SVG to breathe. The SVG's viewBox preserves aspect, so this
+// just becomes the chart's reading width.
+.sightlines-single__viz--chart {
+  padding: 0 var(--space-page);
+
+  @media (max-width: 56rem) {
+    padding: 0 var(--space-5);
+  }
+}
+
+// Prose body sits at the standard reading column.
+.sightlines-single__body {
+  max-width: 46rem;
+  margin: 0 auto var(--space-section);
+  padding: 0 var(--space-page);
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink);
+
+  @media (max-width: 56rem) {
+    padding: 0 var(--space-5);
+  }
+}
+
+// ─────────────────────────────────────────────
+// (Legacy) .map-page — kept for any rules below that target it for
+// chart-specific styling; the new sightlines-single layout doesn't
+// use this selector, but several .climate-page__viz / .network-page
+// rules still chain through it. Reduce to a no-op container so it
+// can't conflict with the new stacked layout when those scoped rules
+// reference it.
+// ─────────────────────────────────────────────
+.map-page {
+  display: block;
+  position: relative;
+  background: var(--color-bg);
 }
 
 .map-page__about-header {
@@ -1405,6 +1772,64 @@ canvas {
   max-height: calc(100% - 2rem);
   overflow-y: auto;
 }
+// When the color toggle is mounted alongside, bump the legend up so
+// the toggle has clearance at the bottom-right of the viz. JS adds
+// `.has-color-toggle` to the legend element when it emits the toggle.
+.network-viz__legend.has-color-toggle {
+  bottom: calc(var(--space-3) + 2.6rem);
+  max-height: calc(100% - 4.5rem);
+}
+
+// Color-mode toggle (Party | Region) — only mounted when the network
+// frontmatter supplies a `regionpalette`. Sits at the original
+// bottom-right corner (where the legend used to live) so a tall
+// legend can never overlap it.
+.network-viz__color-toggle {
+  position: absolute;
+  bottom: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs, 0.72rem);
+  pointer-events: auto;
+}
+.network-viz__color-toggle-label {
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: 0.15em;
+}
+// Squared chips, matching the Survey filter/chip vocabulary used
+// elsewhere on the site (no border-radius, hairline ink border on
+// active state).
+.network-viz__color-toggle-btn {
+  padding: 0.3em 0.7em;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--soft);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  transition: background var(--duration) var(--ease),
+              color var(--duration) var(--ease),
+              border-color var(--duration) var(--ease);
+
+  &:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  &.is-active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+}
 
 // ── Category filter bar ──────────────────────────────────────────────
 .network-viz__filter {
@@ -1720,168 +2145,202 @@ canvas {
 // ── Sightlines index ─────────────────────────
 
 // Two-column layout: 1fr rail | 2fr card content
+/* ───────── Sightlines (Survey register) ─────────
+   Restyle of the sightlines list page in the Survey vocabulary.
+   Keeps every existing filter mechanism (type · theme · region · map
+   features) and the sightlines-map.js wiring; only surfaces change. */
+
+// Survey-style page header — kicker (rust JetBrains Mono uppercase)
+// over a big Zilla Slab H1 with a right-aligned description, on a
+// 1.5px ink rule.
+.sightlines-page__header {
+  max-width: var(--measure-full);
+  margin: 0 auto 48px;
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome — was 56/36
+  border-bottom: 1.5px solid var(--ink);
+}
+.sightlines-page__kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 28px;
+}
+// Stacked: title above lede sitewide. The earlier side-by-side row
+// reads less editorial than the stacked rhythm.
+.sightlines-page__row {
+  display: block;
+}
+.sightlines-page__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);   // unified with .section-intro__title / .page-header__title
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+.sightlines-page__desc {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.6vw, 1.3rem);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--soft);
+  margin: var(--space-4) 0 0;
+  max-width: 44rem;
+}
+
+// Sightlines layout — left rail + right content
 .sightlines-layout {
   display: grid;
-  grid-template-columns: minmax(200px, 1fr) 2fr;
-  gap: var(--space-6);
+  grid-template-columns: minmax(240px, 18rem) minmax(0, 1fr);
+  gap: 48px;
   align-items: start;
   max-width: var(--measure-full);
   margin: 0 auto;
-  padding: 0 var(--space-5);
+  padding: 0 var(--space-page) 100px;
 
   @media (max-width: 56rem) {
     grid-template-columns: 1fr;
+    gap: 36px;
   }
 }
 
-// Sticky filter rail (left column)
+// Sticky filter rail
 .sightlines-rail {
   position: sticky;
-  top: calc(72px + var(--space-5)); // below fixed nav
+  top: var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: 36px;
 
   @media (max-width: 56rem) {
     position: static;
+    gap: 28px;
   }
 }
-
 .sightlines-rail__section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 12px;
 }
-
 .sightlines-rail__label {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--color-text-muted);
-  margin: 0;
+  color: var(--rust);
+  margin: 0 0 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
 }
-
 .sightlines-rail__hint {
-  font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-family: var(--font-body);
+  font-size: 13px;
   font-style: italic;
-  color: var(--color-text-muted);
-  line-height: 1.4;
-  margin: 0.5em 0 0;
+  color: var(--soft);
+  line-height: 1.45;
+  margin: 4px 0 0;
 }
 
 // Mini region map SVG container
 .sightlines-minimap {
   width: 100%;
-  border-radius: var(--radius);
   overflow: hidden;
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 0;
 
-  svg {
-    display: block;
-  }
-
-  // Hover preview: states outside the hovered region fade out so the
-  // boundary of the focus region reads clearly before clicking.
-  path {
-    transition: opacity 120ms var(--ease);
-  }
-
-  path.is-fade {
-    opacity: 0.18;
-  }
+  svg { display: block; }
+  path { transition: opacity 120ms var(--ease); }
+  path.is-fade { opacity: 0.18; }
 }
 
-// Region legend chip buttons (generated by sightlines-map.js)
+// Region legend chip buttons (generated by sightlines-map.js).
+// Squared rule-bordered chips matching the Survey button vocabulary.
 .sightlines-region-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 6px;
 }
-
 .sightlines-region-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.4em;
+  gap: 6px;
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
-  letter-spacing: 0.02em;
-  background: var(--color-bg);
-  color: var(--color-ink);
-  border: 1.5px solid var(--color-border);
-  padding: 0.35em 0.75em;
-  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 6px 10px;
   cursor: pointer;
   transition: background var(--duration) var(--ease),
-    border-color var(--duration) var(--ease),
-    color var(--duration) var(--ease);
+              border-color var(--duration) var(--ease),
+              color var(--duration) var(--ease);
 
   &:hover,
   &.is-hover {
-    border-color: var(--color-sage-dark);
-    background: var(--color-cream);
+    border-color: var(--ink);
+    background: var(--panel);
   }
-
   &.is-active {
-    background: var(--color-sage-dark);
-    border-color: var(--color-sage-dark);
-    color: #fff;
-
-    .sightlines-region-chip__dot {
-      opacity: 1;
-    }
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
   }
 }
-
 .sightlines-region-chip--all.is-active {
-  background: var(--color-text-muted);
-  border-color: var(--color-text-muted);
+  background: var(--soft);
+  border-color: var(--soft);
+  color: var(--paper);
 }
-
 .sightlines-region-chip__dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
-/* Map features section — optional overlays for the sightlines mini-map.
-   Currently one (Great Plains physiographic boundary); structured for
-   future additions (other physiographic provinces, USFS regions,
-   historic boundaries). Checkbox-style to distinguish from the region
-   filter chips (which are mutually-suggestive single-select) and the
-   theme pills (which are tag toggles). */
+/* Map features — squared checkbox row matching the Survey vocabulary. */
 .sightlines-features {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 6px;
 }
 .sightlines-features__check {
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
-  padding: 0.5rem 0.65rem;
-  border: 1px solid var(--color-border, #d9ccb3);
-  border-radius: 4px;
-  background: #fffaf3;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper);
   cursor: pointer;
-  font-size: 0.85rem;
-  line-height: 1.3;
-  transition: border-color 0.15s, background 0.15s;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--ink);
+  transition: border-color var(--duration) var(--ease),
+              background var(--duration) var(--ease);
 }
 .sightlines-features__check:hover {
-  border-color: #a94b2b;
-  background: #fff;
+  border-color: var(--ink);
+  background: var(--panel);
 }
 .sightlines-features__check input[type="checkbox"] {
-  margin: 0.18rem 0 0;
-  width: 0.95rem;
-  height: 0.95rem;
-  accent-color: #a94b2b;
+  margin: 3px 0 0;
+  width: 14px;
+  height: 14px;
+  accent-color: var(--rust);
   flex-shrink: 0;
   cursor: pointer;
 }
@@ -1889,31 +2348,37 @@ canvas {
   display: inline-block;
   width: 14px;
   height: 14px;
-  border-radius: 2px;
   flex-shrink: 0;
-  margin-top: 0.18rem;
-  border: 1px solid rgba(0,0,0,0.1);
+  margin-top: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
 }
 .sightlines-features__text {
   display: flex;
   flex-direction: column;
-  gap: 0.05rem;
+  gap: 2px;
 }
-.sightlines-features__name { font-weight: 500; }
+.sightlines-features__name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
 .sightlines-features__meta {
-  font-size: 0.72rem;
-  color: var(--color-text-muted, #6b7a5a);
-  font-style: italic;
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft);
 }
 
-// When filters appear outside the sightlines-layout grid (e.g. on the
-// Sources / Bibliography page), bound them to the same content measure
-// and center under the section intro so they don't run to the viewport
-// edge. Inside `.sightlines-layout`, the grid provides the bounds.
+// Filters wrapper for use outside the sightlines-layout grid
+// (e.g. Bibliography page). Inside .sightlines-layout the grid
+// provides the bounds.
 .sightlines-filters {
   max-width: var(--measure-wide);
   margin: 0 auto;
-  padding: 0 var(--space-5) var(--space-5);
+  padding: 0 var(--space-page) var(--space-5);
 
   .sightlines-layout & {
     max-width: none;
@@ -1922,187 +2387,190 @@ canvas {
   }
 }
 
-// Theme pills (reused inside the rail) — square corners to match the
-// About panel toggle button style on viz pages.
+// Theme pills — squared rule-bordered tags, Survey vocabulary.
 .sightlines-filter__pills {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 6px;
 }
-
-// Styled to match the "About this Map / Network / Chart" button
-// (.map-page__btn) — square corners, small uppercase UI type, same
-// cream-hover / rust-active treatment. Taller (min-height 44px) than
-// the About button because there are many of them in a row and
-// tap-friendliness matters more for filters.
 .sightlines-filter__pill {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
-  letter-spacing: 0.01em;
-  background: var(--color-bg);
-  color: var(--color-ink);
-  border: 1px solid var(--color-border);
-  padding: 0.3em 0.65em;
-  min-height: 32px;
-  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 6px 10px;
   cursor: pointer;
   white-space: nowrap;
   transition: background var(--duration) var(--ease),
-    border-color var(--duration) var(--ease),
-    color var(--duration) var(--ease);
+              border-color var(--duration) var(--ease),
+              color var(--duration) var(--ease);
 }
-
 .sightlines-filter__pill:hover {
-  background: var(--color-cream);
-  border-color: var(--color-sage);
+  background: var(--panel);
+  border-color: var(--ink);
 }
-
 .sightlines-filter__pill.is-active,
 .sightlines-filter__pill[aria-pressed="true"] {
-  background: var(--color-rust);
-  border-color: var(--color-rust);
-  color: var(--color-cream);
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
 }
 
 // Right content column
 .sightlines-content {
-  min-width: 0; // prevents grid blowout
+  min-width: 0;     // prevents grid blowout
 }
 
+// Group sections — Survey header pattern: rust kicker over Zilla Slab
+// display title over a soft italic description, on a 1px rule.
 .sightlines-group {
-  padding: var(--space-7) 0 0;
-  scroll-margin-top: calc(72px + var(--space-4)); // account for sticky nav
+  padding: 56px 0 0;
+  scroll-margin-top: var(--space-5);
 
   &:first-child {
     padding-top: 0;
   }
 }
-
-.sightlines-group.is-hidden {
-  display: none;
-}
+.sightlines-group.is-hidden { display: none; }
 
 .sightlines-group__header {
-  max-width: var(--measure);
-  margin: 0 0 var(--space-5);
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--space-3);
+  margin: 0 0 24px;
 }
-
 .sightlines-group__title {
   font-family: var(--font-display);
-  font-size: var(--font-size-2xl);
-  color: var(--color-navy);
-  margin: 0 0 var(--space-2);
+  font-size: clamp(1.7rem, 2.6vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0 0 8px;
+  line-height: 1.05;
 }
-
 .sightlines-group__desc {
-  font-family: var(--font-body);
+  font-family: var(--font-display);
+  font-size: 16px;
   font-style: italic;
-  color: var(--color-text-muted);
+  color: var(--soft);
   margin: 0;
-  max-width: 60ch;
+  max-width: 56ch;
+  line-height: 1.5;
 }
 
+// Row list — modeled after the Writing index. One row per sightline:
+// type tag (vertically centered) · title + lede · VIEW →. Hairline
+// rule between rows. The theme tags don't render in the row to keep
+// the line clean, but they remain on the `data-themes` attribute so
+// the filter system continues to work.
 .sightlines-grid {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: 1fr;
-
-  @media (min-width: 36rem) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: 64rem) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  border-top: 1px solid var(--rule);
 }
-
 .sightlines-card {
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  transition: transform var(--duration) var(--ease),
-    box-shadow var(--duration) var(--ease),
-    border-color var(--duration) var(--ease);
-  display: flex;
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+  margin: 0;
+  transition: background var(--duration) var(--ease);
 }
-
-.sightlines-card.is-hidden {
-  display: none;
-}
-
+.sightlines-card.is-hidden { display: none; }
 .sightlines-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px var(--color-shadow);
-  border-color: var(--color-sage);
+  background: color-mix(in srgb, var(--panel) 40%, transparent);
 }
-
 .sightlines-card__link {
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-5);
+  display: grid;
+  grid-template-columns: 7.5rem 1fr 7rem;
+  gap: 28px;
+  align-items: center;
+  padding: 24px 0;
   text-decoration: none;
   color: inherit;
-  flex: 1;
 }
-
-.sightlines-card__link:hover {
-  color: inherit;
-}
-
 .sightlines-card__type {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--color-rust);
-  margin: 0 0 var(--space-2);
+  color: var(--rust);
+  margin: 0;
+  justify-self: start;
+  padding: 4px 9px;
+  border: 1px solid var(--rust);
+  line-height: 1.1;
 }
-
 .sightlines-card__title {
   font-family: var(--font-display);
-  font-size: var(--font-size-lg);
-  margin: 0 0 var(--space-3);
-  color: var(--color-heading);
-  line-height: 1.2;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  color: var(--ink);
+  line-height: 1.15;
 }
-
 .sightlines-card__lede {
   font-family: var(--font-body);
-  color: var(--color-text);
-  margin: 0 0 var(--space-4);
-  font-size: var(--font-size-sm);
-  line-height: 1.55;
-  flex: 1;
+  color: var(--soft);
+  margin: 0 0 10px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  max-width: 50rem;
 }
-
+// Theme tags — small mono-tracked dot-separated list under the lede.
 .sightlines-card__themes {
   list-style: none;
   padding: 0;
-  margin: auto 0 0;
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35em;
+  gap: 0;
   font-family: var(--font-ui);
-  font-size: 11px;
-  letter-spacing: 0.03em;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
-
 .sightlines-card__themes li {
-  background: var(--color-cream-dark);
-  color: var(--color-text-muted);
-  padding: 0.15em 0.6em;
-  border-radius: 2px;
+  color: var(--soft);
 }
+.sightlines-card__themes li:not(:last-child)::after {
+  content: " · ";
+  margin: 0 4px;
+  color: var(--rule);
+}
+.sightlines-card__cta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-align: right;
+  margin: 0;
+  transition: color var(--duration) var(--ease);
+}
+.sightlines-card__cta::after { content: " \2192"; }
+.sightlines-card:hover .sightlines-card__cta { color: var(--rust); }
 
-.sightlines-card__themes li.sightlines-card__region {
-  background: color-mix(in srgb, var(--color-sage) 18%, var(--color-bg));
-  color: var(--color-sage-dark);
-  font-weight: 500;
+@media (max-width: 56rem) {
+  .sightlines-card__link {
+    grid-template-columns: 6rem 1fr;
+    gap: 20px;
+    padding: 22px 0;
+  }
+  .sightlines-card__cta { display: none; }   // CTA folds — row is fully clickable
+}
+@media (max-width: 36rem) {
+  .sightlines-card__link {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 22px 0;
+  }
+  .sightlines-card__type { justify-self: start; }
 }
 
 // ── Bibliography ─────────────────────────────
@@ -2297,6 +2765,7 @@ canvas {
   cursor: pointer;
   transition: r 120ms var(--ease), stroke-width 120ms var(--ease);
 }
+
 
 // Era strip: a thin line for each period, label above. No filled box.
 // Muted neutral by default, picks up rust on hover.
@@ -3043,6 +3512,1586 @@ textarea:focus-visible {
   }
 }
 
+/* ───────── Documents (annotated primary sources) ─────────
+   Step 1 foundation: section landing list, document metadata header,
+   and document body typography. The marginal-annotation sidebar
+   (gloss shortcode + JS sidenotes) lands in step 2 and will reuse
+   these structural rules. */
+
+/* Documents section landing — wrapper for the shared row-list. */
+.documents-list {
+  max-width: var(--measure-full);
+  margin: 0 auto;
+  padding: 0 var(--space-page) 100px;
+}
+.documents-list__note {
+  display: block;
+  margin-top: 40px;
+  padding-top: 24px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--soft);
+  max-width: 40rem;
+  font-style: italic;
+}
+.documents-list__empty {
+  font-family: var(--font-body);
+  color: var(--soft);
+  font-style: italic;
+  padding: 24px 0;
+}
+
+/* ───────── Shared row-list (Documents, Atlas, et al.) ─────────
+   Single-column hairline-rule list, each row a 3-column grid:
+   tag (vertically centered, rust uppercase) · main (title + sub +
+   meta stacked) · "VIEW →" CTA. Modeled on the Writing index and
+   sightlines list so all the Survey-register listing pages read of
+   a piece.
+
+   The shared rules live here; section-scoped wrappers
+   (.documents-list, .atlas-list) provide the container padding and
+   any per-section accents (notes, empty states). */
+.row-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.row-list__item {
+  margin: 0;
+  border-bottom: 1px solid var(--rule);
+}
+.row-list__link {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr) 7rem;
+  gap: 32px;
+  align-items: center;
+  padding: 24px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--duration) var(--ease);
+}
+.row-list__link:hover {
+  background: color-mix(in srgb, var(--panel) 40%, transparent);
+}
+.row-list__tag {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0;
+  justify-self: start;
+  padding: 4px 9px;
+  border: 1px solid var(--rust);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.row-list__tag-year {
+  color: var(--soft);
+  border-left: 1px solid var(--rule);
+  padding-left: 8px;
+  margin-left: 4px;
+  letter-spacing: 0.08em;
+}
+.row-list__main {
+  min-width: 0;
+}
+.row-list__title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  color: var(--ink);
+  line-height: 1.15;
+}
+.row-list__sub {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--soft);
+  margin: 0 0 8px;
+  max-width: 52rem;
+}
+.row-list__meta {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--soft);
+  line-height: 1.4;
+  margin: 0;
+}
+.row-list__meta a {
+  color: var(--soft);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+}
+.row-list__cta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-align: right;
+  margin: 0;
+  transition: color var(--duration) var(--ease);
+}
+.row-list__cta::after { content: " \2192"; }
+.row-list__link:hover .row-list__cta { color: var(--rust); }
+
+@media (max-width: 56rem) {
+  .row-list__link {
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 22px;
+    padding: 22px 0;
+  }
+  .row-list__cta { display: none; }
+}
+@media (max-width: 36rem) {
+  .row-list__link {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 22px 0;
+  }
+  .row-list__tag { justify-self: start; }
+}
+
+/* ── Document single page (Survey register) ───────────────────────
+   Same header chrome as .page-header / .section-intro: rust
+   Source Sans kicker over a stacked Zilla Slab H1, sealed below by
+   a 1.5px ink rule. The metadata block + body sit at the same
+   --measure-full / --space-page page frame as the rest of Survey. */
+.document-page {
+  max-width: var(--measure-full);
+  margin: 0 auto var(--space-section);
+  padding: 0 var(--space-page);
+
+  @media (max-width: 56rem) {
+    padding: 0 var(--space-5);
+  }
+}
+.document-page__eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;            // 11px
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--rust);
+  margin: var(--space-section) 0 var(--space-4);
+}
+.document-page__eyebrow a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1.5px solid transparent;
+  transition: border-color var(--duration) var(--ease);
+  padding-bottom: 0.15em;
+  &:hover { border-bottom-color: var(--rust); }
+}
+.document-page__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 var(--space-6);
+  padding-bottom: var(--space-6);
+  border-bottom: 1.5px solid var(--ink);
+}
+
+/* ── Document identifier strip (Survey register) ───────────────────
+   The orienting facts at a glance — Type, Date, Sponsor, Author,
+   Jurisdiction — rendered as JetBrains Mono dot-separated pairs
+   directly below the title. The richer apparatus (citation, source,
+   provenance, related) is one click away in .document-apparatus. */
+.document-strip {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0 0 var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45em;
+}
+.document-strip__tag {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--soft);
+  margin-right: 0.35em;
+}
+.document-strip__sep {
+  color: var(--rule);
+  margin: 0 0.25em;
+  user-select: none;
+}
+
+/* ── Document apparatus disclosure (Survey register) ───────────────
+   Closed-by-default <details> labeled "About this document." Holds
+   the full bibliographic apparatus — citation, source, provenance,
+   related, editorial statement link. Hairline rules above and below
+   the summary, no rounded card. */
+.document-apparatus {
+  margin: 0 0 var(--space-7);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 0;
+}
+.document-apparatus > summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+  padding: var(--space-4) 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: color var(--duration) var(--ease);
+}
+.document-apparatus > summary::-webkit-details-marker { display: none; }
+.document-apparatus > summary::after {
+  content: "+";
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--rust);
+  margin-left: auto;
+  line-height: 1;
+  transition: transform var(--duration) var(--ease);
+}
+.document-apparatus[open] > summary::after {
+  content: "–";
+}
+.document-apparatus > summary:hover {
+  color: var(--rust);
+}
+.document-apparatus[open] > summary {
+  border-bottom: 1px solid var(--rule);
+}
+.document-apparatus > .document-meta {
+  margin: var(--space-5) 0 0;
+  padding-bottom: var(--space-5);
+  border-bottom: 0;
+}
+
+/* ── Document metadata block (Survey register) ─────────────────────
+   Apparatus card flattened: no rounded tan box. Two-column definition
+   list — Source Sans uppercase labels in --soft, Source Serif values
+   in --ink, hairline divider per row. Reads as a structured catalog
+   entry rather than a chrome panel. */
+.document-meta {
+  position: relative;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  padding: 0 0 var(--space-6);
+  margin: 0 0 var(--space-7);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.document-meta__list {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 0;
+  margin: 0;
+  max-width: 50rem;
+}
+.document-meta__row {
+  display: contents;
+}
+.document-meta__row dt,
+.document-meta__row dd {
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--rule);
+}
+.document-meta__row:first-child dt,
+.document-meta__row:first-child dd {
+  border-top: 0;
+  padding-top: 0;
+}
+.document-meta__row dt {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;            // 11px
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--soft);
+  padding-right: var(--space-5);
+  white-space: nowrap;
+  align-self: start;
+}
+.document-meta__row dd {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+}
+.document-meta__row--block dd {
+  font-size: 16px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.document-meta__row--block dd p { margin: 0 0 0.5em; }
+.document-meta__row--block dd p:last-child { margin-bottom: 0; }
+.document-meta a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rust);
+  transition: color var(--duration) var(--ease);
+  &:hover { color: var(--rust); }
+}
+.document-meta__retrieved {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--soft);
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-left: 0.4em;
+}
+.document-meta__altsources {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.document-meta__altsources li {
+  margin-bottom: 0.3rem;
+  font-size: 16px;
+}
+.document-meta__altnote {
+  color: var(--soft);
+  font-size: 0.85em;
+  font-style: italic;
+}
+@media (max-width: 48rem) {
+  .document-meta__list { grid-template-columns: 1fr; }
+  .document-meta__row dt {
+    padding: var(--space-3) 0 var(--space-1);
+    border-top: 1px solid var(--rule);
+  }
+  .document-meta__row dd {
+    padding: 0 0 var(--space-3);
+    border-top: 0;
+  }
+  .document-meta__row:first-child dt {
+    border-top: 0;
+    padding-top: 0;
+  }
+}
+
+/* ── Document body (Survey register) ───────────────────────────────
+   46rem reading column at 19px Source Serif — matches Writing essays and
+   the default .prose. Sidenote rail sits at 18rem on wide viewports. */
+.document-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 46rem);
+  gap: 2.5rem;
+  max-width: 46rem;
+  margin: 0 auto;
+}
+@media (min-width: 72rem) {
+  /* 1152px: body (46rem) + sidenotes (18rem) + 2.5rem gap + page padding */
+  .document-layout {
+    grid-template-columns: minmax(0, 46rem) 18rem;
+    max-width: none;
+    margin: 0;
+  }
+}
+.document-body {
+  max-width: 46rem;
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+.document-body h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin-top: 2.25rem;
+  margin-bottom: 1rem;
+}
+.document-body h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+.document-body ol {
+  padding-left: 2.25rem;
+  list-style-type: none;
+  counter-reset: subpara;
+}
+.document-body ol > li {
+  position: relative;
+  padding-left: 0.5rem;
+  margin-bottom: 1rem;
+  counter-increment: subpara;
+}
+.document-body ol > li::before {
+  content: "(" counter(subpara) ")";
+  position: absolute;
+  left: -2.25rem;
+  width: 2rem;
+  color: var(--soft);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: right;
+  padding-right: 0.4rem;
+}
+.document-body p { margin-bottom: 1em; line-height: 1.65; }
+.document-body a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rust);
+  transition: color var(--duration) var(--ease);
+  &:hover { color: var(--rust); }
+}
+
+/* Gloss span — annotated text. Rust dashed underline on a faint warm
+   tint; squared (no border-radius) to match the Survey aesthetic. */
+.document-body .gloss,
+.gloss {
+  background: var(--panel);
+  // border-bottom: 2px dashed var(--rust);
+  padding: 0 0.1rem;
+  cursor: pointer;
+  transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease);
+  border-radius: 0;
+}
+.gloss:hover,
+.gloss:focus-visible {
+  background: var(--faint);
+  border-bottom-color: var(--ink);
+  outline: none;
+}
+.gloss.is-active {
+  background: var(--faint);
+  border-bottom-color: var(--ink);
+  box-shadow: inset 0 -3px 0 var(--rust);
+}
+.gloss__num {
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  color: var(--rust);
+  font-weight: 700;
+  margin-left: 0.15em;
+  vertical-align: super;
+  line-height: 0;
+}
+
+/* Sidenote column — populated by documents.js from <template> tags.
+   Hidden when there are no glosses on the page (JS adds .is-empty). */
+.document-sidenotes {
+  display: none;
+}
+@media (min-width: 72rem) {
+  .document-sidenotes {
+    display: block;
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+}
+.document-sidenotes.is-empty { display: none; }
+.document-sidenotes__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: gloss;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--rule);
+}
+.document-sidenotes__card {
+  position: relative;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  border-left: 1.5px solid transparent;
+  border-radius: 0;
+  padding: 0.85rem 0.9rem 0.85rem 2.4rem;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color var(--duration) var(--ease), background var(--duration) var(--ease);
+}
+.document-sidenotes__card:hover {
+  background: var(--panel);
+  border-left-color: var(--rust);
+}
+.document-sidenotes__card.is-active {
+  background: var(--panel);
+  border-left-color: var(--rust);
+}
+.document-sidenotes__num {
+  position: absolute;
+  left: 0.55rem;
+  top: 0.95rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--rust);
+}
+.document-sidenotes__body {
+  margin: 0;
+}
+.document-sidenotes__body p {
+  margin: 0 0 0.5rem;
+}
+.document-sidenotes__body p:last-child { margin-bottom: 0; }
+
+/* Inline expander — narrow-viewport fallback when the sidebar is
+   hidden. Inserted after the gloss span's containing paragraph. */
+.gloss-inline {
+  background: var(--panel);
+  border: 0;
+  border-left: 1.5px solid var(--rust);
+  border-radius: 0;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0 1rem;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.gloss-inline p { margin: 0 0 0.5rem; }
+.gloss-inline p:last-child { margin-bottom: 0; }
+
+/* Related documents — a small chronological list of cross-references
+   (forward declarations + auto-resolved backlinks). Each item is a
+   link with a small year tag for orientation. */
+.document-meta__related-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.document-meta__related-list li {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.document-meta__related-list a {
+  color: var(--ink);
+  border-bottom: 1px solid var(--rust);
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
+}
+.document-meta__related-list a:hover {
+  color: var(--rust);
+}
+.document-meta__related-year {
+  color: var(--soft);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 0.4rem;
+}
+
+/* Editorial statement link — bottom-right of the apparatus block,
+   small JetBrains Mono uppercase. */
+.document-meta__editorial {
+  position: absolute;
+  right: 0;
+  bottom: var(--space-6);
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.document-meta__editorial a {
+  color: var(--soft);
+  text-decoration: none;
+  border-bottom: 1.5px solid transparent;
+  padding-bottom: 0.25em;
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.document-meta__editorial a:hover {
+  color: var(--rust);
+  border-bottom-color: var(--rust);
+}
+@media (max-width: 48rem) {
+  .document-meta__editorial {
+    position: static;
+    margin-top: var(--space-4);
+    text-align: left;
+  }
+}
+
+/* Footnotes — Hugo emits `<div class="footnotes"><hr><ol>…</ol></div>`.
+   Styled here to feel like part of the document apparatus rather than
+   a tacked-on academic-paper convention. Renders below the body, before
+   the citation block. */
+.document-body .footnotes,
+.footnotes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1.5px solid var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.footnotes hr { display: none; }
+.footnotes::before {
+  content: "Footnotes";
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 1rem;
+}
+.footnotes ol {
+  padding-left: 2.25rem;
+  list-style-type: none;
+  counter-reset: footnote;
+}
+.footnotes ol li {
+  position: relative;
+  padding-left: 0.5rem;
+  margin-bottom: 0.85rem;
+  counter-increment: footnote;
+}
+.footnotes ol li::before {
+  content: counter(footnote);
+  position: absolute;
+  left: -2.25rem;
+  width: 1.85rem;
+  color: var(--rust);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: right;
+  padding-right: 0.3rem;
+}
+.footnotes ol li p { margin: 0 0 0.4rem; }
+.footnotes ol li p:last-child { margin-bottom: 0; }
+.footnote-backref {
+  margin-left: 0.35rem;
+  color: var(--soft);
+  text-decoration: none;
+  font-size: 0.85em;
+}
+.footnote-backref:hover { color: var(--rust); }
+/* In-body footnote references — clickable hint */
+.footnote-ref a {
+  color: var(--rust);
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  text-decoration: none;
+  font-weight: 700;
+}
+.footnote-ref a:hover { text-decoration: underline; }
+
+/* Sidenote column heading — a small "Annotations" label so the column
+   has visual orientation even when the cards are short. JS adds the
+   header only when there's at least one annotation. */
+.document-sidenotes__header {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7a5a;
+  margin: 0 0 0.65rem;
+  padding-bottom: 0.4rem;
+}
+
+/* ───────── Writing index (Survey register) ─────────
+   The essay index. Title block with rust kicker + huge H1 + a
+   right-aligned description, then a featured-lead block (most
+   recent essay) followed by a numbered row list. */
+
+.writing-page {
+  max-width: var(--measure-full);
+  margin: 0 auto;
+  padding: 56px var(--space-page) 100px;
+}
+
+/* Header — rust kicker spans full width above the title row */
+.writing-header {
+  border-bottom: 1.5px solid var(--ink);
+  padding-bottom: 36px;
+  margin-bottom: 48px;
+}
+.writing-header__kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 28px;
+}
+// Stacked: title above lede sitewide. The earlier side-by-side row
+// reads less editorial than the stacked rhythm.
+.writing-header__row {
+  display: block;
+}
+.writing-header__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);   // unified with .section-intro__title / .page-header__title — Design spec called for ~54–72px but the smaller clamp reads better against the rest of the site
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+.writing-header__desc {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.6vw, 1.3rem);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--soft);
+  margin: var(--space-4) 0 0;
+  max-width: 44rem;
+
+  // markdownify wraps the lede string in its own <p>; reset its
+  // margins so it doesn't add the global paragraph rhythm under the
+  // header.
+  > p { margin: 0; }
+
+  // Inline RSS / cross-link styling: ink color, rust hairline
+  // underline. Matches the prose link recipe.
+  a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rust);
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
+}
+
+/* Filter rail — sticky segmented buttons + a per-genre count badge
+   on each. Active button is ink-fill with rust count; inactive is
+   outline-rule with soft text. The tally on the right reflects the
+   current visible count after a filter is applied. */
+.writing-filter {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--paper);
+  padding: 16px 0 18px;
+  margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+// Each filter dimension (Genre, Tag, ...) is its own row: a small
+// uppercase label on the left, button group to the right.
+.writing-filter__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+}
+.writing-filter__label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0;
+  min-width: 3.25rem;
+}
+.writing-filter__btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+.writing-filter__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-right: 0;
+  border-radius: 0;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+  cursor: pointer;
+  transition: background var(--duration) var(--ease),
+              color var(--duration) var(--ease),
+              border-color var(--duration) var(--ease);
+}
+.writing-filter__btn:last-child { border-right: 1px solid var(--rule); }
+.writing-filter__btn:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.writing-filter__btn.is-active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.writing-filter__count {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  color: inherit;            // tracks the button label color (ink → paper on active)
+  letter-spacing: 0.04em;
+  margin-left: 0.2em;
+}
+
+/* Hidden state for filtered-out rows */
+.is-hidden { display: none !important; }
+
+/* Numbered row list — №01, №02, …, each row a clickable card */
+.writing-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.writing-list__item {
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.writing-list__item:last-child { border-bottom: 1px solid var(--rule); }
+.writing-list__link {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr 9rem;
+  gap: 36px;
+  align-items: start;
+  padding: 32px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--duration) var(--ease);
+}
+.writing-list__link:hover {
+  background: color-mix(in srgb, var(--panel) 40%, transparent);
+}
+// Big editorial numeral — Zilla Slab italic, vertically centered within
+// the row. Takes the typographic № sign + two digits as a single mark.
+.writing-list__num {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 4vw, 3.4rem);    // ~42–54px
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--rust);
+  margin: 0;
+  align-self: center;
+}
+.writing-list__main {
+  min-width: 0;
+}
+.writing-list__title {
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+.writing-list__deck {
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--soft);
+  margin: 0 0 12px;
+}
+.writing-list__meta {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.writing-list__meta time { color: var(--ink); }
+.writing-list__cta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 6px 0 0;
+  text-align: right;
+}
+.writing-list__link:hover .writing-list__cta { color: var(--rust); }
+
+@media (max-width: 56rem) {
+  .writing-list__link {
+    grid-template-columns: 5.5rem 1fr;
+    gap: 22px;
+    padding: 26px 0;
+  }
+  .writing-list__cta { display: none; }   // CTA folds — whole row is clickable
+}
+@media (max-width: 36rem) {
+  .writing-list__link {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  // On a single-column stack, the numeral becomes a label-sized accent
+  // sitting just above the title rather than a column of its own.
+  .writing-list__num {
+    align-self: start;
+    font-size: 1.6rem;
+  }
+}
+
+/* Archive note — sits below the list as a small editorial caption */
+/* ───────── Narrative essay (Survey register) ─────────
+   Long-form reading page. Breadcrumb at top, centered article
+   header, body in a generous reading column. The body uses
+   .prose.prose--essay so the existing drop-cap rule in
+   _typography.scss takes effect on the first paragraph. */
+
+.narrative-page {
+  max-width: var(--measure-full);
+  margin: 0 auto;
+  padding: 36px var(--space-page) 80px;
+}
+
+.narrative-breadcrumb {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0 0 56px;
+}
+.narrative-breadcrumb a {
+  color: var(--soft);
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
+}
+.narrative-breadcrumb a:hover { color: var(--rust); }
+.narrative-breadcrumb__sep { margin: 0 12px; color: var(--rule); }
+.narrative-breadcrumb__current { color: var(--ink); }
+
+.narrative-header {
+  max-width: 56rem;     // ~910px per design spec
+  margin: 0 auto 64px;
+  text-align: center;
+}
+.narrative-header__kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 24px;
+}
+.narrative-header__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);   // unified site-wide; ~38–58px
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 28px;
+  max-width: 22ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+.narrative-header__deck {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.6vw, 1.31rem);  // ~18–21px
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--soft);
+  max-width: 39rem;
+  margin: 0 auto 28px;
+}
+.narrative-header__meta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+.narrative-header__meta time { color: var(--ink); }
+.narrative-header__byline { color: var(--ink); }
+
+// Tag chips beneath the essay header. Centered to match the
+// centered article header above (max-width 56rem). Each chip is a
+// hairline-outlined link that hovers to a rust-filled chip — a
+// quiet way to surface the essay's tags without competing with
+// the lede.
+.narrative-header__tags {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.narrative-header__tags li { margin: 0; }
+.narrative-header__tag {
+  display: inline-block;
+  padding: 4px 10px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--soft);
+  text-decoration: none;
+  border: 1px solid var(--rule);
+  transition: background var(--duration) var(--ease),
+              color var(--duration) var(--ease),
+              border-color var(--duration) var(--ease);
+
+  &:hover {
+    background: var(--panel);
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+}
+
+/* Body — wider than Design's 620px spec to land closer to ~70ch at
+   19px Source Serif. The Design measure assumes a Tufte margin column for
+   sidenotes (250px right rail) — without that, the body can breathe
+   wider without crossing the comfortable-reading-measure line. Easy
+   to dial back if it overruns. */
+.narrative-body {
+  max-width: 46rem;     // ~736px (was 39rem ~620px per Design spec)
+  margin: 0 auto;
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.narrative-body p { margin: 0 0 1.1em; }
+
+/* H2 / H3 in the body — Zilla Slab display headings, sized down from
+   the page H1 so the visual hierarchy reads "title → section → body". */
+.narrative-body h2 {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 56px 0 18px;
+  max-width: 28ch;
+}
+.narrative-body h2 em { font-style: italic; }
+.narrative-body h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 36px 0 12px;
+}
+
+.narrative-body a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+  transition: color var(--duration) var(--ease), text-decoration-color var(--duration) var(--ease);
+}
+.narrative-body a:hover {
+  color: var(--rust);
+  text-decoration-color: var(--rust);
+}
+
+/* Regular blockquote — calmer treatment for ordinary cited passages
+   inside an essay. Sage left rail + italic Source Serif, slightly smaller
+   than body. Use a .pullquote (below) for the emphatic pull-quote
+   treatment. */
+.narrative-body blockquote {
+  margin: 32px 0;
+  padding: 4px 0 4px 22px;
+  border: 0;
+  border-left: 3px solid var(--sage);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--soft);
+}
+.narrative-body blockquote p { margin: 0 0 0.6em; }
+.narrative-body blockquote p:last-child { margin-bottom: 0; }
+
+/* Pull-quote — emphatic break in the body, full-measure ink rules
+   above and below, Source Serif italic 500. Author-set inline in markdown:
+       <aside class="pullquote">
+       A short, memorable line from the essay that earns its own beat.
+       </aside>
+   Works inside .narrative-body (or any prose container). */
+.pullquote {
+  margin: 56px 0;
+  padding: 28px 0;
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.1vw, 1.7rem);   // ~23–27px
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+}
+.pullquote p { margin: 0; }
+.pullquote p + p { margin-top: 0.6em; }
+
+// The body of the quote — left unstyled beyond inheriting the
+// italic display treatment from .pullquote itself. blockquote
+// browser-default margins are zeroed so the aside's padding is
+// the sole vertical rhythm.
+//
+// Selectors are double-classed (`.pullquote .pullquote__body`) to
+// outrank the `.narrative-body blockquote` rule above, which would
+// otherwise apply its sage-left-border + 18px regular treatment to
+// the <blockquote> we emit inside the aside.
+.pullquote .pullquote__body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+.pullquote .pullquote__body p { margin: 0; }
+.pullquote .pullquote__body p + p { margin-top: 0.6em; }
+
+// Attribution line — small JetBrains Mono caps in --soft, with an
+// em-dash leading. Sits flush left under the quote.
+.pullquote__attr {
+  margin: 16px 0 0;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-style: normal;
+  color: var(--soft);
+}
+.pullquote__attr-dash {
+  margin-right: 0.2em;
+  color: var(--rule);
+}
+.pullquote__author { color: var(--ink); }
+.pullquote__source {
+  font-style: normal;             // override the default <cite> italic
+  color: var(--soft);
+}
+// Linked author / source — hairline-underline that brightens to rust.
+.pullquote__attr a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.05em;
+  transition: color var(--duration) var(--ease),
+              border-color var(--duration) var(--ease);
+
+  &:hover {
+    color: var(--rust);
+    border-bottom-color: var(--rust);
+  }
+}
+
+// Backward-compat for the older `<aside class="pullquote">…<cite>` markup.
+.pullquote cite {
+  display: block;
+  margin-top: 16px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-style: normal;
+  color: var(--soft);
+}
+
+/* Drop cap on first paragraph — override the rust drop cap to ink so
+   it doesn't clash with the rust kicker above. */
+.narrative-body.prose--essay > p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 4.5em;
+  line-height: 0.85;
+  float: left;
+  margin: 0.05em 0.08em 0 -0.02em;
+  color: var(--ink);
+}
+
+/* Footnote refs — small rust JetBrains Mono superscript inline. */
+.narrative-body .footnote-ref a {
+  color: var(--rust);
+  font-family: var(--font-ui);
+  font-size: 0.78em;
+  font-weight: 700;
+  text-decoration: none;
+}
+.narrative-body .footnote-ref a:hover {
+  text-decoration: underline;
+}
+
+/* The global .footnotes rule (added during the documents work) styles
+   the notes section at the bottom of the page. Slight overrides here:
+   pin the notes column to the body's reading measure so they line up. */
+.narrative-page .footnotes {
+  max-width: 46rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Read-next cards — two columns with a hairline gutter. */
+/* Related essays — Hugo-relatedness picks. Sits above the prev/next
+   block as a hairline-divided list of up to three matches. Rust kicker
+   over a stacked list; each item is a clickable Spectral title + lede
+   + meta. Matches the editorial rhythm of the rest of the essay page. */
+.narrative-related {
+  max-width: 46rem;
+  margin: 64px auto 0;
+  padding-top: 28px;
+  border-top: 1px solid var(--rule);
+}
+.narrative-related__kicker {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 20px;
+}
+.narrative-related__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.narrative-related__item {
+  border-bottom: 1px solid var(--rule);
+}
+.narrative-related__link {
+  display: block;
+  padding: 18px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--duration) var(--ease);
+}
+.narrative-related__link:hover {
+  background: color-mix(in srgb, var(--panel) 35%, transparent);
+}
+.narrative-related__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink);
+  margin: 0 0 6px;
+  transition: color var(--duration) var(--ease);
+}
+.narrative-related__link:hover .narrative-related__title { color: var(--rust); }
+.narrative-related__deck {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--soft);
+  margin: 0 0 6px;
+  max-width: 36rem;
+}
+.narrative-related__meta {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--soft);
+  margin: 0;
+}
+
+/* Read-next cards — two columns with a hairline gutter. */
+.narrative-continue {
+  max-width: var(--measure-full);
+  margin: 80px auto 0;
+  padding-top: 56px;
+  border-top: 1.5px solid var(--ink);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+
+  @media (max-width: 48rem) {
+    grid-template-columns: 1fr;
+  }
+}
+.continue-card {
+  display: block;
+  padding: 20px 32px;
+  text-decoration: none;
+  color: inherit;
+  border-left: 1px solid var(--rule);
+  transition: background var(--duration) var(--ease);
+}
+.continue-card:first-child { border-left: 0; }
+@media (max-width: 48rem) {
+  .continue-card { border-left: 0; padding: 24px 0; }
+  .continue-card + .continue-card { border-top: 1px solid var(--rule); }
+}
+.continue-card:hover {
+  background: color-mix(in srgb, var(--panel) 50%, transparent);
+}
+.continue-card__kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 10px;
+}
+.continue-card--prev .continue-card__kicker { color: var(--soft); }
+.continue-card__title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+.continue-card__deck {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ───────── About (Survey register) ─────────
+   Statement hero centered at the top of the page, then the editorial
+   body in a reading column. H2s inside the body render as Source Sans
+   uppercase rust section labels with a 1px rule, matching the design
+   handoff's section-label vocabulary. A small Colophon strip
+   (technical methodology, key-value) closes the page. */
+
+.about-page {
+  padding: 0 var(--space-page) 80px;
+}
+
+.about-statement {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 72px 0 64px;
+  text-align: center;
+  border-bottom: 1.5px solid var(--ink);
+}
+.about-statement__eyebrow {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 28px;
+}
+.about-statement__lede {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem);   // ~26–33px
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.34;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 0 auto;
+  max-width: 36ch;
+}
+.about-statement__lede em,
+.about-statement__lede i {
+  font-style: normal;   // *Governing Ground* reads as a work-title — drop the italic inside an italic block
+}
+
+/* Body — reading column, Survey body rhythm. Paragraph spacing comes
+   from the global `p { margin: 0 0 1.25em }` in _typography.scss; we
+   don't override it here. */
+.about-body {
+  max-width: 40rem;
+  margin: 56px auto 0;
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+/* H2s in the About body become Survey section labels */
+.about-body h2 {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 64px 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+  letter-spacing: 0.14em;
+}
+.about-body h3 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 36px 0 8px;
+}
+.about-body a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+  transition: color var(--duration) var(--ease), text-decoration-color var(--duration) var(--ease);
+}
+.about-body a:hover {
+  color: var(--rust);
+  text-decoration-color: var(--rust);
+}
+.about-body blockquote {
+  border-left: 3px solid var(--rust);
+  padding: 4px 0 4px 20px;
+  margin: 1.4em 0;
+  color: var(--soft);
+  font-family: var(--font-display);
+  font-size: 16.5px;
+  font-style: italic;
+  line-height: 1.55;
+}
+.about-body .prose-aside {
+  background: var(--panel);
+  border-left: 3px solid var(--sage);
+  border-radius: 0;
+  padding: 14px 18px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 1.5em 0;
+}
+.about-body .prose-aside a {
+  color: var(--rust);
+  text-decoration-color: var(--rust);
+}
+
+/* Colophon strip — technical methodology, key/value table style */
+.about-colophon {
+  max-width: 40rem;
+  margin: 72px auto 0;
+  padding-top: 36px;
+  border-top: 1.5px solid var(--ink);
+}
+.about-colophon__head {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 16px;
+}
+.about-colophon__list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: 0;
+}
+.about-colophon__list > div {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: baseline;
+}
+.about-colophon__list > div:last-child { border-bottom: 0; }
+.about-colophon__list dt {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0;
+}
+.about-colophon__list dd {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  color: var(--ink);
+}
+.about-colophon__list dd a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.about-colophon__list dd a:hover {
+  color: var(--rust);
+  text-decoration-color: var(--rust);
+}
+@media (max-width: 36rem) {
+  .about-colophon__list > div { grid-template-columns: 1fr; gap: 2px; }
+}
+
 /* ───────── Atlas (regional cosponsorship heatmap, etc.) ───────── */
 .atlas-page {
   max-width: 72rem;
@@ -3090,111 +5139,28 @@ textarea:focus-visible {
   margin: 0 auto;
 }
 
-.atlas-content {
-  max-width: var(--measure-wide);
+/* Atlas section landing — thin wrapper around the shared row-list. */
+.atlas-list {
+  max-width: var(--measure-full);
   margin: 0 auto;
-  padding: 0 var(--space-5) var(--space-8);
-  min-width: 0;
+  padding: 0 var(--space-page) 100px;
 }
-
-.atlas-grid {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: 1fr;
-
-  @media (min-width: 36rem) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: 64rem) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.atlas-card {
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  transition: transform var(--duration) var(--ease),
-    box-shadow var(--duration) var(--ease),
-    border-color var(--duration) var(--ease);
-  display: flex;
-}
-
-.atlas-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px var(--color-shadow);
-  border-color: var(--color-sage);
-}
-
-.atlas-card__link {
-  display: flex;
-  flex-direction: column;
-  text-decoration: none;
-  color: inherit;
-  flex: 1;
-
-  &:hover {
-    color: inherit;
-  }
-}
-
-.atlas-card__thumb {
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-top-left-radius: var(--radius);
-  border-top-right-radius: var(--radius);
-  background: var(--color-cream-dark);
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-}
-
-.atlas-card__body {
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-5);
-  flex: 1;
-}
-
-.atlas-card__type {
-  font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--color-rust);
-  margin: 0 0 var(--space-2);
-}
-
-.atlas-card__title {
-  font-family: var(--font-display);
-  font-size: var(--font-size-lg);
-  margin: 0 0 var(--space-3);
-  color: var(--color-heading);
-  line-height: 1.2;
-}
-
-.atlas-card__lede {
+.atlas-list__empty {
   font-family: var(--font-body);
-  color: var(--color-text);
-  margin: 0;
-  font-size: var(--font-size-sm);
-  line-height: 1.55;
-  flex: 1;
+  color: var(--soft);
+  font-style: italic;
+  padding: 24px 0;
 }
-
-.atlas-empty {
-  max-width: var(--measure);
-  margin: 0 auto;
-  padding: 0 var(--space-5);
-  color: var(--color-text-muted);
+.atlas-list__note {
+  display: block;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--soft);
+  max-width: 40rem;
+  font-style: italic;
 }
 
 .atlas-viz__controls {
@@ -3571,3 +5537,125 @@ textarea:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+// ─────────────────────────────────────────────
+// Header offset band (Survey register)
+//
+// Every page-header family sits in a full-bleed --panel (warm bone)
+// band instead of the earlier 1.5px ink-rule treatment. The paper
+// feels visually paused at the top — title + lede read as a block.
+//
+// Two cases:
+//   1. Headers in <main> directly (.page-header, .section-intro,
+//      .sightlines-page__header) — already full-bleed once we drop
+//      max-width. Just set background + padding.
+//   2. Headers inside a constrained wrapper (.writing-header in
+//      .writing-page, .narrative-header in .narrative-page) — use
+//      the 100vw breakout to escape the wrapper's max-width AND
+//      horizontal padding in one calc. body { overflow-x: clip }
+//      prevents the breakout from producing a horizontal scrollbar.
+// ─────────────────────────────────────────────
+
+body { overflow-x: clip; }
+
+// Group 1 — headers that sit directly inside <main>.
+.page-header,
+.section-intro,
+.sightlines-page__header {
+  background: var(--panel);
+  border-bottom: 0;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  box-shadow: inset 0 -1px 0 var(--rule);
+
+  > * {
+    max-width: var(--measure-full);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// Group 2 — headers inside a max-width / padded wrapper. The 100vw
+// breakout pulls them out to the viewport edges; their own padding
+// then re-establishes the inner gutter. `width: 100vw` overrides the
+// wrapper's content-box; the negative margins re-center against the
+// wrapper. The wrapper's top padding still pushes the band down,
+// so we also reset margin-top to cancel that offset.
+// Narrative single intentionally excluded — the essay header reads
+// as a centered article opener (kicker / serif title / italic deck /
+// byline-meta), not as an editorial banner. Leaving it on paper
+// keeps the reading mode visually distinct from the index/landing
+// pages.
+.writing-page > .writing-header {
+  background: var(--panel);
+  border-bottom: 0;
+  box-shadow: inset 0 -1px 0 var(--rule);
+
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+
+  // Inner content centers to --measure-full within the band; padding
+  // on the header itself supplies the inner gutter — top padding pulls
+  // the kicker down off the site nav, bottom padding spaces the band
+  // from the body content below. Trimmed from section/6 to 5/3 so the
+  // band reads as a quieter offset rather than a hero plate.
+  padding: var(--space-5) var(--space-page) var(--space-3);
+
+  > * {
+    max-width: var(--measure-full);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (max-width: 56rem) {
+    padding-left: var(--space-5);
+    padding-right: var(--space-5);
+  }
+}
+
+// Cancel wrapper top padding so the band sits flush with the site
+// header instead of hovering 36–56px below it.
+// .writing-page top padding cancelled so the banded header sits
+// flush with the site nav. .narrative-page intentionally keeps its
+// original top padding (centered article header, not a band).
+.writing-page { padding-top: 0; }
+
+// Document single — the template wraps eyebrow + title in
+// <header class="document-page__header"> so we can band them the
+// same way as Writing / Narrative. Same 100vw breakout pattern.
+.document-page > .document-page__header {
+  background: var(--panel);
+  box-shadow: inset 0 -1px 0 var(--rule);
+
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-bottom: var(--space-section);
+
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome
+
+  > * {
+    max-width: var(--measure-full);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (max-width: 56rem) {
+    padding-left: var(--space-5);
+    padding-right: var(--space-5);
+  }
+}
+// Inside the new banded header, the title no longer needs its own
+// rule (the band's inset shadow seals it).
+.document-page__header .document-page__title {
+  border-bottom: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+// Eyebrow's top margin was tuned for the un-banded layout — cancel
+// it; the band's own top padding handles the breathing room.
+.document-page__header .document-page__eyebrow { margin-top: 0; }

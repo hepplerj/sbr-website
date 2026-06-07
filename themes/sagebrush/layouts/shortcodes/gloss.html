@@ -1,0 +1,22 @@
+{{- /*
+  gloss — visible span in the document body marking text that has an
+  associated annotation. Paired with `{{< glossbody id="..." >}}` which
+  carries the annotation content. JS hoists the body into the
+  right-rail sidenote column on wide screens; on narrow screens the
+  span becomes a click-to-expand inline trigger.
+
+  Usage:
+    The Congress declares it is the policy of the United States that
+    {{< gloss id="retention-default" >}}the public lands be retained
+    in Federal ownership{{< /gloss >}}, unless ...
+
+    {{< glossbody id="retention-default" >}}
+    This single clause reversed two centuries of disposal policy ...
+    {{< /glossbody >}}
+
+  IDs must be unique within a page and stable — they become hash
+  fragments (`#gloss-retention-default`) for direct linking.
+*/ -}}
+{{- $id := .Get "id" -}}
+{{- if not $id -}}{{- errorf "{{< gloss >}}: missing required `id` attribute (%s)" .Position -}}{{- end -}}
+<mark class="gloss" id="gloss-{{ $id }}" data-gloss-id="{{ $id }}" tabindex="0" role="button" aria-describedby="glossbody-{{ $id }}">{{- .Inner -}}</mark>

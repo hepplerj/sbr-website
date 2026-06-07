@@ -1,44 +1,66 @@
+{{- /* Survey-register footer — dark navy (ink) ground with paper text.
+       Four-column grid (wordmark + blurb / Explore / Project / Credit)
+       sitting above a credit colophon line and a thin license bar.
+
+       The credit colophon (`.site-footer__credit`) auto-refreshes its
+       © end year and "Last updated" date from Hugo's `now` on every
+       build — no manual edits needed when a year rolls or a deploy
+       happens. */ -}}
 <footer class="site-footer">
-  <div class="site-footer__inner">
-    <div>
-      <h3>{{ .Site.Title }}</h3>
-      <p>{{ .Site.Params.description }}</p>
+  <div class="site-footer__grid">
+
+    <div class="site-footer__brand">
+      <p class="site-footer__wordmark">{{ .Site.Title }}</p>
+      <p class="site-footer__blurb">{{ .Site.Params.description }}</p>
+      <p class="site-footer__credit">
+        {{ .Site.Title }} is a project created, developed, and written by
+        <a href="https://jasonheppler.org">{{ .Site.Params.author }}</a>.
+        &copy; 2025&ndash;{{ now.Format "2006" }}.
+        Last updated {{ now.Format "January 2, 2006" }}.
+      </p>
     </div>
 
-    <nav aria-label="Footer — sections">
-      <h3>Explore</h3>
+    <nav class="site-footer__col" aria-label="Footer — explore">
+      <p class="site-footer__col-head">Explore</p>
       <ul class="site-footer__links">
-        <li><a href="{{ "/narrative/" | relURL }}">Writing</a></li>
-        <li>
-          <a href="{{ "/sightlines/" | relURL }}">Sightlines</a>
-        </li>
+        <li><a href="{{ "/sightlines/" | relURL }}">Sightlines</a></li>
         <li><a href="{{ "/atlas/" | relURL }}">Atlas</a></li>
-        <li><a href="{{ "/sources/" | relURL }}">Sources</a></li>
+        <!-- <li><a href="{{ "/documents/" | relURL }}">Documents</a></li> -->
         <li><a href="{{ "/data/" | relURL }}">Data</a></li>
+        <li><a href="{{ "/sources/" | relURL }}">Bibliography</a></li>
         <li><a href="{{ "/glossary/" | relURL }}">Glossary</a></li>
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Footer — project">
+      <p class="site-footer__col-head">Project</p>
+      <ul class="site-footer__links">
+        <li><a href="{{ "/about/" | relURL }}">About</a></li>
+        <li><a href="{{ "/narrative/" | relURL }}">Writing</a></li>
+        <li><a href="{{ "/updates/" | relURL }}">Updates</a></li>
+        <li><a href="{{ "/ai/" | relURL }}">AI in this project</a></li>
         <li><a href="{{ "/search/" | relURL }}">Search</a></li>
       </ul>
     </nav>
 
-    <nav aria-label="Footer — project">
-      <h3>Project</h3>
+    <nav class="site-footer__col" aria-label="Footer — credit">
+      <p class="site-footer__col-head">Credit</p>
       <ul class="site-footer__links">
-        <li><a href="{{ "/about/" | relURL }}">About</a></li>
-        <li><a href="{{ "/updates/" | relURL }}">Updates</a></li>
-        <li><a href="{{ "/ai/" | relURL }}">AI in this project</a></li>
         {{- with .Site.Params.social.github }}
-          <li><a href="https://github.com/{{ . }}">Code on GitHub</a></li>
+          <li><a href="https://github.com/{{ . }}">GitHub</a></li>
         {{- end }}
         <li><a href="{{ "/feeds/" | relURL }}">Feeds</a></li>
       </ul>
     </nav>
 
-    <div>
-      <h3>Credit</h3>
-      <p>
-        <em>{{ .Site.Title }}</em> is a project created, developed, and written by <a href="https://jasonheppler.org">{{- with .Site.Params.author }} {{ . }}</a>. {{ end }}
-        &copy; 2025&mdash;{{ .Date | time.Format "2006" }}. {{- with .Lastmod }} Last updated {{ .Format "January 2, 2006" }}. {{- end }} </p>
-      <p> Content <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND 4.0</a>. Code <a href="https://github.com/hepplerj/sbr-website/blob/main/LICENSE">MIT</a>.</p>
-    </div>
+  </div>
+
+  <div class="site-footer__license">
+    <span>Text &mdash; <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND 4.0</a> &middot; Code &mdash; <a href="https://github.com/hepplerj/sbr-website/blob/main/LICENSE">MIT</a></span>
+    {{- /* Site version — bumped manually in hugo.toml `params.version`. */ -}}
+    {{- with .Site.Params.version }}
+      <span class="site-footer__version">v. {{ . }}</span>
+    {{- end }}
+    <span>Built with Hugo &middot; governingground.org</span>
   </div>
 </footer>

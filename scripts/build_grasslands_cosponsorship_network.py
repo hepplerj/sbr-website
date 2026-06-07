@@ -38,6 +38,7 @@ import xml.etree.ElementTree as ET
 from collections import Counter
 
 from _common import DATA_DIR, fetch, write_json
+from legislators import load_lookup as load_legislator_lookup
 
 BULK     = "https://www.govinfo.gov/bulkdata/BILLSTATUS"
 API_BASE = "https://api.congress.gov/v3"
@@ -168,6 +169,11 @@ def fetch_bill_api(congress: int, btype: str, number: int) -> dict:
 # ── Main pipeline ─────────────────────────────────────────────────────────────
 
 def main() -> None:
+    leg_lookup = load_legislator_lookup()
+    if leg_lookup:
+        print(f"  loaded {len(leg_lookup):,} legislators from cache",
+              file=sys.stderr)
+
     legislator:    dict[str, dict]        = {}
     bill_cosps:    dict[tuple, list[str]] = {}
     bill_title:    dict[tuple, str]       = {}
@@ -208,13 +214,13 @@ def main() -> None:
             bid = s["bioguide"]
             if not bid: continue
             bioguide_ids.append(bid)
-            _ensure_leg(legislator, bid, s)
+            _ensure_leg(legislator, bid, s, leg_lookup)
             leg_bills.setdefault(bid, []).append((bkey, "sponsor"))
         for s in cosponsors:
             bid = s["bioguide"]
             if not bid: continue
             bioguide_ids.append(bid)
-            _ensure_leg(legislator, bid, s)
+            _ensure_leg(legislator, bid, s, leg_lookup)
             leg_bills.setdefault(bid, []).append((bkey, "cosponsor"))
 
         bill_cosps[bkey] = bioguide_ids
@@ -295,16 +301,34 @@ def clean_name(full: str, first: str, last: str) -> str:
     return f"{initial} {tc(last)}".strip()
 
 
-def _ensure_leg(registry: dict[str, dict], bid: str, record: dict) -> None:
-    if bid in registry:
-        return
-    registry[bid] = {
+def _ensure_leg(registry: dict[str, dict], bid: str, record: dict,
+                lookup: dict[str, dict] | None = None) -> None:
+    """Register a legislator on first sight, then backfill missing fields
+    from later records and from the unitedstates/congress-legislators
+    YAML lookup. "Best wins" merge — see build_cosponsorship_network.py
+    for the policy details (state/district authoritative from YAML,
+    party prefers per-bill record). The two scripts share the same
+    legislator helper module (scripts/legislators.py) but each keeps
+    its own copy of this thin wrapper for clarity."""
+    canonical = (lookup or {}).get(bid, {})
+    new_entry = {
         "id":       bid,
         "label":    clean_name(record["name"], record["first"], record["last"]),
         "party":    record["party"] or "",
-        "state":    record["state"] or "",
+        "state":    record["state"] or canonical.get("state", ""),
         "district": record["district"] or "",
     }
+    if bid not in registry:
+        if not new_entry["party"]:
+            new_entry["party"] = canonical.get("party", "")
+        if not new_entry["district"] and canonical.get("type") == "rep":
+            new_entry["district"] = canonical.get("district", "")
+        registry[bid] = new_entry
+        return
+    existing = registry[bid]
+    for field in ("state", "party", "district"):
+        if not existing.get(field):
+            existing[field] = new_entry.get(field, "") or canonical.get(field, "")
 
 
 def party_to_type(party: str) -> str:

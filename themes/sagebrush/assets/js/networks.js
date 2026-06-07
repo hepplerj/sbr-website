@@ -43,6 +43,34 @@
     org:       "Organization",
   };
 
+  // State-postal → region (used when a network opts into a region
+  // color mode via cfg.regionpalette). Matches the eight-region scheme
+  // used by the sightlines list page's mini-map. States outside the
+  // West/Plains scheme resolve to "other" so the renderer can color
+  // them grey (or whatever the frontmatter sets for the "other" key).
+  const STATE_TO_REGION = {
+    // Northern Plains
+    ND: "northern-plains", SD: "northern-plains", NE: "northern-plains",
+    // Southern Plains
+    KS: "southern-plains", OK: "southern-plains", TX: "southern-plains",
+    // Rocky Mountain
+    MT: "rocky-mountain",  WY: "rocky-mountain",  CO: "rocky-mountain",
+    // Intermountain West
+    ID: "intermountain-west", UT: "intermountain-west", NV: "intermountain-west",
+    // Southwest
+    AZ: "southwest", NM: "southwest",
+    // Pacific Northwest
+    WA: "pacific-northwest", OR: "pacific-northwest",
+    // Pacific Southwest
+    CA: "pacific-southwest", HI: "pacific-southwest",
+    // Alaska
+    AK: "alaska",
+  };
+
+  function regionForState(st) {
+    return STATE_TO_REGION[String(st || "").toUpperCase()] || "other";
+  }
+
   function initNetwork(container) {
     const VIEW_W = container.clientWidth  || DEFAULT_VIEW_W;
     const VIEW_H = container.clientHeight || DEFAULT_VIEW_H;
@@ -60,7 +88,38 @@
 
     const palette = Object.assign({}, DEFAULT_PALETTE, lowerKeys(cfg.palette || {}));
     const labels  = Object.assign({}, DEFAULT_LABELS,  lowerKeys(cfg.labels  || {}));
-    const colorFor = (t) => palette[String(t || "").toLowerCase()] || palette.default;
+
+    // ── Color modes ─────────────────────────────────────────────────
+    // Default mode is "type" (e.g. party for cosponsorship, family/event
+    // for bridging-the-rebellions). When the frontmatter supplies
+    // `regionpalette` + `regionlabels`, the renderer offers a toggle
+    // and a second mode that derives the key from `node.state` via
+    // the eight-region map above. Both modes share the same node ring.
+    const regionPalette = cfg.regionpalette ? lowerKeys(cfg.regionpalette) : null;
+    const regionLabels  = cfg.regionlabels  ? lowerKeys(cfg.regionlabels)  : null;
+    const hasRegionMode = !!regionPalette;
+
+    let colorMode = "type";   // "type" | "region"
+    function keyFor(d) {
+      return colorMode === "region"
+        ? regionForState(d.state)
+        : String(d.type || "").toLowerCase();
+    }
+    function currentPalette() {
+      return colorMode === "region" ? regionPalette : palette;
+    }
+    function currentLabels() {
+      return colorMode === "region" ? regionLabels : labels;
+    }
+    function colorFor(t) {
+      // Backward-compat: callers that still pass a string key directly
+      // (legend renderer, type-based hover) look up in the current palette.
+      const pal = currentPalette() || palette;
+      return pal[String(t || "").toLowerCase()] || pal.default || palette.default;
+    }
+    function colorForNode(d) {
+      return colorFor(keyFor(d));
+    }
 
     // Info and legend overlays
     const info = document.createElement("div");
@@ -119,12 +178,25 @@
     // Empty = no filter (all nodes full opacity).
     const activeCategories = new Set();
 
+    // Filter-pill labels. Covers both the sagebrush-rebellion network
+    // (disposal/grazing/antiquities/wilderness/esa) and the grasslands
+    // network (grassland/sodsaver/crp/bison/sage-grouse/chicken). Raw
+    // category strings come from the bill metadata in the data JSON;
+    // these labels are what the reader sees in the filter row.
     const CAT_LABELS = {
-      disposal:   "Disposal & Transfer",
-      grazing:    "Grazing & Range",
-      antiquities:"Antiquities & Monuments",
-      wilderness: "Wilderness & Roadless",
-      esa:        "ESA & Wildlife",
+      // sagebrush-rebellion network
+      disposal:     "Disposal & Transfer",
+      grazing:      "Grazing & Range",
+      antiquities:  "Antiquities & Monuments",
+      wilderness:   "Wilderness & Roadless",
+      esa:          "ESA & Wildlife",
+      // grasslands network
+      grassland:    "Grassland conservation",
+      sodsaver:     "Sodsaver",
+      crp:          "Conservation Reserve",
+      bison:        "Bison restoration",
+      "sage-grouse":"Sage-grouse",
+      chicken:      "Prairie chicken",
     };
 
     d3.json(cfg.src)
@@ -182,7 +254,7 @@
         .join("circle")
         .attr("class", (d) => "network-viz__node node-" + safe(d.type) + (hasDetail(d) ? " is-clickable" : ""))
         .attr("r", radiusFor)
-        .attr("fill", (d) => colorFor(d.type))
+        .attr("fill", colorForNode)
         .attr("stroke", "#fbf8f0")
         .attr("stroke-width", 1.5)
         .call(drag(sim))
@@ -240,6 +312,16 @@
         link.classed("is-dim", on ? (l) => !(
           (l.source.id === focus.id) || (l.target.id === focus.id)
         ) : false);
+      }
+
+      // Color-by toggle (only emits when the frontmatter supplies a
+      // region palette; otherwise the network keeps the single-mode
+      // legend behaviour the renderer has always had).
+      if (hasRegionMode) {
+        renderColorToggle(() => {
+          node.attr("fill", colorForNode);
+          renderLegend(nodes);
+        });
       }
 
       renderLegend(nodes);
@@ -335,24 +417,82 @@
     }
 
     function renderLegend(nodes) {
-      const present = new Set(nodes.map((n) => String(n.type || "").toLowerCase()));
-      // Preferred order: explicit cfg.labelorder, else keys of labels/palette,
-      // else a reasonable bridging/family default. Keep only types actually in play.
-      const configured = cfg.labelorder
-        || Object.keys(cfg.labels || {})
-        || Object.keys(cfg.palette || {});
-      const fallback = ["family", "person", "associate", "event", "org",
-                        "republican", "democrat", "independent", "other"];
-      const order = ((configured && configured.length ? configured : fallback))
-        .filter((t) => present.has(String(t).toLowerCase()));
-      const title = cfg.legendtitle || "Node type";
+      // Which keys appear in the current color mode?
+      const present = new Set(nodes.map(keyFor));
+      const currentLbls = currentLabels() || {};
+      const currentPal  = currentPalette() || palette;
+
+      // Preferred ordering depends on the mode:
+      //   - region mode: a fixed Western-to-Eastern reading order with
+      //     "other" last; only keys with at least one node are kept.
+      //   - type mode: existing behavior (cfg.labelorder, then cfg
+      //     labels/palette keys, then a sensible fallback).
+      let order;
+      if (colorMode === "region") {
+        const regionOrder = [
+          "northern-plains", "southern-plains",
+          "rocky-mountain", "intermountain-west",
+          "southwest",
+          "pacific-northwest", "pacific-southwest",
+          "alaska", "other",
+        ];
+        order = regionOrder.filter((k) => present.has(k));
+      } else {
+        const configured = cfg.labelorder
+          || Object.keys(cfg.labels || {})
+          || Object.keys(cfg.palette || {});
+        const fallback = ["family", "person", "associate", "event", "org",
+                          "republican", "democrat", "independent", "other"];
+        order = ((configured && configured.length ? configured : fallback))
+          .filter((t) => present.has(String(t).toLowerCase()));
+      }
+
+      const title = colorMode === "region"
+        ? (cfg.regionlegendtitle || "Region")
+        : (cfg.legendtitle || "Node type");
+
       const items = order.map((t) => {
         const key = String(t).toLowerCase();
-        const sw = colorFor(key);
-        const lbl = labels[key] || t;
+        const sw  = currentPal[key] || palette.default;
+        const lbl = currentLbls[key] || t;
         return `<div class="legend-item"><span class="legend-swatch legend-swatch--round" style="background:${sw}"></span>${lbl}</div>`;
       });
       legend.innerHTML = `<h4>${title}</h4>${items.join("")}`;
+    }
+
+    // Toggle button row that flips between color modes. Mounted just
+    // above .network-viz__legend so it reads as part of the legend's
+    // chrome. Only used when the network supplies a region palette.
+    function renderColorToggle(onChange) {
+      // Tell the legend it shares the bottom-right corner so the CSS
+      // bumps it up just enough to clear the toggle below it.
+      legend.classList.add("has-color-toggle");
+      const bar = document.createElement("div");
+      bar.className = "network-viz__color-toggle";
+      bar.setAttribute("role", "group");
+      bar.setAttribute("aria-label", "Color nodes by");
+      bar.innerHTML = `
+        <span class="network-viz__color-toggle-label">Color by</span>
+        <button type="button" class="network-viz__color-toggle-btn is-active" data-mode="type" aria-pressed="true">${cfg.legendtitle || "Type"}</button>
+        <button type="button" class="network-viz__color-toggle-btn" data-mode="region" aria-pressed="false">${cfg.regionlegendtitle || "Region"}</button>
+      `;
+      // Mount AFTER the legend in DOM order — visually the toggle sits
+      // below the (variable-height) legend block so a tall region
+      // legend can't ever overlap or occlude the toggle.
+      container.insertBefore(bar, legend.nextSibling);
+      bar.querySelectorAll(".network-viz__color-toggle-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const mode = btn.dataset.mode;
+          if (mode === colorMode) return;
+          colorMode = mode;
+          bar.querySelectorAll(".network-viz__color-toggle-btn").forEach((b) => {
+            const on = b === btn;
+            b.classList.toggle("is-active", on);
+            b.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+          onChange();
+        });
+      });
     }
   }
 
@@ -399,12 +539,23 @@
     `;
   }
 
+  // Per-bill chip labels shown on the modal bill list. Same vocabulary
+  // as CAT_LABELS above so the filter row and modal chips read
+  // identically.
   const CAT_CHIP_LABELS = {
-    disposal:   "Disposal & Transfer",
-    grazing:    "Grazing & Range",
-    antiquities:"Antiquities & Monuments",
-    wilderness: "Wilderness & Roadless",
-    esa:        "ESA & Wildlife",
+    // sagebrush-rebellion network
+    disposal:     "Disposal & Transfer",
+    grazing:      "Grazing & Range",
+    antiquities:  "Antiquities & Monuments",
+    wilderness:   "Wilderness & Roadless",
+    esa:          "ESA & Wildlife",
+    // grasslands network
+    grassland:    "Grassland conservation",
+    sodsaver:     "Sodsaver",
+    crp:          "Conservation Reserve",
+    bison:        "Bison restoration",
+    "sage-grouse":"Sage-grouse",
+    chicken:      "Prairie chicken",
   };
 
   function renderBillRow(b) {

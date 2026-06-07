@@ -1,0 +1,44 @@
+{{- /*
+  pullquote — display-grade pull quote with optional attribution.
+
+  Renders the inner block as a <blockquote> inside an <aside class=
+  "pullquote">. When `author` and/or `source` are supplied, appends a
+  small attribution line; each can be wrapped in an anchor via its
+  matching *url parameter.
+
+  See SHORTCODES.md at the project root for usage examples (kept out
+  of this file because Markdown-style escape sequences for shortcodes
+  contain literal slash-star sequences that close Go-template comments
+  prematurely).
+*/ -}}
+{{- $author    := .Get "author" -}}
+{{- $authorURL := .Get "authorurl" -}}
+{{- $source    := .Get "source" -}}
+{{- $sourceURL := .Get "sourceurl" -}}
+{{- $hasAttr   := or $author $source -}}
+
+<aside class="pullquote">
+  <blockquote class="pullquote__body">
+    {{- .Inner | markdownify -}}
+  </blockquote>
+  {{- if $hasAttr }}
+  <p class="pullquote__attr">
+    <span class="pullquote__attr-dash" aria-hidden="true">— </span>
+    {{- with $author -}}
+      {{- if $authorURL -}}
+        <a class="pullquote__author" href="{{ $authorURL }}">{{ . }}</a>
+      {{- else -}}
+        <span class="pullquote__author">{{ . }}</span>
+      {{- end -}}
+    {{- end -}}
+    {{- if and $author $source }}, {{ end -}}
+    {{- with $source -}}
+      {{- if $sourceURL -}}
+        <cite><a class="pullquote__source" href="{{ $sourceURL }}">{{ . }}</a></cite>
+      {{- else -}}
+        <cite class="pullquote__source">{{ . }}</cite>
+      {{- end -}}
+    {{- end -}}
+  </p>
+  {{- end }}
+</aside>

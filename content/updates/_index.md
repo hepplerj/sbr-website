@@ -1,7 +1,6 @@
 ---
 title: "Updates"
 heading: "Changelog"
-lede: "A running record of additions, revisions, and corrections to Governing Ground."
 outputs: ["HTML", "RSS"]
 ---
 

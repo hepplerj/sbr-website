@@ -128,6 +128,29 @@ hr {
   width: 40%;
 }
 
+// ── Lede / opening paragraph ────────────────────────────────────
+// A shared opening-paragraph style. Author-set inline in markdown:
+//
+//   <p class="lede">A larger opening paragraph that sets the stakes.</p>
+//
+// Or, for italics:
+//
+//   <p class="lede lede--italic">…</p>
+//
+// Matches the Survey "lead sentence" treatment (21px ink). Sits at
+// the top of essays, About sections, sightline ledes, etc.
+.lede {
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  margin: 0 0 1em;
+}
+.lede--italic {
+  font-style: italic;
+}
+
 // Drop cap for the first paragraph of narrative essays
 .prose--essay > p:first-of-type::first-letter {
   font-family: var(--font-display);

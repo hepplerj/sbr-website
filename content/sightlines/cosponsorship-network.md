@@ -13,7 +13,7 @@ network:
   infoprompt: "Hover a node for party, state, and bills cosponsored. Click a legislator to open their full bill list. Drag to rearrange."
   legendtitle: "Party"
   chargestrength: -180
-  linkdistance: 155
+  linkdistance: 255
   palette:
     republican:  "#a94b2b"
     democrat:    "#1f2a44"
@@ -24,6 +24,35 @@ network:
     democrat:    "Democrat"
     independent: "Independent"
     other:       "Other / unaffiliated"
+  # Opt-in "Color by Region" toggle. When `regionpalette` is present,
+  # networks.js emits a Party | Region toggle above the legend.
+  # Region keys match the eight-region scheme used by the sightlines
+  # mini-map; states outside the West/Plains fall into `other`.
+  regionlegendtitle: "Region"
+  # Region swatches match the sightlines mini-map (REGION_COLOR in
+  # sightlines-map.js) one-to-one so the cosponsorship network reads
+  # as the same regional taxonomy. `other` is a quiet stone-grey for
+  # legislators outside the eight Western/Plains regions.
+  regionpalette:
+    northern-plains:    "#b8a55a"
+    southern-plains:    "#c06b45"
+    rocky-mountain:     "#5278a0"
+    intermountain-west: "#4e8055"
+    southwest:          "#9b4e4e"
+    pacific-northwest:  "#3a7268"
+    pacific-southwest:  "#7a5e9a"
+    alaska:             "#4a7a8a"
+    other:              "#a8a497"
+  regionlabels:
+    northern-plains:    "Northern Plains"
+    southern-plains:    "Southern Plains"
+    rocky-mountain:     "Rocky Mountain"
+    intermountain-west: "Intermountain West"
+    southwest:          "Southwest"
+    pacific-northwest:  "Pacific Northwest"
+    pacific-southwest:  "Pacific Southwest"
+    alaska:             "Alaska"
+    other:              "Other / non-West"
 ---
 
 > This is a draft network under active development. The bill set will grow as additional bills are compiled from historical records. Follow the [changelog](/updates/) for notices when this network changes.

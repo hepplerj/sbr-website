@@ -1,0 +1,167 @@
+{{ define "main" }}
+{{- /* Document layout. A metadata header at top captures provenance
+       (source, retrieval date, citation, transcription notes), then
+       the document body. The marginal-annotation sidebar arrives in
+       step 2 — for now we render the body in a single prose column. */ -}}
+
+<article class="document-page">
+  <header class="document-page__header">
+    <p class="document-page__eyebrow">
+      <a href="{{ "/documents/" | relURL }}">Documents</a>
+    </p>
+    <h1 class="document-page__title">{{ .Title }}</h1>
+  </header>
+
+  {{- /* ── Metadata header ────────────────────────────────────────────
+       Transcribed documents (those with a `doctype`) get a compact
+       identifier strip directly below the title and a collapsible
+       "About this document" apparatus block that holds full
+       provenance / citation / source / related links. Meta pages
+       like the editorial statement set no doctype and fall through
+       to a pure-prose render. */ -}}
+  {{- if .Params.doctype }}
+
+  {{- /* Compact strip — JetBrains Mono · separated; the orienting
+         facts a reader needs at a glance. */ -}}
+  <p class="document-strip" aria-label="Document identifier">
+    {{- $bits := slice -}}
+    {{- with .Params.doctype }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Type</span> %s" (humanize .)) }}{{ end -}}
+    {{- with .Params.date }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Date</span> <time datetime=\"%s\">%s</time>" (.Format "2006-01-02") (.Format "January 2, 2006")) }}{{ end -}}
+    {{- with .Params.sponsors }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Sponsor%s</span> %s" (cond (gt (len .) 1) "s" "") (delimit . "; ")) }}{{ end -}}
+    {{- with .Params.authors }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Author%s</span> %s" (cond (gt (len .) 1) "s" "") (delimit . "; ")) }}{{ end -}}
+    {{- with .Params.jurisdiction }}{{ $bits = $bits | append (printf "<span class=\"document-strip__tag\">Jurisdiction</span> %s" (humanize .)) }}{{ end -}}
+    {{ delimit $bits "<span class=\"document-strip__sep\" aria-hidden=\"true\">·</span>" | safeHTML }}
+  </p>
+
+  <details class="document-apparatus">
+    <summary>About this document</summary>
+    <aside class="document-meta" aria-label="Document metadata">
+    <dl class="document-meta__list">
+      {{- with .Params.citation }}
+        <div class="document-meta__row">
+          <dt>Citation</dt>
+          <dd>{{ . | markdownify }}</dd>
+        </div>
+      {{- end }}
+      {{- with .Params.source }}
+        <div class="document-meta__row">
+          <dt>Source</dt>
+          <dd>
+            {{- if .url -}}
+              <a href="{{ .url }}" rel="external">{{ .name }}</a>
+            {{- else -}}
+              {{ .name }}
+            {{- end }}
+            {{- with .retrieved }} <span class="document-meta__retrieved">retrieved {{ . | time.Format "January 2, 2006" }}</span>{{ end -}}
+          </dd>
+        </div>
+      {{- end }}
+      {{- with .Params.altSources }}
+        <div class="document-meta__row">
+          <dt>Alt. sources</dt>
+          <dd>
+            <ul class="document-meta__altsources">
+              {{- range . }}
+                <li>
+                  {{- if .url -}}
+                    <a href="{{ .url }}" rel="external">{{ .name }}</a>
+                  {{- else -}}
+                    {{ .name }}
+                  {{- end }}
+                  {{- with .note }} <span class="document-meta__altnote">({{ . }})</span>{{ end -}}
+                </li>
+              {{- end }}
+            </ul>
+          </dd>
+        </div>
+      {{- end }}
+      {{- with .Params.provenance }}
+        <div class="document-meta__row document-meta__row--block">
+          <dt>Provenance</dt>
+          <dd>{{ . | markdownify }}</dd>
+        </div>
+      {{- end }}
+
+      {{- /* ── Related documents (bidirectional) ──────────────────────
+           Forward links come from `.Params.relatedDocuments` (an array
+           of bundle slugs in this section). Backward links come from
+           every other document whose `relatedDocuments` list mentions
+           this one. The union is deduplicated and sorted by date so
+           the related list reads chronologically alongside the main
+           index. */ -}}
+      {{- /* `.File.ContentBaseName` returns the bundle directory name
+             ("flpma-1976") for page bundles, vs `.File.BaseFileName`
+             which returns "index" (the literal file basename). Use
+             ContentBaseName so the slug matches the relatedDocuments
+             frontmatter convention. */ -}}
+      {{- $current := .File.ContentBaseName -}}
+      {{- $forward := .Params.relatedDocuments | default slice -}}
+      {{- $backward := slice -}}
+      {{- with site.GetPage "/documents" -}}
+        {{- range .RegularPages -}}
+          {{- if in (.Params.relatedDocuments | default slice) $current -}}
+            {{- $backward = $backward | append .File.ContentBaseName -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $relatedSlugs := union $forward $backward | uniq -}}
+      {{- if $relatedSlugs }}
+        {{- $relatedPages := slice -}}
+        {{- range $relatedSlugs -}}
+          {{- with site.GetPage (printf "/documents/%s" .) -}}
+            {{- $relatedPages = $relatedPages | append . -}}
+          {{- end -}}
+        {{- end -}}
+        {{- $relatedPages = sort $relatedPages "Date" "asc" -}}
+        <div class="document-meta__row document-meta__row--related">
+          <dt>Related</dt>
+          <dd>
+            <ul class="document-meta__related-list">
+              {{- range $relatedPages }}
+                <li>
+                  <a href="{{ .RelPermalink }}">{{- with .Params.shortTitle }}{{ . }}{{ else }}{{ .Title }}{{ end -}}</a>
+                  {{- with .Params.date }} <span class="document-meta__related-year">{{ .Format "2006" }}</span>{{ end -}}
+                </li>
+              {{- end }}
+            </ul>
+          </dd>
+        </div>
+      {{- end }}
+    </dl>
+    {{- /* Editorial statement — small uppercase link tucked into the
+           bottom-right of the metadata block. Renders on every
+           transcribed document so the apparatus conventions are never
+           more than one click away. */ -}}
+    <p class="document-meta__editorial">
+      <a href="{{ "/editorial-statement/" | relURL }}">Editorial statement</a>
+    </p>
+  </aside>
+  </details>
+  {{- end }}
+
+  {{- /* ── Document body + (conditional) sidenote column ──────────────
+       Transcribed documents get the grid layout with a right-rail
+       sidebar populated by documents.js. Meta pages (editorial
+       statement and any future about-style entries) render as plain
+       prose at a slightly wider measure — they're essay-like, not
+       statute-like. */ -}}
+  {{- if .Params.doctype }}
+    <div class="document-layout">
+      <div class="document-body prose">
+        {{ .Content }}
+      </div>
+      <aside class="document-sidenotes" aria-label="Annotations">
+        {{- /* JS populates this from <template class="glossbody"> elements
+               inside .Content. The column is otherwise empty. */ -}}
+      </aside>
+    </div>
+  {{- else }}
+    <div class="document-body document-body--meta prose">
+      {{ .Content }}
+    </div>
+  {{- end }}
+
+  {{ partial "cite.html" . }}
+  {{ partial "coins.html" . }}
+</article>
+{{ end }}

@@ -1,16 +1,19 @@
 ---
 title: "What was the Sagebrush Rebellion?"
+genre: essay
+number: 1
 date: 2026-04-26
 lede: "In the summer of 1979, the Nevada legislature voted to claim 48 million acres of federally owned land. The legislation failed, but the politics that followed did not."
 place: "Nevada"
-weight: 10
+themes: [public-lands, sagebrush-rebellion-1979]
+tags: [BLM, Great Basin]
 draft: false
 toc: true
 ---
 
 In the summer of 1979, the Nevada legislature passed Assembly Bill 413 asserting state ownership over roughly 48 million acres of land managed by the federal Bureau of Land Management (BLM). Nevada rested its legal challenge to the public lands on a theory of public trust: that the government was holding the lands in trust for the state but had no actual ownership or property right to these lands. While the legislative effort eventually stalled out, it crystallized a regional political movement that came to be known as the Sagebrush Rebellion.[^1]
 
-But 1979 was neither the first nor the last such uprising. Resistance to federal land authority is a common feature of the American West's politics---the grazing controversies that followed the Taylor Grazing Act of 1934, the postwar fights over National Forest expansion, the Sagebrush Rebellion in the 1980s, the county-supremacy movement and the Wise Use coalition of the 1990s, and the armed standoffs at Bundy Ranch in 2014 and Malheur in 2016. This project seeks to explore this long history through related debates and conflicts through coalitions, legislators, and people. 
+But 1979 was neither the first nor the last such uprising. Resistance to federal land authority is a common feature of the American West's politics---the grazing controversies that followed the Taylor Grazing Act of 1934, the postwar fights over National Forest expansion, the Sagebrush Rebellion in the 1980s, the county-supremacy movement and the Wise Use coalition of the 1990s, and the armed standoffs at Bundy Ranch in 2014 and Malheur in 2016. This project seeks to explore this long history through related debates and conflicts through coalitions, legislators, and people.
 
 ## *The* Sagebrush Rebellion
 

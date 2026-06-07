@@ -41,15 +41,18 @@
     "national"           "National"
 -}}
 
-<header class="section-intro">
-  <p class="section-intro__eyebrow">{{ .Title }}</p>
-  <h1 class="section-intro__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
-  {{- with .Params.lede }}
-    <p class="section-intro__lede">{{ . }}</p>
-  {{- end }}
-  {{- with .Content }}
-    <div class="section-intro__body">{{ . }}</div>
-  {{- end }}
+{{- /* Survey-register header — kicker (from .Title) above a big H1
+       (from .Params.heading) and a right-aligned description (from
+       .Params.lede). Three independent frontmatter knobs, matching
+       the Writing index pattern. The page's markdown body (.Content)
+       is intentionally not rendered — the header is the only thing
+       above the rail/cards. */ -}}
+<header class="sightlines-page__header">
+  <p class="sightlines-page__kicker">{{ .Title }}</p>
+  <div class="sightlines-page__row">
+    <h1 class="sightlines-page__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+    {{- with .Params.lede }}<p class="sightlines-page__desc">{{ . | markdownify }}</p>{{ end }}
+  </div>
 </header>
 
 <div class="sightlines-layout">
@@ -126,17 +129,20 @@
                   data-regions="{{ delimit .Params.regions "," }}">
                 <a class="sightlines-card__link" href="{{ .RelPermalink }}">
                   <p class="sightlines-card__type">{{ $g.label | singularize }}</p>
-                  <h3 class="sightlines-card__title">{{ .Title }}</h3>
-                  {{- with .Params.lede }}
-                    <p class="sightlines-card__lede">{{ . | plainify | truncate 180 }}</p>
-                  {{- end }}
-                  {{- with .Params.themes }}
-                  <ul class="sightlines-card__themes">
-                    {{- range . }}
-                      <li>{{ index $themeLabel . | default (humanize .) }}</li>
+                  <div class="sightlines-card__main">
+                    <h3 class="sightlines-card__title">{{ .Title }}</h3>
+                    {{- with .Params.lede }}
+                      <p class="sightlines-card__lede">{{ . | plainify | truncate 220 }}</p>
                     {{- end }}
-                  </ul>
-                  {{- end }}
+                    {{- with .Params.themes }}
+                    <ul class="sightlines-card__themes">
+                      {{- range . }}
+                        <li>{{ index $themeLabel . | default (humanize .) }}</li>
+                      {{- end }}
+                    </ul>
+                    {{- end }}
+                  </div>
+                  <p class="sightlines-card__cta">View</p>
                 </a>
               </li>
             {{- end }}

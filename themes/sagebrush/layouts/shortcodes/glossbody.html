@@ -1,0 +1,17 @@
+{{- /*
+  glossbody — annotation content paired by `id` to a `{{< gloss >}}`
+  span. The inner is rendered as markdown so the body can use
+  emphasis, links, and shortcodes like {{< cite key="..." >}}.
+
+  The emitted div is `hidden` from layout; JS reads its content and
+  inserts it into the right-rail sidenote column on wide screens or
+  expands it inline on narrow.
+
+  Place glossbodies wherever convenient in the markdown — typically
+  at the end of the section that contains their inline spans, by
+  convention with footnote definitions. Position in the source has
+  no effect on rendered position.
+*/ -}}
+{{- $id := .Get "id" -}}
+{{- if not $id -}}{{- errorf "{{< glossbody >}}: missing required `id` attribute (%s)" .Position -}}{{- end -}}
+<template class="glossbody" data-gloss-id="{{ $id }}" id="glossbody-{{ $id }}">{{ .Inner | markdownify }}</template>

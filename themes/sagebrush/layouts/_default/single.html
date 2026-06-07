@@ -6,20 +6,34 @@
        layout untouched. */ -}}
 {{- $wantsToc := and .Params.toc (gt (len .Fragments.Headings) 0) -}}
 <article class="page page--{{ $type }}{{ if $wantsToc }} page--with-toc{{ end }}">
+  {{- /* Kicker resolution: explicit `kicker:` frontmatter wins, then
+         a humanized section link, then a sensible default ("Reference")
+         for standalone root-level pages like /glossary/ and /ai/. */ -}}
   <header class="page-header">
     <p class="page-header__eyebrow">
-      {{- with .Section }}<a href="{{ printf "/%s/" . | relURL }}">{{ humanize . }}</a>{{ end -}}
+      {{- if .Params.kicker -}}
+        {{ .Params.kicker }}
+      {{- else if .Section -}}
+        <a href="{{ printf "/%s/" .Section | relURL }}">{{ humanize .Section }}</a>
+      {{- else -}}
+        Reference
+      {{- end -}}
     </p>
-    <h1 class="page-header__title">{{ .Title }}</h1>
+    <h1 class="page-header__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
     {{- with or .Params.lede .Description }}
       <p class="page-header__lede">{{ . }}</p>
     {{- end }}
     {{ partial "byline.html" . }}
+    {{- /* Reference-style pages (glossary, etc.) set `hideMeta: true`
+           in frontmatter to suppress the date + reading-time strip.
+           They don't read as "published" or "long enough to time." */ -}}
+    {{- if not .Params.hideMeta }}
     <p class="page-header__meta">
       {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
       {{- with .Params.place }}<span>{{ . }}</span>{{ end }}
       {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
     </p>
+    {{- end }}
   </header>
 
   {{- if $wantsToc }}

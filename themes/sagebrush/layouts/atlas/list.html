@@ -1,10 +1,7 @@
 {{ define "main" }}
-{{- /* Hugo's -D flag controls draft inclusion at the build level;
-       no template-level filter needed. */ -}}
-{{- $entries := .RegularPages -}}
+{{- $entries := .RegularPages.ByWeight -}}
 
-{{- /* Atlas mode → display label for the card kicker. New modes drop
-       in here as the apparatus grows. */ -}}
+{{- /* Display label for the per-entry mode tag */ -}}
 {{- $modeLabel := dict
     "trends"     "Trends"
     "heatmap"    "Heatmap"
@@ -12,43 +9,40 @@
     "table"      "Table"
 -}}
 
-<header class="section-intro">
-  <p class="section-intro__eyebrow">{{ .Params.kicker | default "Atlas" }}</p>
-  <h1 class="section-intro__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
-  {{- with .Params.lede }}
-    <p class="section-intro__lede">{{ . }}</p>
-  {{- end }}
-  {{- with .Content }}
-    <div class="section-intro__body">{{ . }}</div>
-  {{- end }}
+<header class="sightlines-page__header">
+  <p class="sightlines-page__kicker">{{ .Title }}</p>
+  <div class="sightlines-page__row">
+    <h1 class="sightlines-page__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+    {{- with .Params.lede }}<p class="sightlines-page__desc">{{ . | markdownify }}</p>{{ end }}
+  </div>
 </header>
 
-<div class="atlas-content">
+<section class="atlas-list">
   {{- if $entries }}
-    <ul class="atlas-grid">
-      {{- range $entries.ByWeight }}
+    <ul class="row-list">
+      {{- range $entries }}
         {{- $mode := .Params.atlas.mode }}
-        {{- $kicker := index $modeLabel $mode | default "Atlas" }}
-        <li class="atlas-card">
-          <a class="atlas-card__link" href="{{ .RelPermalink }}">
-            {{- with .Params.thumbnail }}
-              <div class="atlas-card__thumb">
-                <img src="{{ . | relURL }}" alt="" loading="lazy">
-              </div>
-            {{- end }}
-            <div class="atlas-card__body">
-              <p class="atlas-card__type">{{ $kicker }}</p>
-              <h2 class="atlas-card__title">{{ .Title }}</h2>
+        {{- $tag := index $modeLabel $mode | default "Atlas" }}
+        <li class="row-list__item">
+          <a class="row-list__link" href="{{ .RelPermalink }}">
+            <p class="row-list__tag">{{ $tag }}</p>
+            <div class="row-list__main">
+              <h2 class="row-list__title">{{ .Title }}</h2>
               {{- with .Params.lede }}
-                <p class="atlas-card__lede">{{ . | plainify | truncate 200 }}</p>
+                <p class="row-list__sub">{{ . | plainify | truncate 240 }}</p>
               {{- end }}
             </div>
+            <p class="row-list__cta">View</p>
           </a>
         </li>
       {{- end }}
     </ul>
   {{- else }}
-    <p class="atlas-empty"><em>No atlas entries yet.</em></p>
+    <p class="atlas-list__empty"><em>No atlas entries yet.</em></p>
   {{- end }}
-</div>
+
+  {{- with .Content }}
+    <aside class="atlas-list__note">{{ . }}</aside>
+  {{- end }}
+</section>
 {{ end }}

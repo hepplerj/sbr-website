@@ -79,6 +79,31 @@
     info.innerHTML = infoHTML(cfg);
     container.appendChild(info);
 
+    // Container-level cursor-following for the info card. The card
+    // should ONLY follow the cursor when the user is actively hovering
+    // a data element (stripe, bar, dot, etc.) — not when the cursor
+    // is in dead space inside the chart container.
+    //
+    // Trick: every renderer resets `info.innerHTML` to the default
+    // prompt via `infoHTML(cfg)` on mouseout of a data element, and
+    // sets it to something value-specific on mouseover. We cache the
+    // default once and compare on every mousemove: matching = idle,
+    // pin to CSS corner; differing = active hover, follow the cursor.
+    const defaultPromptHTML = info.innerHTML;
+    const pinCardToCorner = () => {
+      info.style.left = "";
+      info.style.top = "";
+      info.style.right = "";
+    };
+    container.addEventListener("mousemove", (event) => {
+      if (info.innerHTML !== defaultPromptHTML) {
+        placeTimelineCard(info, container, event);
+      } else {
+        pinCardToCorner();
+      }
+    });
+    container.addEventListener("mouseleave", pinCardToCorner);
+
     d3.json(cfg.src)
       .then((raw) => {
         const type = cfg.type || "stripes";

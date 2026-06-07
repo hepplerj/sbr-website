@@ -1,0 +1,149 @@
+{{ define "main" }}
+{{- /* Writing index — Survey register.
+
+       Header block (rust kicker + big "Writing" H1 + description),
+       then a sticky single-row filter rail (Genre only: All / Essays
+       / Field Notes / Methods) with per-genre counts. The rows
+       themselves carry no tag chips — tags surface on the essay
+       single page instead, where each one links to /tags/<slug>/
+       (rendered by layouts/_default/term.html, which reuses this
+       file's row pattern). */ -}}
+
+{{- /* Sort by essay `number:` (set in frontmatter) so the displayed
+       numerals (№01, №02, …) match the reading order one-to-one. The
+       project reads forward through the number sequence: №01 is the
+       first essay, №<n> the most recent.
+
+       Hugo's .ByParam sorts numerically when the param is a number,
+       ascending. Essays without an explicit `number:` (e.g. fresh
+       drafts before the author has picked one) sort to the top under
+       this rule — visible only in `-D` builds. Bump the archetype's
+       placeholder if that becomes noisy. */ -}}
+{{- $pages := .RegularPages.ByParam "number" -}}
+
+{{- /* Per-genre counts across the whole list, used in the filter
+       rail. Hugo's `where` filters via .Params.genre. */ -}}
+{{- $countAll    := len $pages -}}
+{{- $countEssay  := len (where $pages "Params.genre" "essay") -}}
+{{- $countField  := len (where $pages "Params.genre" "field-note") -}}
+{{- $countMethod := len (where $pages "Params.genre" "method") -}}
+
+<article class="writing-page">
+
+  <header class="writing-header">
+    {{- /* Kicker reads from frontmatter `title`. Author-editable in
+           content/narrative/_index.md. The big H1 uses `heading` so
+           the two can vary independently (e.g. title: "Essays &
+           field notes" / heading: "Writing"). */ -}}
+    <p class="writing-header__kicker">{{ .Title }}</p>
+    <div class="writing-header__row">
+      <h1 class="writing-header__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+      {{- /* Lede may contain inline markdown (links, emphasis). Use a
+             <div> wrapper so markdownify's own <p> wrapping doesn't
+             produce nested <p>s (which browsers auto-close, breaking
+             the class-targeted styling). */ -}}
+      {{- with .Params.lede }}<div class="writing-header__desc">{{ . | markdownify }}</div>{{ end }}
+    </div>
+  </header>
+
+  <div class="writing-filter" role="group" aria-label="Filter writing">
+    <div class="writing-filter__row">
+      <p class="writing-filter__label" id="writing-filter-genre">Genre</p>
+      <div class="writing-filter__btns" role="group" aria-labelledby="writing-filter-genre">
+        <button type="button" class="writing-filter__btn is-active" data-genre="" aria-pressed="true">
+          All <span class="writing-filter__count">{{ printf "(%02d)" $countAll }}</span>
+        </button>
+        <button type="button" class="writing-filter__btn" data-genre="essay" aria-pressed="false">
+          Essays <span class="writing-filter__count">{{ printf "(%02d)" $countEssay }}</span>
+        </button>
+        <button type="button" class="writing-filter__btn" data-genre="field-note" aria-pressed="false">
+          Field notes <span class="writing-filter__count">{{ printf "(%02d)" $countField }}</span>
+        </button>
+        <button type="button" class="writing-filter__btn" data-genre="method" aria-pressed="false">
+          Methods <span class="writing-filter__count">{{ printf "(%02d)" $countMethod }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {{- if $pages }}
+    <ol class="writing-list">
+      {{- range $i, $page := $pages }}
+        {{- $authors := slice -}}
+        {{- with .Params.authors }}{{ $authors = . }}{{- else }}{{- with .Params.author }}{{ $authors = slice . }}{{ end }}{{ end -}}
+        {{- /* Essay number — authoritative via frontmatter `number:`, so
+               the № stays bound to the essay regardless of how this list
+               is sorted (oldest-first, newest-first, future filters,
+               etc.). Falls back to the loop index when an essay has no
+               explicit number, so unnumbered drafts still get a stable
+               numeral while you decide what number to assign. */ -}}
+        {{- $num := .Params.number | default (add $i 1) -}}
+        <li class="writing-list__item" data-genre="{{ .Params.genre | default "essay" }}">
+          <a class="writing-list__link" href="{{ .RelPermalink }}">
+            <p class="writing-list__num">{{ printf "№%02d" $num }}</p>
+            <div class="writing-list__main">
+              <h2 class="writing-list__title">{{ .Title }}</h2>
+              {{- with or .Params.lede .Description }}
+                <p class="writing-list__deck">{{ . | markdownify }}</p>
+              {{- end }}
+              <p class="writing-list__meta">
+                {{- if $authors }}<span>By {{ delimit $authors ", " " and " }}</span>{{ end }}
+                {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
+                {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
+              </p>
+            </div>
+            <p class="writing-list__cta">Read <span aria-hidden="true">&rarr;</span></p>
+          </a>
+        </li>
+      {{- end }}
+    </ol>
+  {{- end }}
+
+  {{- /* No archive note: the RSS link lives in the header lede
+         (frontmatter `lede:` value rendered via markdownify), so the
+         page ends cleanly with the last numbered entry. If a future
+         archive-style note is needed, restore the .Content render and
+         re-add the .writing-archive-note CSS rule. */ -}}
+
+</article>
+
+<script>
+  // Writing index filter rail — Genre dimension only, multi-select.
+  // Click a genre button to toggle it in/out of the active set;
+  // clicking "All" clears the set. An item is visible when the set
+  // is empty or the item's genre is in the set.
+  //
+  // Tags are NOT filtered here — they live as links in each row's
+  // tag list and lead to the per-tag taxonomy page.
+  (function () {
+    var btns = document.querySelectorAll('.writing-filter__btn');
+    var items = document.querySelectorAll('.writing-list__item[data-genre]');
+    var active = new Set();
+    if (!btns.length || !items.length) return;
+
+    function refresh() {
+      btns.forEach(function (b) {
+        var g = b.dataset.genre;
+        var on = g === '' ? active.size === 0 : active.has(g);
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      items.forEach(function (el) {
+        var g = el.dataset.genre || '';
+        var visible = active.size === 0 || active.has(g);
+        el.classList.toggle('is-hidden', !visible);
+      });
+    }
+
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var g = btn.dataset.genre;
+        if (g === '') { active.clear(); }
+        else if (active.has(g)) { active.delete(g); }
+        else { active.add(g); }
+        refresh();
+      });
+    });
+  })();
+</script>
+{{ end }}

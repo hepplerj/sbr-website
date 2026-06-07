@@ -1,0 +1,128 @@
+{{ define "main" }}
+{{- /* Narrative essay — Survey register.
+
+       Per the design handoff: breadcrumb at top, centered article
+       header with kicker + serif title + italic deck + meta row, then
+       the body in a generous reading column. Footnotes inherit the
+       existing `.footnotes` styling (already Survey-shaped from the
+       documents work). Two read-next cards at the bottom link to
+       prev/next sibling essays.
+
+       What's not implemented yet (Design has them, future commits):
+       - True Tufte margin sidenotes (would need a {{< sidenote >}}
+         shortcode + a margin column)
+       - Full-bleed Fig. 1 plate band above the body
+       - Timeline interlude band (skipped per Jason's call) */ -}}
+
+<article class="narrative-page">
+
+  <nav class="narrative-breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ "/narrative/" | relURL }}">Writing</a>
+    <span class="narrative-breadcrumb__sep">/</span>
+    <span class="narrative-breadcrumb__current">{{ .Title }}</span>
+  </nav>
+
+  <header class="narrative-header">
+    <p class="narrative-header__kicker">Essay</p>
+    <h1 class="narrative-header__title">{{ .Title }}</h1>
+    {{- with or .Params.lede .Description }}
+      <p class="narrative-header__deck">{{ . | markdownify }}</p>
+    {{- end }}
+    {{- /* Authors come in as `authors: [Name, Name]` (preferred, list)
+           or `author: Name` (singular shorthand). The narrative section
+           cascades `authors: [Jason Heppler]` from its _index.md so
+           every essay inherits Jason unless explicitly overridden. */ -}}
+    {{- $authors := slice -}}
+    {{- with .Params.authors }}{{ $authors = . }}
+    {{- else }}{{- with .Params.author }}{{ $authors = slice . }}{{ end }}{{ end -}}
+    <p class="narrative-header__meta">
+      {{- if $authors }}<span class="narrative-header__byline">By {{ delimit $authors ", " " and " }}</span>{{ end }}
+      {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
+      {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
+      {{- with .Params.place }}<span>{{ . }}</span>{{ end }}
+    </p>
+
+    {{- /* Tag chips. Each links to /tags/<slug>/ where readers can
+           browse other essays sharing the tag (rendered by the
+           taxonomy term template). Slugs are pretty-printed for
+           display: hyphens → spaces + first-letter capitalized,
+           except all-caps acronyms (BLM, PLLRC) which pass through
+           unchanged. */ -}}
+    {{- with .Params.tags }}
+      <ul class="narrative-header__tags" aria-label="Tags">
+        {{- range $t := . -}}
+          {{- $label := $t -}}
+          {{- if not (eq $t (upper $t)) -}}
+            {{- $label = strings.FirstUpper (replace $t "-" " ") -}}
+          {{- end -}}
+          <li><a class="narrative-header__tag" href="{{ printf "/tags/%s/" (urlize $t) | relURL }}">{{ $label }}</a></li>
+        {{- end -}}
+      </ul>
+    {{- end }}
+  </header>
+
+  <div class="narrative-body prose prose--essay">
+    {{ .Content }}
+  </div>
+
+  {{- /* Related essays — driven by Hugo's relatedness scoring against
+         the `themes`, `tags`, `places`, and `date` indices defined in
+         hugo.toml's [related] block. Filter to /narrative/ so we don't
+         surface sightlines/documents/atlas pages, and cap at three.
+         Skip entirely if there are no matches (e.g. an essay with no
+         themes/tags will return nothing). */ -}}
+  {{- $related := first 3 (where (.Site.RegularPages.Related .) "Section" "narrative") -}}
+  {{- if $related }}
+    <aside class="narrative-related" aria-labelledby="related-heading">
+      <p class="narrative-related__kicker" id="related-heading">Related essays</p>
+      <ul class="narrative-related__list">
+        {{- range $related }}
+          <li class="narrative-related__item">
+            <a class="narrative-related__link" href="{{ .RelPermalink }}">
+              <h3 class="narrative-related__title">{{ .Title }}</h3>
+              {{- with or .Params.lede .Description }}
+                <p class="narrative-related__deck">{{ . | plainify | truncate 160 }}</p>
+              {{- end }}
+              <p class="narrative-related__meta">
+                {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
+                {{- if .ReadingTime }} <span>· {{ .ReadingTime }} min</span>{{ end }}
+              </p>
+            </a>
+          </li>
+        {{- end }}
+      </ul>
+    </aside>
+  {{- end }}
+
+  {{- /* Read-next cards — Hugo's PrevInSection / NextInSection give us
+         the chronological siblings within /narrative/. Skip the block
+         entirely when neither exists. */ -}}
+  {{- $prev := .PrevInSection -}}
+  {{- $next := .NextInSection -}}
+  {{- if or $prev $next }}
+    <nav class="narrative-continue" aria-label="Read next">
+      {{- with $next }}
+        <a class="continue-card continue-card--next" href="{{ .RelPermalink }}">
+          <p class="continue-card__kicker">Next essay</p>
+          <h2 class="continue-card__title">{{ .Title }}</h2>
+          {{- with or .Params.lede .Description }}
+            <p class="continue-card__deck">{{ . | plainify | truncate 180 }}</p>
+          {{- end }}
+        </a>
+      {{- end }}
+      {{- with $prev }}
+        <a class="continue-card continue-card--prev" href="{{ .RelPermalink }}">
+          <p class="continue-card__kicker">Previous</p>
+          <h2 class="continue-card__title">{{ .Title }}</h2>
+          {{- with or .Params.lede .Description }}
+            <p class="continue-card__deck">{{ . | plainify | truncate 180 }}</p>
+          {{- end }}
+        </a>
+      {{- end }}
+    </nav>
+  {{- end }}
+
+  {{ partial "cite.html" . }}
+  {{ partial "coins.html" . }}
+</article>
+{{ end }}

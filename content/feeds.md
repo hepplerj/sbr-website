@@ -2,6 +2,7 @@
 title: "Feeds"
 lede: "RSS feeds for following the project. Paste either URL into your feed reader of choice."
 date: 2026-04-26
+hideMeta: true
 ---
 
 *Governing Ground* publishes two RSS feeds. Both are auto-discoverable, so most browsers and feed readers will pick them up from any page on the site, but you can subscribe directly using the URLs below.

@@ -1,8 +1,15 @@
 {{ define "main" }}
-{{- /* Sightlines dispatcher: a single template that renders a map, network, or
-       chart page based on the page's `viz` frontmatter. Each viz type reads
-       its own config block (`map`, `network`, or `chart`) and mounts the
-       matching JS module via data-viz= on the container. */ -}}
+{{- /* Sightlines single page — Survey register.
+
+       Restructured from the old 1fr/2fr grid (essay sidebar + viewport-
+       height viz) to a stacked Survey layout: banded header on top,
+       full-bleed viz block in the middle, prose body at the bottom.
+       The chart, map, or network now gets the full page width instead
+       of being squeezed into the 2/3 column.
+
+       Dispatcher behavior is unchanged — `viz:` frontmatter still drives
+       layout selection (`map`, `network`, `chart`), and the matching JS
+       module mounts via data-viz= on the inner container. */ -}}
 
 {{- $viz  := .Params.viz | default "map" -}}
 {{- $cfg  := "" -}}
@@ -18,26 +25,68 @@
 
 {{- $id := printf "%s-%s" $viz $slug -}}
 
-<section class="map-page sightlines-page sightlines-page--{{ $viz }}" data-viz-id="{{ $id }}">
+{{- /* Display labels for theme + region tags — same dictionaries as
+       the sightlines list page so the casing reads consistently. */ -}}
+{{- $themeLabel := dict
+    "bankhead-jones"           "Bankhead-Jones"
+    "bundy-family"             "Bundy family"
+    "bunkerville"              "Bunkerville 2014"
+    "climate"                  "Climate"
+    "dust-bowl"                "Dust Bowl"
+    "farm-crisis"              "Farm Crisis"
+    "malheur"                  "Malheur 2016"
+    "public-lands"             "Public lands"
+    "rural-economy"            "Rural economy"
+    "sagebrush-rebellion-1979" "Sagebrush Rebellion (1979)"
+-}}
+{{- $regionLabel := dict
+    "northern-plains"    "Northern Plains"
+    "southern-plains"    "Southern Plains"
+    "rocky-mountain"     "Rocky Mountain"
+    "intermountain-west" "Intermountain West"
+    "southwest"          "Southwest"
+    "pacific-northwest"  "Pacific Northwest"
+    "pacific-southwest"  "Pacific Southwest"
+    "alaska"             "Alaska"
+    "national"           "National"
+    "great-plains"       "Great Plains"
+-}}
 
-  <aside class="map-page__about" id="{{ $id }}-about" aria-label="About this {{ $viz }}">
-    <div class="map-page__about-header">
-      <p class="map-page__eyebrow"><a href="{{ "/sightlines/" | relURL }}">Sightlines</a></p>
-      <h1 class="map-page__title">{{ .Title }}</h1>
-      {{- with .Params.lede }}<p class="map-page__lede">{{ . }}</p>{{ end }}
-    </div>
-    <div class="map-page__about-body prose">
-      {{ .Content }}
-      {{ partial "cite.html" . }}
-      {{ partial "coins.html" . }}
-    </div>
-  </aside>
+<article class="sightlines-single sightlines-single--{{ $viz }}" data-viz-id="{{ $id }}">
 
-  {{- $cls := "map-page__map" -}}
-  {{- if eq $viz "network" }}{{ $cls = printf "%s network-page__viz" $cls }}{{ end -}}
-  {{- if eq $viz "chart"   }}{{ $cls = printf "%s climate-page__viz" $cls }}{{ end -}}
+  {{- /* ── Banded header (Survey register) ─────────────────────────── */ -}}
+  <header class="sightlines-single__header">
+    <p class="sightlines-single__kicker"><a href="{{ "/sightlines/" | relURL }}">Sightlines</a></p>
+    <h1 class="sightlines-single__title">{{ .Title }}</h1>
+    {{- with .Params.lede }}<p class="sightlines-single__lede">{{ . }}</p>{{ end }}
+    {{- /* Meta strip: viz type + themes + regions + date. JetBrains Mono
+           uppercase, dot-separated. Quietly establishes what kind of
+           sightline this is before the viz loads. */ -}}
+    <p class="sightlines-single__meta">
+      <span class="sightlines-single__meta-tag">{{ humanize $viz }}</span>
+      {{- with .Params.themes }}
+        <span class="sightlines-single__meta-sep" aria-hidden="true">·</span>
+        <span class="sightlines-single__meta-tag">{{- range $i, $t := . -}}
+          {{- if $i }}, {{ end -}}
+          {{- index $themeLabel $t | default (humanize $t) -}}
+        {{- end -}}</span>
+      {{- end }}
+      {{- with .Params.regions }}
+        <span class="sightlines-single__meta-sep" aria-hidden="true">·</span>
+        <span class="sightlines-single__meta-tag">{{- range $i, $r := . -}}
+          {{- if $i }}, {{ end -}}
+          {{- index $regionLabel $r | default (humanize $r) -}}
+        {{- end -}}</span>
+      {{- end }}
+      {{- with .Date }}
+        <span class="sightlines-single__meta-sep" aria-hidden="true">·</span>
+        <span class="sightlines-single__meta-tag"><time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time></span>
+      {{- end }}
+    </p>
+  </header>
 
-  <div class="{{ $cls }}"
+  {{- /* ── Full-bleed viz block ─────────────────────────────────────── */ -}}
+  <div class="sightlines-single__viz sightlines-single__viz--{{ $viz }}"
        id="{{ $id }}"
        data-viz="{{ $viz }}"
        role="img"
@@ -45,6 +94,14 @@
     <noscript>This {{ $viz }} requires JavaScript.</noscript>
   </div>
   <script type="application/json" id="{{ $id }}-config">{{ $cfg | jsonify | safeJS }}</script>
-</section>
+
+  {{- /* ── Prose body ──────────────────────────────────────────────── */ -}}
+  <div class="sightlines-single__body prose">
+    {{ .Content }}
+    {{ partial "cite.html" . }}
+    {{ partial "coins.html" . }}
+  </div>
+
+</article>
 
 {{ end }}

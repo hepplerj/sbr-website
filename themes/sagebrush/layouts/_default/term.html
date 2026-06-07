@@ -1,0 +1,156 @@
+{{ define "main" }}
+{{- /* Taxonomy term page — Survey register.
+
+       Hugo renders this template for every taxonomy term URL:
+         /tags/blm/, /tags/great-basin/,
+         /themes/public-lands/, /places/nevada/, etc.
+
+       Shape mirrors the Writing index (narrative/list.html): a
+       banded Survey header (rust kicker · big title · italic deck)
+       above a numbered row list of pages carrying the term. Same
+       genre filter, same row pattern, same tag chips below each row.
+
+       For now this template is unscoped — it'll fire for any
+       taxonomy. If a section-specific term page is needed later
+       (e.g. /tags/<slug>/ to show ONLY essays vs sightlines), copy
+       this file under layouts/narrative/term.html and scope its
+       Page query. */ -}}
+
+{{- $term     := .Title -}}
+{{- $taxonomy := .Data.Singular | default .Section -}}
+
+{{- /* Pretty label for the term slug. Same rules as the meta tags
+       on the Writing index: acronyms pass through; everything else
+       gets hyphens → spaces + first-letter capitalized. The term's
+       displayed title (.Title) is already Hugo-capitalized which
+       isn't what we want for tags like "BLM" → "Blm", so derive a
+       label from the slug instead via the page's .Data.Term. */ -}}
+{{- $slug := .Data.Term -}}
+{{- $label := $slug -}}
+{{- if not (eq $slug (upper $slug)) -}}
+  {{- $label = strings.FirstUpper (replace $slug "-" " ") -}}
+{{- end -}}
+
+{{- /* Sort by essay `number:` so the displayed numerals (№01, №02, …)
+       on this term page match the reading order in the Writing index.
+       The visible numbers stay bound to each essay regardless of which
+       term they're filtered through. */ -}}
+{{- $pages := .Pages.ByParam "number" -}}
+
+{{- /* Per-genre counts inside this term's set, for the filter row. */ -}}
+{{- $countAll    := len $pages -}}
+{{- $countEssay  := len (where $pages "Params.genre" "essay") -}}
+{{- $countField  := len (where $pages "Params.genre" "field-note") -}}
+{{- $countMethod := len (where $pages "Params.genre" "method") -}}
+
+<article class="writing-page">
+
+  <header class="writing-header">
+    {{- /* Kicker tells the reader what kind of grouping this is —
+           "Tag", "Theme", "Place". The big H1 is the pretty-printed
+           term itself. Optional one-liner via .Description (set on a
+           per-term basis by creating content/tags/<slug>/_index.md
+           if you want custom copy; falls back to a generic line). */ -}}
+    <p class="writing-header__kicker">{{ humanize $taxonomy }}</p>
+    <div class="writing-header__row">
+      <h1 class="writing-header__title">{{ $label }}</h1>
+      {{- $desc := .Description -}}
+      {{- if not $desc -}}
+        {{- $desc = printf "Essays and field notes tagged %s." $label -}}
+      {{- end -}}
+      <div class="writing-header__desc"><p>{{ $desc | markdownify }}</p></div>
+    </div>
+  </header>
+
+  {{- /* Genre filter — same shape as the Writing index. Skipped when
+         the term has fewer than two essays (one-essay pages don't
+         benefit from a filter). */ -}}
+  {{- if gt $countAll 1 }}
+  <div class="writing-filter" role="group" aria-label="Filter by genre">
+    <div class="writing-filter__row">
+      <p class="writing-filter__label" id="term-filter-genre">Genre</p>
+      <div class="writing-filter__btns" role="group" aria-labelledby="term-filter-genre">
+        <button type="button" class="writing-filter__btn is-active" data-genre="" aria-pressed="true">
+          All <span class="writing-filter__count">{{ printf "(%02d)" $countAll }}</span>
+        </button>
+        {{- if gt $countEssay 0 }}
+        <button type="button" class="writing-filter__btn" data-genre="essay" aria-pressed="false">
+          Essays <span class="writing-filter__count">{{ printf "(%02d)" $countEssay }}</span>
+        </button>
+        {{- end }}
+        {{- if gt $countField 0 }}
+        <button type="button" class="writing-filter__btn" data-genre="field-note" aria-pressed="false">
+          Field notes <span class="writing-filter__count">{{ printf "(%02d)" $countField }}</span>
+        </button>
+        {{- end }}
+        {{- if gt $countMethod 0 }}
+        <button type="button" class="writing-filter__btn" data-genre="method" aria-pressed="false">
+          Methods <span class="writing-filter__count">{{ printf "(%02d)" $countMethod }}</span>
+        </button>
+        {{- end }}
+      </div>
+    </div>
+  </div>
+  {{- end }}
+
+  {{- if $pages }}
+    <ol class="writing-list">
+      {{- range $i, $page := $pages }}
+        {{- $authors := slice -}}
+        {{- with .Params.authors }}{{ $authors = . }}{{- else }}{{- with .Params.author }}{{ $authors = slice . }}{{ end }}{{ end -}}
+        {{- $num := .Params.number | default (add $i 1) -}}
+        <li class="writing-list__item" data-genre="{{ .Params.genre | default "essay" }}">
+          <a class="writing-list__link" href="{{ .RelPermalink }}">
+            <p class="writing-list__num">{{ printf "№%02d" $num }}</p>
+            <div class="writing-list__main">
+              <h2 class="writing-list__title">{{ .Title }}</h2>
+              {{- with or .Params.lede .Description }}
+                <p class="writing-list__deck">{{ . | markdownify }}</p>
+              {{- end }}
+              <p class="writing-list__meta">
+                {{- if $authors }}<span>By {{ delimit $authors ", " " and " }}</span>{{ end }}
+                {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
+                {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
+              </p>
+            </div>
+            <p class="writing-list__cta">Read <span aria-hidden="true">&rarr;</span></p>
+          </a>
+        </li>
+      {{- end }}
+    </ol>
+  {{- end }}
+
+</article>
+
+<script>
+  // Same single-dimension genre filter as the Writing index.
+  (function () {
+    var btns = document.querySelectorAll('.writing-filter__btn');
+    var items = document.querySelectorAll('.writing-list__item[data-genre]');
+    var active = new Set();
+    if (!btns.length || !items.length) return;
+    function refresh() {
+      btns.forEach(function (b) {
+        var g = b.dataset.genre;
+        var on = g === '' ? active.size === 0 : active.has(g);
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      items.forEach(function (el) {
+        var g = el.dataset.genre || '';
+        var visible = active.size === 0 || active.has(g);
+        el.classList.toggle('is-hidden', !visible);
+      });
+    }
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var g = btn.dataset.genre;
+        if (g === '') { active.clear(); }
+        else if (active.has(g)) { active.delete(g); }
+        else { active.add(g); }
+        refresh();
+      });
+    });
+  })();
+</script>
+{{ end }}
