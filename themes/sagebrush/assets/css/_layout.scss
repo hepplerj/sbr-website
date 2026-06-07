@@ -703,6 +703,21 @@ canvas {
   line-height: 1.5;
   max-width: 44rem;
   margin: var(--space-4) 0 0;
+
+  // markdownify wraps the lede string in its own <p>; reset its
+  // margins so the lede stays a single visual block. Matches the
+  // .writing-header__desc treatment.
+  > p { margin: 0; }
+
+  // Inline link inside the lede (e.g. the changelog's RSS link).
+  // Ink text with a rust hairline underline, brightening on hover.
+  a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rust);
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
 }
 
 // Body paragraphs rendered inside the section header (e.g. the
@@ -4375,6 +4390,41 @@ textarea:focus-visible {
 
 /* Hidden state for filtered-out rows */
 .is-hidden { display: none !important; }
+
+/* AI-disclosure note on changelog entries (and any other AI-drafted
+   infrastructure-style writing that opts in). Quiet panel sitting at
+   the top of the body — reads as editorial chrome explaining the
+   provenance, not as a warning. */
+.ai-authored-note {
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--panel);
+  border-left: 2px solid var(--rust);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--soft);
+}
+.ai-authored-note__label {
+  margin: 0 0 0.35em;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rust);
+}
+.ai-authored-note__body {
+  margin: 0;
+  color: var(--ink);
+
+  a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rust);
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
+}
 
 /* Numbered row list — №01, №02, …, each row a clickable card */
 .writing-list {

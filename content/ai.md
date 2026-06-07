@@ -17,6 +17,7 @@ Right up front: nothing here was written by a generative AI. The only work gener
 - **Site infrastructure.** The Hugo theme, layout templates, partials, shortcodes, and CSS. The palette, typography system, and component library were built in conversation with me.
 - **Visualization code.** The Leaflet map module (`maps.js`), the D3 AlbersUSA map module (`d3-maps.js`), the D3 force-directed network module (`networks.js`), the D3 chart module (`charts.js`) that renders climate stripes, line plots, and bar charts, and the Sightlines index filter module (`sightlines-map.js`) with its clickable region mini-map.
 - **Data processing pipelines.** Python scripts that pull and aggregate open and government data.
+- **[Changelog posts](/updates/).** The first pass of the changelog posts are drafted by generative AI, but since these are not part of the research or scholarly apparatus I'm more comfortable with an AI handling a record of changes to the site.
 
 ## What AI did not write
 

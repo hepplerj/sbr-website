@@ -10,7 +10,12 @@
   <div class="section-intro__row">
     <h1 class="section-intro__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
     {{- with .Params.lede }}
-      <p class="section-intro__lede">{{ . }}</p>
+      {{- /* Lede may carry inline markdown (links, emphasis). Use a
+             <div> wrapper so markdownify's own <p> wrapping doesn't
+             produce nested <p>s (which browsers auto-close, breaking
+             the class-targeted styling). Matches the writing-header
+             pattern. */ -}}
+      <div class="section-intro__lede">{{ . | markdownify }}</div>
     {{- end }}
   </div>
   {{- /* When TOC is off, prose content lives inside the section-intro
