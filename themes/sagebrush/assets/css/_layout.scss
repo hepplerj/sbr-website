@@ -80,7 +80,15 @@ canvas {
   max-width: var(--measure-full);
   margin: 0 auto;
   display: flex;
-  align-items: baseline;
+  // align-items: center — the wordmark (mixed-case Zilla Slab 24px,
+  // with descenders) and the nav links (all-caps Source Sans 14px,
+  // no descenders) have different baseline geometries. `baseline`
+  // alignment puts them on the same alphabetic line but their
+  // optical centers don't match, which reads as the wordmark
+  // floating slightly above the nav. `center` aligns the vertical
+  // midpoints of each child, which is what the eye perceives as
+  // "in line."
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-5);
   flex-wrap: wrap;
@@ -111,7 +119,7 @@ canvas {
 }
 .site-nav a {
   font-family: var(--font-ui);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -556,11 +564,11 @@ canvas {
 .section-intro {
   max-width: var(--measure-full);
   margin: 0 auto var(--space-section);
-  padding: var(--space-section) var(--space-page) var(--space-6);
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome — was section/6, now 5/3 for less ceremony before content
   border-bottom: 1.5px solid var(--ink);
 
   @media (max-width: 56rem) {
-    padding: var(--space-7) var(--space-5) var(--space-5);
+    padding: var(--space-4) var(--space-5) var(--space-3);
   }
 }
 
@@ -1026,12 +1034,12 @@ canvas {
 .page-header {
   max-width: var(--measure-full);
   margin: 0 auto var(--space-section);
-  padding: var(--space-section) var(--space-page) var(--space-6);
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome
   border-bottom: 1.5px solid var(--ink);
   text-align: left;
 
   @media (max-width: 56rem) {
-    padding: var(--space-7) var(--space-5) var(--space-5);
+    padding: var(--space-4) var(--space-5) var(--space-3);
   }
 }
 
@@ -1244,7 +1252,7 @@ canvas {
 .sightlines-single__header {
   background: var(--panel);
   box-shadow: inset 0 -1px 0 var(--rule);
-  padding: var(--space-section) var(--space-page) var(--space-6);
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome
   margin: 0 0 var(--space-section);
 
   > * {
@@ -2148,7 +2156,7 @@ canvas {
 .sightlines-page__header {
   max-width: var(--measure-full);
   margin: 0 auto 48px;
-  padding: 56px var(--space-page) 36px;
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome — was 56/36
   border-bottom: 1.5px solid var(--ink);
 }
 .sightlines-page__kicker {
@@ -2167,7 +2175,7 @@ canvas {
 }
 .sightlines-page__title {
   font-family: var(--font-display);
-  font-size: clamp(3.4rem, 6vw, 4.5rem);
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);   // unified with .section-intro__title / .page-header__title
   font-weight: 500;
   line-height: 1.04;
   letter-spacing: -0.01em;
@@ -4027,7 +4035,7 @@ textarea:focus-visible {
   border-left: 1.5px solid transparent;
   border-radius: 0;
   padding: 0.85rem 0.9rem 0.85rem 2.4rem;
-  font-family: var(--font-body);
+  font-family: var(--font-ui);
   font-size: 15px;
   line-height: 1.55;
   color: var(--ink);
@@ -4256,7 +4264,7 @@ textarea:focus-visible {
 }
 .writing-header__title {
   font-family: var(--font-display);
-  font-size: clamp(3.4rem, 6vw, 4.5rem);   // ~54–72px per spec
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);   // unified with .section-intro__title / .page-header__title — Design spec called for ~54–72px but the smaller clamp reads better against the rest of the site
   font-weight: 500;
   line-height: 1.04;
   letter-spacing: -0.01em;
@@ -4518,7 +4526,7 @@ textarea:focus-visible {
 }
 .narrative-header__title {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 4.6vw, 3.6rem);   // ~38–58px
+  font-size: clamp(2.4rem, 5.2vw, 3.6rem);   // unified site-wide; ~38–58px
   font-weight: 500;
   line-height: 1.04;
   letter-spacing: -0.01em;
@@ -5592,8 +5600,9 @@ body { overflow-x: clip; }
   // Inner content centers to --measure-full within the band; padding
   // on the header itself supplies the inner gutter — top padding pulls
   // the kicker down off the site nav, bottom padding spaces the band
-  // from the body content below.
-  padding: var(--space-section) var(--space-page) var(--space-6);
+  // from the body content below. Trimmed from section/6 to 5/3 so the
+  // band reads as a quieter offset rather than a hero plate.
+  padding: var(--space-5) var(--space-page) var(--space-3);
 
   > * {
     max-width: var(--measure-full);
@@ -5627,7 +5636,7 @@ body { overflow-x: clip; }
   margin-right: calc(50% - 50vw);
   margin-bottom: var(--space-section);
 
-  padding: var(--space-section) var(--space-page) var(--space-6);
+  padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome
 
   > * {
     max-width: var(--measure-full);
