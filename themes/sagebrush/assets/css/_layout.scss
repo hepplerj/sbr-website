@@ -3027,6 +3027,81 @@ canvas {
   stroke-dasharray: 3 3;
 }
 
+// ── Scatter / event chart ──────────────────────────────────────────
+.chart-viz__scatter-grid line {
+  stroke: var(--rule);
+  stroke-width: 1px;
+  opacity: 0.5;
+}
+.chart-viz__scatter-dot {
+  stroke: var(--paper);
+  stroke-width: 1.5px;
+  cursor: pointer;
+  transition: r 120ms var(--ease);
+}
+// Modification glyphs (triangles). Reduction points down, restoration/
+// expansion points up — set via rotate() in JS. A paper stroke lifts
+// them off any dot they overlap.
+.chart-viz__scatter-modglyph {
+  stroke: var(--paper);
+  stroke-width: 1.5px;
+  cursor: pointer;
+  transition: opacity 120ms var(--ease);
+}
+// Dashed connector tracing a monument from designation → modification.
+.chart-viz__scatter-link {
+  stroke: var(--ink);
+  stroke-width: 1.25px;
+  stroke-dasharray: 3 3;
+  opacity: 0.4;
+}
+.chart-viz__scatter-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+// DOM legend below the SVG.
+.chart-viz__scatter-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 14px var(--space-5) 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--soft);
+}
+.chart-viz__scatter-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.chart-viz__scatter-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.chart-viz__scatter-glyph {
+  width: 0;
+  height: 0;
+  display: inline-block;
+}
+.chart-viz__scatter-glyph--down {
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 10px solid var(--soft);
+}
+.chart-viz__scatter-glyph--up {
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid var(--soft);
+}
+
 .chart-viz__line {
   fill: none;
   stroke: var(--color-rust);

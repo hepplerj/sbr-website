@@ -89,28 +89,46 @@
     // sets it to something value-specific on mouseover. We cache the
     // default once and compare on every mousemove: matching = idle,
     // pin to CSS corner; differing = active hover, follow the cursor.
+    //
+    // `cfg.hideidlecard: true` suppresses the idle prompt entirely —
+    // the card stays hidden until the cursor is over a data element,
+    // then appears at the cursor. Good for dense charts where the idle
+    // card would cover data (e.g. the wide monuments scatter).
     const defaultPromptHTML = info.innerHTML;
-    const pinCardToCorner = () => {
-      info.style.left = "";
-      info.style.top = "";
-      info.style.right = "";
+    const hideIdle = cfg.hideidlecard === true || cfg.hideidlecard === "true";
+    if (hideIdle) info.style.display = "none";
+    const resetIdle = () => {
+      if (hideIdle) {
+        info.style.display = "none";
+      } else {
+        info.style.left = "";
+        info.style.top = "";
+        info.style.right = "";
+      }
     };
     container.addEventListener("mousemove", (event) => {
       if (info.innerHTML !== defaultPromptHTML) {
+        if (hideIdle) info.style.display = "";
         placeTimelineCard(info, container, event);
       } else {
-        pinCardToCorner();
+        resetIdle();
       }
     });
-    container.addEventListener("mouseleave", pinCardToCorner);
+    container.addEventListener("mouseleave", resetIdle);
 
     d3.json(cfg.src)
       .then((raw) => {
         const type = cfg.type || "stripes";
-        // Timeline reads both events + lane definitions from the raw JSON;
-        // every other chart type works off a single resolved array.
+        // Timeline + scatter read multiple arrays from the raw JSON
+        // (timeline: events + lanes; scatter: marks + modifications), so
+        // they take `raw` directly. Every other type works off a single
+        // resolved array.
         if (type === "timeline") {
           drawTimeline(container, cfg, raw, info);
+          return;
+        }
+        if (type === "scatter") {
+          drawScatter(container, cfg, raw, info);
           return;
         }
         const series = resolvePath(raw, cfg.datapath || "data");
@@ -1248,6 +1266,235 @@
       },
       onLeave: () => { info.innerHTML = infoHTML(cfg); },
     });
+  }
+
+  // ── Scatter / event chart ───────────────────────────────────────────
+  // Each datum is a mark at (xfield, yfield); y is log-scaled (good for
+  // values spanning many orders of magnitude — e.g. monument acreage
+  // from <100 to >10M). Color encodes a categorical field (e.g. party).
+  // An optional second array (cfg.modspath) holds *modification* events
+  // that reference a primary mark by name and are drawn as distinct
+  // glyphs connected back to their parent with a dashed line — built for
+  // the Bears Ears / Grand Staircase reduce-then-restore saga.
+  //
+  // cfg keys:
+  //   datapath      array of primary marks (default "data")
+  //   modspath      optional array of modification events
+  //   xfield        x value key (default "year")
+  //   yfield        y value key (default "value")
+  //   colorfield    categorical key → palette lookup (e.g. "party")
+  //   labelfield    key used for the hover heading + auto-labels
+  //   namefield     key linking a modification to its parent (default labelfield)
+  //   palette       { <category>: <named-or-hex color> }
+  //   catlabels     { <category>: "Legend label" }
+  //   labelthreshold  auto-label marks whose y exceeds this (0 = none)
+  //   yunit         suffix for the value in hover/axis (e.g. " acres")
+  //   periods       optional era spans (same shape as other charts)
+  function drawScatter(container, cfg, raw, info) {
+    const xKey = cfg.xfield || "year";
+    const yKey = cfg.yfield || "value";
+    const colorKey = cfg.colorfield || "category";
+    const labelKey = cfg.labelfield || "name";
+    const nameKey = cfg.namefield || labelKey;
+    const yUnit = cfg.yunit || "";
+
+    const marks = resolvePath(raw, cfg.datapath || "data") || [];
+    const mods = cfg.modspath ? (resolvePath(raw, cfg.modspath) || []) : [];
+    if (!Array.isArray(marks) || !marks.length) return;
+
+    const palette = lowerKeysShallow(cfg.palette || {});
+    const catLabels = lowerKeysShallow(cfg.catlabels || {});
+    const colorFor = (cat) => resolveColor(palette[String(cat).toLowerCase()], "#6b7a5a");
+
+    const allX = marks.map((d) => +d[xKey]).filter((v) => !isNaN(v));
+    const allY = marks.map((d) => +d[yKey]).filter((v) => v > 0);
+    if (!allX.length || !allY.length) return;
+
+    const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
+    const W = 1200;
+    const baseMarginLeft = 64, baseMarginRight = 24;
+    const baseInnerW = W - baseMarginLeft - baseMarginRight;
+    const xExtent = [Math.min(...allX) - 3, Math.max(...allX) + 3];
+    const eraPlan = planEraRows(periods, xExtent[0], xExtent[1], baseInnerW);
+    const PERIOD_H = eraStripHeight(eraPlan.maxRow);
+
+    const H = 480 + PERIOD_H;
+    const margin = { top: 40 + PERIOD_H, right: baseMarginRight, bottom: 42, left: baseMarginLeft };
+    const innerW = W - margin.left - margin.right;
+    const innerH = H - margin.top - margin.bottom;
+
+    const svg = d3.select(container).append("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .attr("role", "img")
+      .attr("aria-label", cfg.title || "Scatter chart");
+
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const xScale = d3.scaleLinear().domain(xExtent).range([0, innerW]);
+
+    // Log y. Pad the data extent by ~half a decade each way for
+    // breathing room rather than snapping out to full powers of ten,
+    // which would leave an empty decade above the largest mark.
+    const yMin = Math.min(...allY), yMax = Math.max(...allY);
+    const yScale = d3.scaleLog().domain([yMin / 1.6, yMax * 1.6]).range([innerH, 0]).clamp(true);
+
+    // ── grid + axes ──────────────────────────────────────────────────
+    const yTicks = yScale.ticks(6).filter((t) => Math.log10(t) % 1 === 0);
+    g.append("g").attr("class", "chart-viz__scatter-grid")
+      .selectAll("line").data(yTicks).join("line")
+      .attr("x1", 0).attr("x2", innerW)
+      .attr("y1", (d) => yScale(d)).attr("y2", (d) => yScale(d));
+
+    const decadeTicks = d3.range(Math.ceil(xExtent[0] / 10) * 10, xExtent[1] + 1, 20);
+    g.append("g").attr("class", "chart-viz__axis")
+      .attr("transform", `translate(0,${innerH})`)
+      .call(d3.axisBottom(xScale).tickValues(decadeTicks).tickFormat((y) => y).tickSizeOuter(0));
+    g.append("g").attr("class", "chart-viz__axis")
+      .call(d3.axisLeft(yScale).tickValues(yTicks).tickFormat(formatAcresShort).tickSizeOuter(0));
+
+    // Era strip (shared with line/bars/stripes).
+    if (periods.length) {
+      drawEraStrip(svg, periods, xScale, {
+        offsetX: margin.left,
+        offsetY: margin.top - 6,
+        rowMap: eraPlan.rows,
+        onHover: (p) => {
+          info.innerHTML = `
+            <h4>${p.start}–${p.end}</h4>
+            <div class="detail"><strong>${escapeHTML(p.label || "")}</strong></div>
+            ${p.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(p.description)}</div>` : ""}
+          `;
+        },
+        onLeave: () => { info.innerHTML = infoHTML(cfg); },
+      });
+    }
+
+    // ── modification connectors ──────────────────────────────────────
+    // For each monument that was later modified, build a chronological
+    // path [designation, …mods sorted by year] and draw consecutive
+    // dashed segments. Traces the Bears Ears saga as a single line:
+    // 2016 designation → 2017 reduction (drops) → 2021 restoration (climbs).
+    const markByName = new Map(marks.map((d) => [d[nameKey], d]));
+    const modsByName = d3.group(mods, (d) => d[nameKey]);
+    const modGroup = g.append("g").attr("class", "chart-viz__scatter-mods");
+    modsByName.forEach((group, name) => {
+      const parent = markByName.get(name);
+      if (!parent) return;
+      const path = [parent, ...group]
+        .filter((d) => +d[yKey] > 0)
+        .sort((a, b) => +a[xKey] - +b[xKey]);
+      for (let i = 0; i < path.length - 1; i++) {
+        modGroup.append("line")
+          .attr("class", "chart-viz__scatter-link")
+          .attr("x1", xScale(+path[i][xKey])).attr("y1", yScale(+path[i][yKey]))
+          .attr("x2", xScale(+path[i + 1][xKey])).attr("y2", yScale(+path[i + 1][yKey]));
+      }
+    });
+
+    const showMarkCard = (event, d, isMod) => {
+      const lines = [];
+      if (d.president) lines.push(`${d.president}${d.party ? " (" + d.party + ")" : ""}`);
+      if (d.agency) lines.push(d.agency + (d.states ? " · " + d.states.join(", ") : ""));
+      const valLabel = isMod
+        ? `${capitalize(d.kind || "change")} → ${formatAcres(+d[yKey])}${yUnit}`
+        : `${formatAcres(+d[yKey])}${yUnit}`;
+      info.innerHTML = `
+        <h4>${d[xKey]} · ${escapeHTML(String(d[labelKey] || d[nameKey] || ""))}</h4>
+        <div class="detail"><strong>${valLabel}</strong></div>
+        ${lines.length ? `<div class="detail">${escapeHTML(lines.join(" · "))}</div>` : ""}
+        ${d.note ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(d.note)}</div>` : ""}
+      `;
+    };
+    const hideCard = () => { info.innerHTML = infoHTML(cfg); };
+
+    // ── primary marks ────────────────────────────────────────────────
+    g.append("g").attr("class", "chart-viz__scatter-marks")
+      .selectAll("circle").data(marks.filter((d) => +d[yKey] > 0)).join("circle")
+      .attr("class", "chart-viz__scatter-dot")
+      .attr("cx", (d) => xScale(+d[xKey]))
+      .attr("cy", (d) => yScale(+d[yKey]))
+      .attr("r", 7)
+      .attr("fill", (d) => colorFor(d[colorKey]))
+      .on("mouseover", function (event, d) {
+        d3.select(this).attr("r", 10);
+        showMarkCard(event, d, false);
+      })
+      .on("mousemove", (event) => placeTimelineCard(info, container, event))
+      .on("mouseout", function () { d3.select(this).attr("r", 7); hideCard(); });
+
+    // ── modification glyphs (down = reduction, up = restoration/expand) ─
+    const symbolFor = (kind) =>
+      kind === "reduction" ? d3.symbolTriangle : d3.symbolTriangle;
+    g.append("g").attr("class", "chart-viz__scatter-modmarks")
+      .selectAll("path").data(mods.filter((d) => +d[yKey] > 0)).join("path")
+      .attr("class", (d) => "chart-viz__scatter-modglyph mod-" + String(d.kind || "x").replace(/[^a-z0-9]/gi, ""))
+      .attr("transform", (d) => {
+        const flip = d.kind === "reduction" ? 180 : 0;   // point down for a cut
+        return `translate(${xScale(+d[xKey])},${yScale(+d[yKey])}) rotate(${flip})`;
+      })
+      .attr("d", d3.symbol().type((d) => symbolFor(d.kind)).size(120))
+      .attr("fill", (d) => colorFor(d.party))
+      .on("mouseover", function (event, d) {
+        d3.select(this).attr("opacity", 0.7);
+        showMarkCard(event, d, true);
+      })
+      .on("mousemove", (event) => placeTimelineCard(info, container, event))
+      .on("mouseout", function () { d3.select(this).attr("opacity", 1); hideCard(); });
+
+    // ── auto-labels for the big marks ────────────────────────────────
+    const threshold = cfg.labelthreshold != null ? +cfg.labelthreshold : 0;
+    if (threshold > 0) {
+      g.append("g").attr("class", "chart-viz__scatter-labels")
+        .selectAll("text").data(marks.filter((d) => +d[yKey] >= threshold)).join("text")
+        .attr("class", "chart-viz__scatter-label")
+        .attr("x", (d) => xScale(+d[xKey]))
+        .attr("y", (d) => yScale(+d[yKey]) - 12)
+        .attr("text-anchor", "middle")
+        .text((d) => d[labelKey]);
+    }
+
+    // ── legend (party swatches + modification glyph key) ─────────────
+    const cats = Array.from(new Set(marks.map((d) => String(d[colorKey])))).filter(Boolean);
+    const legend = document.createElement("div");
+    legend.className = "chart-viz__scatter-legend";
+    const swatches = cats.map((c) => {
+      const lbl = catLabels[c.toLowerCase()] || c;
+      return `<span class="chart-viz__scatter-legend-item"><span class="chart-viz__scatter-swatch" style="background:${colorFor(c)}"></span>${escapeHTML(lbl)}</span>`;
+    });
+    if (mods.length) {
+      swatches.push(`<span class="chart-viz__scatter-legend-item"><span class="chart-viz__scatter-glyph chart-viz__scatter-glyph--down"></span>Reduced</span>`);
+      swatches.push(`<span class="chart-viz__scatter-legend-item"><span class="chart-viz__scatter-glyph chart-viz__scatter-glyph--up"></span>Restored / expanded</span>`);
+    }
+    legend.innerHTML = swatches.join("");
+    container.appendChild(legend);
+  }
+
+  // Shallow lowercase-key normalizer (Hugo lowercases frontmatter, but
+  // JSON palette/labels keys may arrive cased — normalize for lookup).
+  function lowerKeysShallow(obj) {
+    const out = {};
+    Object.keys(obj || {}).forEach((k) => { out[k.toLowerCase()] = obj[k]; });
+    return out;
+  }
+
+  function capitalize(s) {
+    s = String(s || "");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // 1347 → "1,347 acres" ; 704000 → "704,000 acres" ; 10950000 → "10.95M acres"
+  function formatAcres(n) {
+    n = +n;
+    if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 1 : 2).replace(/\.0+$/, "") + "M acres";
+    return n.toLocaleString("en-US") + " acres";
+  }
+  // Axis-tick form: 1k / 10k / 100k / 1M / 10M
+  function formatAcresShort(n) {
+    n = +n;
+    if (n >= 1e6) return (n / 1e6) + "M";
+    if (n >= 1e3) return (n / 1e3) + "k";
+    return String(n);
   }
 
   // ── Small-multiples line chart ──────────────────────────────────────
