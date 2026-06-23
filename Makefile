@@ -8,9 +8,9 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments bibliography clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire bibliography clean-data site site-fast serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments bibliography
+data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -112,6 +112,11 @@ timeline:
 # API exists); verify acreages against CRS R41330.
 national-monuments:
 	$(PY) scripts/build_national_monuments.py
+
+# US wildland fire totals (NIFC, 1983–present). Embedded transcription
+# of the NIFC annual table; re-verify against nifc.gov when extending.
+wildfire:
+	$(PY) scripts/build_wildfire.py
 
 bibliography:
 	$(PY) scripts/build_bibliography.py
