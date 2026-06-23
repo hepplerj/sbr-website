@@ -17,26 +17,35 @@
 {{- $sourceURL := .Get "sourceurl" -}}
 {{- $hasAttr   := or $author $source -}}
 
+{{- /* Render the param string with inline markdown support. Hugo's
+       markdownify wraps single-line input in <p>…</p>; strip the
+       wrapper so the result lands cleanly inside <span>/<cite>
+       without producing nested <p> elements. Lets the author write
+       things like `_Environmental History Review_` and have it
+       render italic. */ -}}
+{{- $renderInline := dict -}}
+
 <aside class="pullquote">
   <blockquote class="pullquote__body">
     {{- .Inner | markdownify -}}
   </blockquote>
   {{- if $hasAttr }}
   <p class="pullquote__attr">
-    <span class="pullquote__attr-dash" aria-hidden="true">— </span>
     {{- with $author -}}
+      {{- $rendered := . | markdownify | strings.TrimPrefix "<p>" | strings.TrimSuffix "</p>" | safeHTML -}}
       {{- if $authorURL -}}
-        <a class="pullquote__author" href="{{ $authorURL }}">{{ . }}</a>
+        <a class="pullquote__author" href="{{ $authorURL }}">{{ $rendered }}</a>
       {{- else -}}
-        <span class="pullquote__author">{{ . }}</span>
+        <span class="pullquote__author">{{ $rendered }}</span>
       {{- end -}}
     {{- end -}}
-    {{- if and $author $source }}, {{ end -}}
+    {{- if and $author $source }} <span class="pullquote__attr-sep" aria-hidden="true">·</span> {{ end -}}
     {{- with $source -}}
+      {{- $rendered := . | markdownify | strings.TrimPrefix "<p>" | strings.TrimSuffix "</p>" | safeHTML -}}
       {{- if $sourceURL -}}
-        <cite><a class="pullquote__source" href="{{ $sourceURL }}">{{ . }}</a></cite>
+        <cite><a class="pullquote__source" href="{{ $sourceURL }}">{{ $rendered }}</a></cite>
       {{- else -}}
-        <cite class="pullquote__source">{{ . }}</cite>
+        <cite class="pullquote__source">{{ $rendered }}</cite>
       {{- end -}}
     {{- end -}}
   </p>
