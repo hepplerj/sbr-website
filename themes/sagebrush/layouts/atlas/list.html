@@ -21,8 +21,9 @@
   {{- if $entries }}
     <ul class="row-list">
       {{- range $entries }}
-        {{- $mode := .Params.atlas.mode }}
-        {{- $tag := index $modeLabel $mode | default "Atlas" }}
+        {{- $tag := "Atlas" }}
+        {{- with .Params.atlas }}{{ with .mode }}{{ $tag = index $modeLabel . | default "Atlas" }}{{ end }}{{ end }}
+        {{- with .Params.tag }}{{ $tag = . }}{{ end }}
         <li class="row-list__item">
           <a class="row-list__link" href="{{ .RelPermalink }}">
             <p class="row-list__tag">{{ $tag }}</p>
