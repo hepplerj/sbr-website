@@ -32,6 +32,10 @@ enableEmoji = false
     url = "/data/"
     weight = 20
   [[menu.main]]
+    name = "Documents"
+    url = "/documents/"
+    weight = 25
+  [[menu.main]]
     name = "Bibliography"
     url = "/sources/"
     weight = 30

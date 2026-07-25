@@ -5,8 +5,40 @@
        chronological row list of transcribed documents. The
        institutional story reads forward (Antiquities 1906 → Taylor
        1934 → MUSY 1960 → Wilderness 1964 → FLPMA 1976 → …) rather
-       than back from current law. */ -}}
+       than back from current law.
+
+       When the archive spans more than one value on a filterable
+       dimension, the list moves into the Sightlines 1/3–2/3 layout:
+       a sticky filter rail on the left, the row list on the right.
+       New dimensions (a date/era section, etc.) drop in as another
+       `.sightlines-rail__section` with a `data-dimension` pill group
+       and matching `data-<dimension>` attributes on the rows — the
+       filter script below is generic across dimensions, so no JS
+       change is needed to add one. */ -}}
 {{- $entries := .RegularPages.ByDate -}}
+
+{{- /* Filter dimensions, discovered from the published set (draft-
+       aware via .RegularPages). A dimension only earns a rail section
+       when it holds more than one distinct value. */ -}}
+{{- $jurPresent := slice -}}
+{{- $typePresent := slice -}}
+{{- $decPresent := slice -}}
+{{- range $entries -}}
+  {{- with .Params.jurisdiction }}{{ $jurPresent = $jurPresent | append . }}{{ end -}}
+  {{- with .Params.doctype }}{{ $typePresent = $typePresent | append . }}{{ end -}}
+  {{- if not .Date.IsZero }}{{ $decPresent = $decPresent | append (sub .Date.Year (mod .Date.Year 10)) }}{{ end -}}
+{{- end -}}
+{{- $jurPresent = $jurPresent | uniq | sort -}}
+{{- $typePresent = $typePresent | uniq | sort -}}
+{{- $decPresent = $decPresent | uniq | sort -}}
+
+{{- $showJur  := gt (len $jurPresent) 1 -}}
+{{- $showType := gt (len $typePresent) 1 -}}
+{{- $showDec  := gt (len $decPresent) 1 -}}
+{{- $showRail := or $showJur $showType $showDec -}}
+
+{{- $jurLabel  := dict "federal" "Federal" "state" "State" -}}
+{{- $typeLabel := dict "statute" "Statutes" "resolution" "Resolutions" "initiative" "Initiatives" -}}
 
 <header class="sightlines-page__header">
   <p class="sightlines-page__kicker">{{ .Title }}</p>
@@ -16,31 +48,137 @@
   </div>
 </header>
 
-<section class="documents-list">
-  {{- if $entries }}
-    <ul class="row-list">
-      {{- range $entries }}
-        <li class="row-list__item">
-          <a class="row-list__link" href="{{ .RelPermalink }}">
-            <p class="row-list__tag">
-              {{- with .Params.doctype }}{{ humanize . }}{{ else }}Document{{ end -}}
-              {{- with .Params.date }} <span class="row-list__tag-year">{{ .Format "2006" }}</span>{{ end -}}
-            </p>
-            <div class="row-list__main">
-              <h2 class="row-list__title">{{- with .Params.shortTitle }}{{ . }}{{ else }}{{ .Title }}{{ end -}}</h2>
-              {{- with .Params.citation }}<p class="row-list__meta">{{ . | markdownify }}</p>{{ end }}
-            </div>
-            <p class="row-list__cta">View</p>
-          </a>
-        </li>
-      {{- end }}
-    </ul>
-  {{- else }}
-    <p class="documents-list__empty"><em>No documents yet.</em></p>
-  {{- end }}
+{{- if $showRail }}
+<div class="sightlines-layout">
+  <aside class="sightlines-rail documents-rail" aria-label="Filter documents">
+    {{- if $showJur }}
+    <div class="sightlines-rail__section">
+      <p class="sightlines-rail__label">Jurisdiction</p>
+      <div class="sightlines-filter__pills" data-dimension="jurisdiction" role="group" aria-label="Filter by jurisdiction">
+        <button type="button" class="sightlines-filter__pill is-active" data-value="" aria-pressed="true">All</button>
+        {{- range $jurPresent }}
+          <button type="button" class="sightlines-filter__pill" data-value="{{ . }}" aria-pressed="false">{{ index $jurLabel . | default (humanize .) }}</button>
+        {{- end }}
+      </div>
+    </div>
+    {{- end }}
+    {{- if $showType }}
+    <div class="sightlines-rail__section">
+      <p class="sightlines-rail__label">Type</p>
+      <div class="sightlines-filter__pills" data-dimension="doctype" role="group" aria-label="Filter by type">
+        <button type="button" class="sightlines-filter__pill is-active" data-value="" aria-pressed="true">All</button>
+        {{- range $typePresent }}
+          <button type="button" class="sightlines-filter__pill" data-value="{{ . }}" aria-pressed="false">{{ index $typeLabel . | default (humanize . | pluralize) }}</button>
+        {{- end }}
+      </div>
+    </div>
+    {{- end }}
+    {{- if $showDec }}
+    <div class="sightlines-rail__section">
+      <p class="sightlines-rail__label">Decade</p>
+      <div class="sightlines-filter__pills" data-dimension="decade" role="group" aria-label="Filter by decade">
+        <button type="button" class="sightlines-filter__pill is-active" data-value="" aria-pressed="true">All</button>
+        {{- range $decPresent }}
+          <button type="button" class="sightlines-filter__pill" data-value="{{ . }}" aria-pressed="false">{{ . }}s</button>
+        {{- end }}
+      </div>
+    </div>
+    {{- end }}
+  </aside>
 
-  {{- with .Content }}
-    <aside class="documents-list__note">{{ . }}</aside>
-  {{- end }}
-</section>
+  <div class="sightlines-content">
+{{- end }}
+
+  <section class="documents-list">
+    {{- if $entries }}
+      <ul class="row-list">
+        {{- range $entries }}
+          <li class="row-list__item"
+              data-jurisdiction="{{ .Params.jurisdiction | default "" }}"
+              data-doctype="{{ .Params.doctype | default "" }}"
+              data-decade="{{ if not .Date.IsZero }}{{ sub .Date.Year (mod .Date.Year 10) }}{{ end }}">
+            <a class="row-list__link" href="{{ .RelPermalink }}">
+              <p class="row-list__tag">
+                {{- with .Params.doctype }}{{ humanize . }}{{ else }}Document{{ end -}}
+                {{- with .Params.date }} <span class="row-list__tag-year">{{ .Format "2006" }}</span>{{ end -}}
+              </p>
+              <div class="row-list__main">
+                <h2 class="row-list__title">{{- with .Params.shortTitle }}{{ . }}{{ else }}{{ .Title }}{{ end -}}</h2>
+                {{- with .Params.citation }}<p class="row-list__meta">{{ . | markdownify }}</p>{{ end }}
+              </div>
+              <p class="row-list__cta">View</p>
+            </a>
+          </li>
+        {{- end }}
+      </ul>
+      <p class="documents-list__empty is-hidden" data-empty-msg><em>No documents match this filter.</em></p>
+    {{- else }}
+      <p class="documents-list__empty"><em>No documents yet.</em></p>
+    {{- end }}
+
+    {{- with .Content }}
+      <aside class="documents-list__note">{{ . }}</aside>
+    {{- end }}
+  </section>
+
+{{- if $showRail }}
+  </div>{{- /* .sightlines-content */ -}}
+</div>{{- /* .sightlines-layout */ -}}
+
+<script>
+  // Documents filter rail — generic across dimensions. Each pill group
+  // carries data-dimension; each row carries data-<dimension>. A row is
+  // visible when, for EVERY dimension, that dimension's active set is
+  // empty or the row's value is in it (AND across dimensions, OR within).
+  // Add a new dimension by adding a rail section + a data-<dim> attribute
+  // on the rows — no change here.
+  (function () {
+    var rail = document.querySelector('.documents-rail');
+    var list = document.querySelector('.documents-list');
+    if (!rail || !list) return;
+    var groups = rail.querySelectorAll('[data-dimension]');
+    var items = list.querySelectorAll('.row-list__item');
+    var empty = list.querySelector('[data-empty-msg]');
+    if (!groups.length || !items.length) return;
+
+    var active = {};
+    groups.forEach(function (g) { active[g.dataset.dimension] = new Set(); });
+
+    function refresh() {
+      groups.forEach(function (g) {
+        var dim = g.dataset.dimension;
+        g.querySelectorAll('.sightlines-filter__pill').forEach(function (b) {
+          var v = b.dataset.value;
+          var on = v === '' ? active[dim].size === 0 : active[dim].has(v);
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      });
+      var shown = 0;
+      items.forEach(function (el) {
+        var visible = Object.keys(active).every(function (dim) {
+          var set = active[dim];
+          return !set.size || set.has(el.dataset[dim] || '');
+        });
+        el.classList.toggle('is-hidden', !visible);
+        if (visible) shown++;
+      });
+      if (empty) empty.classList.toggle('is-hidden', shown !== 0);
+    }
+
+    groups.forEach(function (g) {
+      var dim = g.dataset.dimension;
+      g.querySelectorAll('.sightlines-filter__pill').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var v = btn.dataset.value;
+          if (v === '') active[dim].clear();
+          else if (active[dim].has(v)) active[dim].delete(v);
+          else active[dim].add(v);
+          refresh();
+        });
+      });
+    });
+  })();
+</script>
+{{- end }}
 {{ end }}
