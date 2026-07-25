@@ -8,9 +8,9 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire bibliography clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices follow-the-money fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography clean-data site site-fast serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire bibliography
+data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -30,6 +30,18 @@ bankhead-jones:
 us-federal-lands:
 	$(PY) scripts/build_us_federal_lands.py
 
+# Trust lands + FWS easements — the overlay layers for the alt federal-lands
+# map. Deliberately not in `data`: it's a few minutes of ArcGIS paging for an
+# experimental page, so run it on demand.
+federal-interests:
+	$(PY) scripts/build_federal_interests.py
+
+# "The Federal Footprint, State by State" atlas instrument — depends on
+# federal-interests' trust/easement outputs already being present. Not in
+# the `data` aggregate for the same reason federal-interests isn't.
+federal-footprint:
+	$(PY) scripts/build_federal_footprint.py
+
 grazing-districts:
 	$(PY) scripts/build_grazing_districts.py
 
@@ -41,6 +53,17 @@ grazing-allotments:
 
 farm-bankruptcies:
 	$(PY) scripts/build_farm_bankruptcies.py
+
+# Rates come from the hand-transcribed series in scripts/data/; farm
+# counts (for the estimated-count view) are fetched from Dinterman's
+# historical-bankruptcies repo, same source as farm-bankruptcies.
+farm-foreclosures:
+	$(PY) scripts/build_farm_foreclosures.py
+
+# EXPERIMENT (plan/STATUS.md): merges the two JSONs above into a
+# combined two-panel dataset — hence the prerequisites.
+farm-distress: farm-bankruptcies farm-foreclosures
+	$(PY) scripts/build_farm_distress.py
 
 follow-the-money:
 	$(PY) scripts/build_follow_the_money.py
@@ -118,6 +141,21 @@ national-monuments:
 wildfire:
 	$(PY) scripts/build_wildfire.py
 
+# Climate-space trajectory (Southwest temp x precip). Derived join of
+# the regional climate files; run regions-climate first.
+climate-space:
+	$(PY) scripts/build_climate_space.py
+
+# Per-state temperature anomalies (NOAA CAG statewide), West/Plains,
+# ordered north-to-south for the latitude x time heatmap. 17 fetches.
+states-temperature:
+	$(PY) scripts/build_states_temperature.py
+
+# Text-reuse analysis of the transcribed state sagebrush bills
+# (legislation.md) — similarity matrix, shared passages, signatures.
+legislation-textreuse:
+	$(PY) scripts/build_legislation_textreuse.py
+
 bibliography:
 	$(PY) scripts/build_bibliography.py
 
@@ -138,3 +176,9 @@ serve:
 clean-data:
 	@echo "Not removing anything — rerun the build scripts instead."
 	@echo "Files live in static/data/ and are under version control."
+
+# One-time scaffolder: split legislation.md into Documents-archive
+# page-bundles (write-if-absent, never clobbers). Run manually when
+# adding a new state bill.
+legislation-documents:
+	$(PY) scripts/build_legislation_documents.py
