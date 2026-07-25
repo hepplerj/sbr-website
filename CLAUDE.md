@@ -128,6 +128,20 @@ block above the viz, rendered from `atlas.howto`. `atlas.js` mounts the
 trends view: small-multiples panels + hover guide-line + click-to-pin
 two-column detail panel.
 
+**Atlas pages can also host the sightlines renderers.** The dispatcher
+checks for `chart:` / `network:` / `map:` before falling back to
+`atlas:`; when one is present it emits `data-viz="{chart|network|map}"`
+and the matching engine (charts.js / networks.js / maps.js) mounts,
+exactly as on a sightline. This is how the legislation text-reuse
+instruments (`matrix`, `reuse`, `concordance`, `genealogy` chart types)
+live in the Atlas while reusing charts.js. Such pages use a top-level
+`tag:` (atlas-list label, e.g. `"Text reuse"`) and a top-level `howto:`
+(the dispatcher reads how-to from `atlas.howto` OR a top-level `howto`).
+Head.html already loads charts.js/networks.js/maps.js on `.Params.chart`
+etc. section-independently, so no JS-loading change is needed. Rule of
+thumb: **an argument built around one viz → Sightlines; a reference
+instrument you consult → Atlas**, regardless of which engine it uses.
+
 ## head.html JS loading
 
 `head.html` conditionally loads libraries based on what's needed:
@@ -170,7 +184,21 @@ data file, render into the container.
 - **`d3-maps.js`** — D3 with **null projection** because the project's
   `fedland.topojson` is pre-projected to 960×500 AlbersUSA coordinates.
   Applying another projection to it produces chaos. Documented in the
-  header comment.
+  header comment. Optionally takes a `layers:` array of *federal-interest
+  overlays* (see `us-federal-lands-alt.md`) in three kinds: `polygons`
+  (optional `texture: hatch`), `points` (canvas stipple + quadtree hover,
+  optional `yearfilter` range control), and `outline` (stroke-only context
+  boundaries, excluded from the hover probe). Plus a toggle panel and a
+  composite hover readout reporting every interest at the cursor;
+  `floatinfo: true` makes that readout track the mouse instead of sitting
+  in the corner. Absent `layers:`, behavior is byte-for-byte the old map.
+  Overlays are plain lon/lat GeoJSON — `alignProjection()` recovers the
+  pre-projection's scale/translate by fitting a live `geoAlbersUsa()` to
+  the base file's own state outlines, so overlays never need
+  pre-projecting. **Overlay polygons must be wound D3's way**
+  (exterior rings *clockwise* — the reverse of RFC 7946) or a single ring
+  floods the whole map; ArcGIS sources also nest holes unreliably, so
+  `build_federal_interests.py` re-nests rings by containment.
 - **`networks.js`** — D3 force layout. Supports pan + zoom (always-on
   scroll-zoom). Node click opens a modal when the node has a
   `cosponsored` (or similar detail) field. Node radius is sqrt-scaled
@@ -182,12 +210,18 @@ data file, render into the container.
   (`temp` cool→rust, `precip` brown→navy, `rust` sequential for
   counts). `scale: "sequential"` vs default diverging controls color
   domain mapping.
-- **`atlas.js`** — D3. Currently one mode (`trends`): small-multiples
-  with hover guide-line snapping to nearest Congress, click-to-pin,
-  two-column detail panel below the charts (40/60 grid, stacks on
-  narrow viewports). Member drill lazy-fetches the per-Congress JSON
-  on demand and caches in-memory. A prior heatmap mode was stripped;
-  restore from git history if a per-Congress view is wanted again.
+- **`atlas.js`** — D3. Two modes, dispatched on `atlas.mode`:
+  `trends` (small-multiples with hover guide-line snapping to nearest
+  Congress, click-to-pin, two-column detail panel below the charts —
+  40/60 grid, stacks on narrow viewports; member drill lazy-fetches the
+  per-Congress JSON on demand and caches in-memory) and `footprint`
+  (ranked horizontal stacked bars of federal interest as % of state
+  land, sort control with animated re-ranking, click-to-pin two-column
+  detail: breakdown table + cumulative easement curve; data from
+  `build_federal_footprint.py`). SVG text/segments over a hit-rect need
+  `pointer-events: none` or they swallow row clicks. A prior heatmap
+  mode was stripped; restore from git history if a per-Congress view is
+  wanted again.
 - **`sightlines-map.js`** — loaded only on the sightlines list page.
   Handles theme-pill filtering and the mini AlbersUSA region-filter map.
   Uses `static/data/states.json` (us-atlas states-10m, 112KB) with
@@ -308,6 +342,13 @@ narrative posts with headings + editorial cues + figures + source
 pointers — don't write the prose itself.
 
 ## Open work
+
+**Start here for in-flight work:** `plan/STATUS.md` is the living
+handoff — current branch, what's built, committed vs uncommitted, and
+open decisions. `plan/roadmap.md` holds design direction. See
+`plan/README.md` for how `plan/` relates to Issues and memory (short
+version: Issues = discrete tasks, `plan/` = status/specs/decisions,
+memory = durable facts).
 
 See [GitHub Issues](https://github.com/hepplerj/sbr-website/issues) for
 flagged extensions, labeled by category (`maps`, `networks`, `charts`,
