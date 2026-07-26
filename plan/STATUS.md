@@ -3,6 +3,19 @@
 _Last updated: 2026-07-18 (written as a session handoff — a fresh
 session should be able to work from this file alone)._
 
+## Publish gates are now tracked as Issues (2026-07-25)
+
+Every draft thread's prose/keep decision has a GitHub Issue, so the
+eventual PR can close them in bulk (`Closes #32, closes #33, …`):
+
+- [#32](https://github.com/hepplerj/sbr-website/issues/32) climate views (Thread A)
+- [#33](https://github.com/hepplerj/sbr-website/issues/33) text-reuse instruments (Thread B)
+- [#34](https://github.com/hepplerj/sbr-website/issues/34) documents archive URLs/dates (Thread C)
+- [#35](https://github.com/hepplerj/sbr-website/issues/35) farm foreclosures/distress (Thread D; supersedes #30's research)
+- [#36](https://github.com/hepplerj/sbr-website/issues/36) federal-interests alt map (Thread E)
+- [#37](https://github.com/hepplerj/sbr-website/issues/37) Federal Footprint atlas (Thread F)
+- [#31](https://github.com/hepplerj/sbr-website/issues/31) Canadian counterfactual essay (parked, tier-2)
+
 ## Where things stand
 
 **Branch:** `feature/monuments-wildfire`, 2 commits ahead of `main`:
