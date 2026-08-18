@@ -1,18 +1,25 @@
 // ─────────────────────────────────────────────
-// Governing Ground — atlas renderer (trends mode)
+// Governing Ground — atlas renderer
 //
-// Small-multiples line chart: one panel per CRS policy area, three
-// lines per panel (one per regional delegation), X = Congress (year
-// labels), Y = chosen metric. Mounts on data-viz="atlas".
+// Mounts on data-viz="atlas" and dispatches on `mode` (lowercase —
+// Hugo lowercases frontmatter keys, recursively):
 //
-// Config (lowercase — Hugo lowercases frontmatter keys):
-//   {
-//     src:     "/data/atlas-regional-timeseries.json",
-//     metric:  "permember" | "shareofregion" | "cosponsorships",
-//     chamber: "both" | "house" | "senate",
-//   }
+//   mode: trends   — congressional cosponsorship small multiples.
+//     { src, metric: permember|shareofregion|cosponsorships,
+//       chamber: both|house|senate }
 //
-// A `mode` field is accepted but currently only "trends" is supported.
+//   mode: lexicon  — Producer-corpus term-frequency small multiples,
+//     one panel per concept cluster; click-to-pin opens a per-term
+//     detail with a drill chart and a cross-link into the concordance
+//     page. { src: /data/producer-terms.json,
+//             kwicpage: /atlas/producer-concordance/ }
+//
+//   mode: kwic     — Producer-corpus concordance browser. Term picker
+//     (from a small index), per-year sparkline filter, lazily fetched
+//     per-term KWIC shards, every line deep-linked to the archive.org
+//     reader with in-item search preloaded.
+//     { src: /data/producer-kwic/index.json }
+//
 // A prior per-Congress heatmap mode was removed when the dual-entry
 // atlas was consolidated into a single trends entry; restore from git
 // history if a single-Congress view is wanted again.
@@ -69,14 +76,19 @@
     const src = cfg.src;
     if (!src) { console.error("atlas: missing src"); return; }
 
-    let metric  = (cfg.metric  || "permember").toLowerCase();
-    let chamber = (cfg.chamber || "both").toLowerCase();
-    if (!(metric  in METRIC_FIELD))   metric  = "permember";
-    if (!(chamber in CHAMBER_LABELS)) chamber = "both";
+    const mode = (cfg.mode || "trends").toLowerCase();
 
     fetch(src)
       .then(r => r.json())
-      .then(data => renderTrends(container, data, cfg, metric, chamber))
+      .then(data => {
+        if (mode === "lexicon") return renderLexicon(container, data, cfg);
+        if (mode === "kwic")    return renderKwic(container, data, cfg);
+        let metric  = (cfg.metric  || "permember").toLowerCase();
+        let chamber = (cfg.chamber || "both").toLowerCase();
+        if (!(metric  in METRIC_FIELD))   metric  = "permember";
+        if (!(chamber in CHAMBER_LABELS)) chamber = "both";
+        renderTrends(container, data, cfg, metric, chamber);
+      })
       .catch(err => {
         console.error("atlas fetch failed", err);
         container.innerHTML = '<p class="atlas-viz__error">Could not load data.</p>';
@@ -555,6 +567,450 @@
     chamberSel.addEventListener("change", () => { draw(); updateDetailLeft(); });
     window.addEventListener("resize", debounce(() => { draw(); }, 120));
     draw();
+  }
+
+  // ───────────────────────── LEXICON MODE ─────────────────────────
+  // Producer-corpus vocabulary trends. Same interaction grammar as
+  // trends mode — small multiples, hover guide snapping to the nearest
+  // year, click-to-pin, two-column detail — but the unit is a concept
+  // cluster of period terms rather than a policy area, and the drill
+  // goes concept → term → concordance page instead of region → member.
+  const LEX_COLOR = "#a94b2b";
+  const LEX_METRICS = { rate: "Rate per 10,000 words", counts: "Raw count" };
+
+  function renderLexicon(container, data, cfg) {
+    const years    = data.years;
+    const concepts = data.concepts;
+    const kwicPage = cfg.kwicpage || null;
+
+    const ctrls = controlsRow(container);
+    const metricSel = makeSelect(ctrls, "Show", LEX_METRICS, "rate");
+    const metaSpan = document.createElement("span");
+    metaSpan.className = "atlas-viz__meta";
+    const totalWords = data.words.reduce((a, b) => a + b, 0);
+    metaSpan.textContent =
+      `${data.issues.reduce((a, b) => a + b, 0)} issues · `
+      + `${years[0]}–${years[years.length - 1]} · `
+      + `${(totalWords / 1e6).toFixed(1)}M words`;
+    ctrls.appendChild(metaSpan);
+
+    const svgWrap = document.createElement("div");
+    svgWrap.className = "atlas-viz__svg-wrap";
+    container.appendChild(svgWrap);
+    const svg = d3.select(svgWrap).append("svg")
+      .attr("class", "atlas-viz__svg").attr("role", "img");
+
+    const detail = document.createElement("div");
+    detail.className = "atlas-trend__detail";
+    detail.setAttribute("hidden", "");
+    detail.innerHTML =
+        '<div class="atlas-trend__detail-left"></div>'
+      + '<div class="atlas-trend__detail-right"></div>';
+    container.appendChild(detail);
+    const detailLeft  = detail.querySelector(".atlas-trend__detail-left");
+    const detailRight = detail.querySelector(".atlas-trend__detail-right");
+
+    let pinned = null;        // { year, cid } or null
+    let selectedTerm = null;  // term id for the right column
+
+    const vals = (row) => metricSel.value === "rate" ? row.rate : row.counts;
+    const fmtV = (v) => metricSel.value === "rate"
+      ? (v >= 10 ? v.toFixed(1) : v.toFixed(2)) : v.toLocaleString();
+
+    function draw() {
+      const width  = svgWrap.clientWidth || 900;
+      const cols   = width < 720 ? 2 : 3;
+      const rows   = Math.ceil(concepts.length / cols);
+      const margin = { top: 26, right: 14, bottom: 36, left: 46 };
+      const gap    = 28;
+      const panelW = (width - gap * (cols - 1)) / cols;
+      const panelH = 180;
+      const totalH = rows * panelH + (rows - 1) * gap + 16;
+
+      svg.attr("viewBox", `0 0 ${width} ${totalH}`)
+         .attr("width", width).attr("height", totalH);
+      svg.selectAll("*").remove();
+
+      const xScale = d3.scaleLinear()
+        .domain(d3.extent(years))
+        .range([margin.left, panelW - margin.right]);
+
+      concepts.forEach((con, ci) => {
+        const col = ci % cols;
+        const row = Math.floor(ci / cols);
+        const pg = svg.append("g")
+          .attr("transform", `translate(${col * (panelW + gap)}, ${row * (panelH + gap)})`);
+
+        const series = vals(con);
+        const yScale = d3.scaleLinear()
+          .domain([0, d3.max(series) || 1]).nice()
+          .range([panelH - margin.bottom, margin.top]);
+
+        pg.append("rect")
+          .attr("class", "atlas-trend__panel-bg")
+          .attr("width", panelW).attr("height", panelH)
+          .attr("fill", (pinned && pinned.cid === con.id) ? "#fff5e3" : "#fffdf8")
+          .attr("rx", 4);
+
+        const xAxis = d3.axisBottom(xScale)
+          .tickValues([1920, 1930, 1940, 1950, 1960])
+          .tickFormat(d3.format("d")).tickSize(3);
+        pg.append("g").attr("class", "atlas-trend__axis")
+          .attr("transform", `translate(0, ${panelH - margin.bottom})`).call(xAxis);
+        pg.append("g").attr("class", "atlas-trend__axis")
+          .attr("transform", `translate(${margin.left}, 0)`)
+          .call(d3.axisLeft(yScale).ticks(4).tickSize(3));
+
+        pg.append("text")
+          .attr("x", margin.left).attr("y", margin.top - 10)
+          .attr("class", "atlas-trend__title")
+          .text(con.label);
+
+        const lineGen = d3.line()
+          .x((v, i) => xScale(years[i]))
+          .y(v => yScale(v));
+        pg.append("path")
+          .datum(series).attr("class", "atlas-trend__line")
+          .attr("fill", "none").attr("stroke", LEX_COLOR)
+          .attr("stroke-width", 2).attr("opacity", 0.95)
+          .attr("d", lineGen);
+
+        // Guide groups: pinned (solid) and hover (dashed preview)
+        const mkGuide = (cls) => {
+          const g = pg.append("g").attr("class", cls).style("display", "none");
+          g.append("line")
+            .attr("class", cls + "-line")
+            .attr("y1", margin.top).attr("y2", panelH - margin.bottom);
+          g.append("circle").attr("r", cls === "atlas-trend__pin" ? 4 : 3)
+            .attr("fill", LEX_COLOR)
+            .attr("stroke", "#fff").attr("stroke-width", 1.5);
+          g.append("text")
+            .attr("class", cls + "-label")
+            .attr("text-anchor", "middle").attr("y", margin.top - 14);
+          return g;
+        };
+        const pinGroup   = mkGuide("atlas-trend__pin");
+        const hoverGroup = mkGuide("atlas-trend__hover");
+        const setGuide = (g, year) => {
+          const i = years.indexOf(year);
+          const x = xScale(year);
+          g.select("line").attr("x1", x).attr("x2", x);
+          g.select("circle").attr("cx", x).attr("cy", yScale(series[i]));
+          g.select("text").attr("x", x).text(`${year} · ${fmtV(series[i])}`);
+        };
+        if (pinned && pinned.cid === con.id) {
+          setGuide(pinGroup, pinned.year);
+          pinGroup.style("display", null);
+        }
+
+        const nearestYear = (inv) =>
+          years.reduce((a, b) => Math.abs(b - inv) < Math.abs(a - inv) ? b : a);
+        pg.append("rect")
+          .attr("class", "atlas-trend__capture")
+          .attr("x", margin.left).attr("y", margin.top)
+          .attr("width", panelW - margin.left - margin.right)
+          .attr("height", panelH - margin.top - margin.bottom)
+          .attr("fill", "transparent").style("cursor", "crosshair")
+          .on("mousemove", function (ev) {
+            const [mx] = d3.pointer(ev, this);
+            setGuide(hoverGroup, nearestYear(xScale.invert(mx)));
+            hoverGroup.style("display", null);
+          })
+          .on("mouseleave", () => hoverGroup.style("display", "none"))
+          .on("click", function (ev) {
+            const [mx] = d3.pointer(ev, this);
+            const year = nearestYear(xScale.invert(mx));
+            const same = pinned && pinned.year === year && pinned.cid === con.id;
+            pinned = same ? null : { year, cid: con.id };
+            selectedTerm = null;
+            draw();
+            updateDetailLeft();
+            renderDetailRight();
+          });
+      });
+    }
+
+    function updateDetailLeft() {
+      if (!pinned) { detail.setAttribute("hidden", ""); return; }
+      detail.removeAttribute("hidden");
+      const con = concepts.find(c => c.id === pinned.cid);
+      const yr  = pinned.year;
+      const yIdx = years.indexOf(yr);
+      const rows = con.terms.slice()
+        .sort((a, b) => vals(b)[yIdx] - vals(a)[yIdx]);
+      detailLeft.innerHTML =
+          `<header class="atlas-trend__detail-header">`
+        + `<div class="atlas-trend__detail-titles">`
+        + `<h3>${escapeHtml(con.label)}</h3>`
+        + `<p class="atlas-trend__detail-sub">${yr} · `
+        + `<span class="atlas-trend__detail-metric">${escapeHtml(LEX_METRICS[metricSel.value])}</span></p>`
+        + `</div>`
+        + `<button type="button" class="atlas-trend__unpin-btn">Unpin</button>`
+        + `</header>`
+        + `<ol class="atlas-trend__regions">`
+        + rows.map(t => `
+            <li class="atlas-trend__region-row${selectedTerm === t.id ? ' is-selected' : ''}">
+              <button type="button" data-term="${t.id}" class="atlas-trend__region-btn">
+                <span class="atlas-trend__region-left">
+                  <span class="atlas-trend__region-name">${escapeHtml(t.label)}</span>
+                  <span class="atlas-trend__region-sub">
+                    <span class="atlas-trend__region-sub-line">${t.counts.reduce((a, b) => a + b, 0).toLocaleString()} occurrences, 1919–1961</span>
+                  </span>
+                </span>
+                <span class="atlas-trend__region-right">
+                  <span class="atlas-trend__region-val">${fmtV(vals(t)[yIdx])}</span>
+                </span>
+              </button>
+            </li>`).join("")
+        + `</ol>`;
+      detailLeft.querySelector(".atlas-trend__unpin-btn").onclick = () => {
+        pinned = null; selectedTerm = null;
+        draw(); updateDetailLeft(); detailRight.innerHTML = "";
+      };
+      detailLeft.querySelectorAll(".atlas-trend__region-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedTerm = btn.dataset.term;
+          updateDetailLeft();
+          renderDetailRight();
+        });
+      });
+    }
+
+    function renderDetailRight() {
+      if (!pinned || !selectedTerm) {
+        detailRight.innerHTML =
+          '<p class="atlas-trend__detail-empty">Select a term on the left to see its full run.</p>';
+        return;
+      }
+      const con  = concepts.find(c => c.id === pinned.cid);
+      const term = con.terms.find(t => t.id === selectedTerm);
+      const series = vals(term);
+      const peakI  = series.indexOf(Math.max(...series));
+      detailRight.innerHTML =
+          `<header class="atlas-trend__right-header">`
+        + `<h4>${escapeHtml(term.label)}</h4>`
+        + `<p class="atlas-trend__right-sub">Peak ${years[peakI]} · ${fmtV(series[peakI])} · `
+        + `${term.counts.reduce((a, b) => a + b, 0).toLocaleString()} occurrences in 508 issues</p>`
+        + `</header>`
+        + `<div class="atlas-lex__term-chart"></div>`
+        + (kwicPage
+            ? `<p class="atlas-lex__kwic-link"><a href="${kwicPage}?term=${term.id}">Read these lines in context →</a></p>`
+            : "");
+
+      const wrap  = detailRight.querySelector(".atlas-lex__term-chart");
+      const width = wrap.clientWidth || 480;
+      const h = 170, m = { top: 14, right: 12, bottom: 26, left: 42 };
+      const x = d3.scaleLinear().domain(d3.extent(years)).range([m.left, width - m.right]);
+      const y = d3.scaleLinear().domain([0, d3.max(series) || 1]).nice()
+        .range([h - m.bottom, m.top]);
+      const tsvg = d3.select(wrap).append("svg")
+        .attr("viewBox", `0 0 ${width} ${h}`).attr("width", width).attr("height", h);
+      tsvg.append("g").attr("class", "atlas-trend__axis")
+        .attr("transform", `translate(0, ${h - m.bottom})`)
+        .call(d3.axisBottom(x).tickValues([1920, 1930, 1940, 1950, 1960])
+          .tickFormat(d3.format("d")).tickSize(3));
+      tsvg.append("g").attr("class", "atlas-trend__axis")
+        .attr("transform", `translate(${m.left}, 0)`)
+        .call(d3.axisLeft(y).ticks(4).tickSize(3));
+      tsvg.append("path").datum(series)
+        .attr("fill", "none").attr("stroke", LEX_COLOR).attr("stroke-width", 2)
+        .attr("d", d3.line().x((v, i) => x(years[i])).y(v => y(v)));
+      tsvg.append("circle")
+        .attr("cx", x(years[peakI])).attr("cy", y(series[peakI]))
+        .attr("r", 3.5).attr("fill", LEX_COLOR)
+        .attr("stroke", "#fff").attr("stroke-width", 1.5);
+    }
+
+    metricSel.addEventListener("change", () => { draw(); updateDetailLeft(); renderDetailRight(); });
+    window.addEventListener("resize", debounce(() => { draw(); }, 120));
+    draw();
+  }
+
+  // ───────────────────────── KWIC MODE ─────────────────────────
+  // Concordance browser. The index carries every term's per-year counts
+  // (for the picker and the sparkline); the lines themselves live in
+  // per-term shards fetched lazily and cached in memory. Every line
+  // links to the archive.org reader with in-item search preloaded, so
+  // each concordance line is one click from the page scan.
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const KWIC_CHUNK = 250;
+
+  function renderKwic(container, data, cfg) {
+    const years  = data.years;
+    const srcDir = cfg.src.replace(/\/[^/]+$/, "/");
+    const allTerms = data.concepts.flatMap(c =>
+      c.terms.map(t => ({ ...t, concept: c.id, conceptLabel: c.label })));
+    const shardCache = new Map();   // term id → shard JSON
+
+    const ctrls = controlsRow(container);
+    const termSel = document.createElement("label");
+    termSel.className = "atlas-viz__control";
+    termSel.innerHTML = `<span class="atlas-viz__control-label">Term:</span> `;
+    const sel = document.createElement("select");
+    sel.className = "atlas-viz__metric-select";
+    data.concepts.forEach(c => {
+      const og = document.createElement("optgroup");
+      og.label = c.label;
+      c.terms.forEach(t => {
+        const o = document.createElement("option");
+        o.value = t.id;
+        o.textContent = `${t.label} (${t.total.toLocaleString()})`;
+        og.appendChild(o);
+      });
+      sel.appendChild(og);
+    });
+    termSel.appendChild(sel);
+    ctrls.appendChild(termSel);
+
+    const search = document.createElement("input");
+    search.type = "search";
+    search.className = "atlas-trend__search atlas-kwic__search";
+    search.placeholder = "Filter lines…";
+    search.autocomplete = "off";
+    ctrls.appendChild(search);
+
+    const metaSpan = document.createElement("span");
+    metaSpan.className = "atlas-viz__meta";
+    ctrls.appendChild(metaSpan);
+
+    const sparkWrap = document.createElement("div");
+    sparkWrap.className = "atlas-kwic__spark";
+    container.appendChild(sparkWrap);
+
+    const linesWrap = document.createElement("div");
+    linesWrap.className = "atlas-kwic__lines-wrap";
+    container.appendChild(linesWrap);
+
+    let yearFilter = null;   // number or null
+    let query = "";
+    let shown = KWIC_CHUNK;  // pagination cursor
+
+    // Preselect from ?term= (cross-link from the lexicon page)
+    const urlTerm = new URLSearchParams(location.search).get("term");
+    if (urlTerm && allTerms.some(t => t.id === urlTerm)) sel.value = urlTerm;
+
+    function currentTerm() { return allTerms.find(t => t.id === sel.value); }
+
+    function drawSpark() {
+      const t = currentTerm();
+      sparkWrap.innerHTML = "";
+      const width = sparkWrap.clientWidth || 900;
+      const h = 74, m = { top: 6, right: 8, bottom: 18, left: 8 };
+      const x = d3.scaleBand().domain(years).range([m.left, width - m.right])
+        .paddingInner(0.25);
+      const y = d3.scaleLinear().domain([0, d3.max(t.byyear) || 1])
+        .range([h - m.bottom, m.top]);
+      const svg = d3.select(sparkWrap).append("svg")
+        .attr("viewBox", `0 0 ${width} ${h}`).attr("width", width).attr("height", h)
+        .attr("role", "img")
+        .attr("aria-label", `Occurrences of ${t.label} by year; click a bar to filter`);
+      svg.selectAll("rect").data(years).join("rect")
+        .attr("x", yr => x(yr))
+        .attr("y", (yr, i) => y(t.byyear[i]))
+        .attr("width", x.bandwidth())
+        .attr("height", (yr, i) => (h - m.bottom) - y(t.byyear[i]))
+        .attr("fill", yr => (yearFilter && yr !== yearFilter) ? "#d9cfc0" : LEX_COLOR)
+        .attr("rx", 1)
+        .style("cursor", "pointer")
+        .on("click", (ev, yr) => {
+          yearFilter = (yearFilter === yr) ? null : yr;
+          shown = KWIC_CHUNK;
+          drawSpark(); paintLines();
+        })
+        .append("title")
+        .text((yr, i) => `${yr}: ${t.byyear[i]} occurrence${t.byyear[i] === 1 ? "" : "s"}`);
+      [1920, 1930, 1940, 1950, 1960].forEach(yr => {
+        svg.append("text")
+          .attr("class", "atlas-kwic__spark-tick")
+          .attr("x", x(yr) + x.bandwidth() / 2).attr("y", h - 5)
+          .attr("text-anchor", "middle")
+          .text(yr);
+      });
+    }
+
+    function citeParts(k) {
+      // k = "1947-02_28_9" → date, volume, issue
+      const [date, vol, iss] = k.split("_");
+      const [y, mo] = date.split("-");
+      const month = MONTHS[parseInt(mo, 10) - 1] || "";
+      return {
+        year: parseInt(y, 10),
+        label: `${month} ${y}${vol ? ` · ${vol}:${iss}` : ""}`,
+        id: data.idprefix + k,
+      };
+    }
+
+    async function paintLines() {
+      const t = currentTerm();
+      let shard = shardCache.get(t.id);
+      if (!shard) {
+        linesWrap.innerHTML =
+          `<p class="atlas-trend__detail-loading">Loading ${escapeHtml(t.label)}…</p>`;
+        try {
+          const r = await fetch(`${srcDir}${t.id}.json`);
+          shard = await r.json();
+          shardCache.set(t.id, shard);
+        } catch (err) {
+          linesWrap.innerHTML =
+            '<p class="atlas-viz__error">Could not load concordance lines.</p>';
+          return;
+        }
+        if (sel.value !== t.id) return;   // user moved on during the await
+      }
+
+      const q = query.toLowerCase();
+      const matches = shard.lines.filter(ln => {
+        if (yearFilter && citeParts(ln.k).year !== yearFilter) return false;
+        if (q && !(`${ln.pre} ${ln.m} ${ln.post}`.toLowerCase().includes(q))) return false;
+        return true;
+      });
+
+      metaSpan.textContent =
+        `${matches.length.toLocaleString()} of ${shard.lines.length.toLocaleString()} lines`
+        + (yearFilter ? ` · ${yearFilter}` : "")
+        + (yearFilter ? " (click the bar again to clear)" : "");
+
+      const visible = matches.slice(0, shown);
+      let lastYear = null;
+      let html = '<ol class="atlas-kwic__lines">';
+      visible.forEach(ln => {
+        const cite = citeParts(ln.k);
+        if (cite.year !== lastYear) {
+          html += `<li class="atlas-kwic__year-head" aria-hidden="true">${cite.year}</li>`;
+          lastYear = cite.year;
+        }
+        const phrase = ln.m.includes(" ") ? `"${ln.m}"` : ln.m;
+        const href = `https://archive.org/details/${cite.id}?q=${encodeURIComponent(phrase)}`;
+        html += `<li class="atlas-kwic__line">`
+          + `<span class="atlas-kwic__text">…${escapeHtml(ln.pre)} `
+          + `<mark>${escapeHtml(ln.m)}</mark> ${escapeHtml(ln.post)}…</span>`
+          + `<a class="atlas-kwic__cite" href="${href}" target="_blank" rel="noopener">${cite.label} ↗</a>`
+          + `</li>`;
+      });
+      html += "</ol>";
+      if (matches.length > shown) {
+        html += `<button type="button" class="atlas-kwic__more">`
+          + `Show ${Math.min(KWIC_CHUNK, matches.length - shown).toLocaleString()} more `
+          + `(${(matches.length - shown).toLocaleString()} remaining)</button>`;
+      }
+      linesWrap.innerHTML = html;
+      const more = linesWrap.querySelector(".atlas-kwic__more");
+      if (more) more.addEventListener("click", () => { shown += KWIC_CHUNK; paintLines(); });
+    }
+
+    sel.addEventListener("change", () => {
+      yearFilter = null; query = ""; search.value = ""; shown = KWIC_CHUNK;
+      history.replaceState(null, "", `?term=${sel.value}`);
+      drawSpark(); paintLines();
+    });
+    search.addEventListener("input", debounce(() => {
+      query = search.value; shown = KWIC_CHUNK; paintLines();
+    }, 150));
+    window.addEventListener("resize", debounce(drawSpark, 120));
+
+    drawSpark();
+    paintLines();
   }
 
   // ───────────── Shared UI / drawing helpers ─────────────

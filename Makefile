@@ -116,6 +116,11 @@ bibliography:
 producer-terms:
 	$(PY) scripts/build_producer_terms.py
 
+# Keyword-in-context shards for the concordance atlas page. Needs the
+# OCR cache from `make producer-terms` (does not download anything).
+producer-kwic:
+	$(PY) scripts/build_producer_kwic.py
+
 # Build the site (requires Hugo extended) and the Pagefind search
 # index. Pagefind runs after Hugo, indexing the built public/ tree
 # into public/pagefind/. Requires Node/npx (no global install needed).

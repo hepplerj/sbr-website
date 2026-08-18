@@ -5523,6 +5523,89 @@ textarea:focus-visible {
 .atlas-viz__st   { color: var(--color-text-muted); font-size: 0.78rem; }
 .atlas-viz__ct   { text-align: right; font-family: "JetBrains Mono", ui-monospace, monospace; }
 
+// ─── Atlas: lexicon mode (Producer vocabulary) ───────────────────
+.atlas-lex__term-chart { margin-top: 0.75rem; }
+.atlas-lex__term-chart svg { display: block; width: 100%; height: auto; }
+.atlas-lex__kwic-link {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+}
+.atlas-lex__kwic-link a {
+  color: #a94b2b;
+  font-weight: 600;
+  text-decoration: none;
+}
+.atlas-lex__kwic-link a:hover { text-decoration: underline; }
+
+// ─── Atlas: kwic mode (Producer concordance) ─────────────────────
+.atlas-kwic__search { max-width: 14rem; margin: 0; }
+.atlas-kwic__spark { margin: 0.75rem 0 0.5rem; }
+.atlas-kwic__spark svg { display: block; width: 100%; height: auto; }
+.atlas-kwic__spark-tick {
+  font-size: 0.62rem;
+  fill: var(--color-text-muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.atlas-kwic__lines-wrap { margin-top: 0.5rem; }
+.atlas-kwic__lines {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.atlas-kwic__year-head {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid #c9a978;
+  padding: 0.9rem 0 0.25rem;
+  margin-bottom: 0.15rem;
+}
+.atlas-kwic__line {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.32rem 0;
+  border-bottom: 1px solid #ece2cf;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.atlas-kwic__text { min-width: 0; }
+.atlas-kwic__text mark {
+  background: #f3e2b8;
+  color: inherit;
+  font-weight: 600;
+  padding: 0 0.15em;
+  border-radius: 2px;
+}
+.atlas-kwic__cite {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.atlas-kwic__cite:hover { color: #a94b2b; text-decoration: underline; }
+.atlas-kwic__more {
+  display: block;
+  margin: 1rem auto 0;
+  border: 1px solid #c9b98f;
+  border-radius: 999px;
+  background: #fffdf8;
+  padding: 0.35rem 1.1rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: #4a5640;
+  cursor: pointer;
+}
+.atlas-kwic__more:hover { border-color: #a94b2b; color: #a94b2b; }
+@media (max-width: 640px) {
+  .atlas-kwic__line { flex-direction: column; gap: 0.1rem; }
+}
+
 // Respect OS-level motion preferences (WCAG 2.3.3).
 // Also stops D3's running force simulation via the reduced-motion class
 // added to viz containers by JS (see networks.js).
