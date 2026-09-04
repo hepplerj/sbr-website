@@ -24,23 +24,23 @@
       style: { color: "#8a7cb8", weight: 0.4, opacity: 0.4, fillColor: "#c4b8e0", fillOpacity: 0.3 },
     },
     sage: {
-      style:     { color: "#4a5640", weight: 0.6, opacity: 0.9, fillColor: "#a8b394", fillOpacity: 0.45 },
+      style: { color: "#4a5640", weight: 0.6, opacity: 0.9, fillColor: "#a8b394", fillOpacity: 0.45 },
       highlight: { color: "#4a5640", weight: 2.0, fillOpacity: 0.7 },
     },
     green: {
-      style:     { color: "#2c6e3f", weight: 0.75, opacity: 0.9, fillColor: "#4a9e5c", fillOpacity: 0.5 },
+      style: { color: "#2c6e3f", weight: 0.75, opacity: 0.9, fillColor: "#4a9e5c", fillOpacity: 0.5 },
       highlight: { color: "#1a4d2e", weight: 2.0, fillOpacity: 0.7 },
     },
     gold: {
-      style:     { color: "#8b6914", weight: 0.75, opacity: 0.85, fillColor: "#c9a94e", fillOpacity: 0.45 },
+      style: { color: "#8b6914", weight: 0.75, opacity: 0.85, fillColor: "#c9a94e", fillOpacity: 0.45 },
       highlight: { color: "#6b4f0a", weight: 2.0, fillOpacity: 0.65 },
     },
     rust: {
-      style:     { color: "#7c3519", weight: 0.75, opacity: 0.9, fillColor: "#a94b2b", fillOpacity: 0.5 },
+      style: { color: "#7c3519", weight: 0.75, opacity: 0.9, fillColor: "#a94b2b", fillOpacity: 0.5 },
       highlight: { color: "#5a2411", weight: 2.0, fillOpacity: 0.7 },
     },
     navy: {
-      style:     { color: "#1f2a44", weight: 0.75, opacity: 0.9, fillColor: "#2f3e62", fillOpacity: 0.45 },
+      style: { color: "#1f2a44", weight: 0.75, opacity: 0.9, fillColor: "#2f3e62", fillOpacity: 0.45 },
       highlight: { color: "#141c30", weight: 2.0, fillOpacity: 0.65 },
     },
   };
@@ -62,7 +62,7 @@
   const DEFAULT_DOMAIN = [5, 100];
 
   const basemap = {
-    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_2vy8_1_572019ba58c8822f6be9c375",
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
     subdomains: "abcd",
@@ -87,7 +87,7 @@
   // so a caller can just pass a value.
   function sqrtRadius(v, domain, range) {
     const [vmin, vmax] = domain || [0, 1e7];
-    const [rmin, rmax] = range  || [4, 18];
+    const [rmin, rmax] = range || [4, 18];
     if (v == null || isNaN(v)) return rmin;
     const t = Math.sqrt(Math.max(0, v - vmin) / Math.max(1, vmax - vmin));
     return rmin + Math.min(1, t) * (rmax - rmin);
@@ -168,9 +168,8 @@
     };
     info.update = function (label, detail) {
       if (!label) {
-        this._div.innerHTML = `<h4>${cfg.infotitle || "Hover a feature"}</h4><div class="detail">${
-          cfg.infoprompt || "Details will appear here."
-        }</div>`;
+        this._div.innerHTML = `<h4>${cfg.infotitle || "Hover a feature"}</h4><div class="detail">${cfg.infoprompt || "Details will appear here."
+          }</div>`;
         return;
       }
       this._div.innerHTML = `<h4>${label}</h4>${detail ? `<div class="detail">${detail}</div>` : ""}`;
@@ -210,9 +209,9 @@
                 : preset.style.fillColor;
               return L.circleMarker(latlng, {
                 radius,
-                color:       preset.style.color,
-                weight:      preset.style.weight || 1,
-                opacity:     preset.style.opacity || 0.9,
+                color: preset.style.color,
+                weight: preset.style.weight || 1,
+                opacity: preset.style.opacity || 0.9,
                 fillColor,
                 fillOpacity: preset.style.fillOpacity || 0.6,
               });
@@ -234,7 +233,7 @@
             try {
               const group = L.featureGroup(thematic.map((r) => r.geo));
               map.fitBounds(group.getBounds(), { padding: [30, 30] });
-            } catch (_) {}
+            } catch (_) { }
           }
         }
 
@@ -244,7 +243,7 @@
         // author wants the remaining layers individually toggleable).
         const anyHidden = rendered.some((r) => r.layer.hidefromcontrol);
         if (Object.keys(overlays).length > 1 || cfg.forcelayercontrol ||
-            (anyHidden && Object.keys(overlays).length > 0)) {
+          (anyHidden && Object.keys(overlays).length > 0)) {
           L.control.layers(null, overlays, { position: "topright", collapsed: false }).addTo(map);
         }
 
@@ -358,7 +357,7 @@
       },
       click: (e) => {
         // Polygons have getBounds(); circleMarkers use getLatLng + zoom.
-        if (e.target.getBounds)      map.fitBounds(e.target.getBounds(), { padding: [40, 40] });
+        if (e.target.getBounds) map.fitBounds(e.target.getBounds(), { padding: [40, 40] });
         else if (e.target.getLatLng) map.setView(e.target.getLatLng(), Math.max(map.getZoom(), 7));
       },
     });
@@ -462,7 +461,7 @@
             const [lat, lon, z] = center;
             map.setView([lat, lon], z != null ? z : map.getZoom());
           } else {
-            try { map.fitBounds(geo.getBounds(), { padding: [30, 30] }); } catch (_) {}
+            try { map.fitBounds(geo.getBounds(), { padding: [30, 30] }); } catch (_) { }
           }
         })
         .catch((err) => console.error("State swap failed:", err));
@@ -488,7 +487,7 @@
     const cache = new Map();
     // Active state
     let program = pv.default;
-    let year    = pv.year;
+    let year = pv.year;
     let manifest = null;
     let maxVal = 1;   // per-program global max (for fixed color domain)
 
@@ -530,9 +529,11 @@
       const url = pv.srctemplate.replace("{slug}", slug);
       return fetch(url).then((r) => r.json()).then((pj) => {
         // Expand interleaved [year, v, year, v, ...] into a year→value map
-        const out = { program: pj.program, label: pj.label, unit: pj.unit,
-                      year_range: pj.year_range, max_value: pj.max_value,
-                      counties: {} };
+        const out = {
+          program: pj.program, label: pj.label, unit: pj.unit,
+          year_range: pj.year_range, max_value: pj.max_value,
+          counties: {}
+        };
         for (const [fips, pairs] of Object.entries(pj.counties || {})) {
           const m = {};
           for (let i = 0; i < pairs.length; i += 2) m[pairs[i]] = pairs[i + 1];
@@ -611,7 +612,7 @@
       const label = data.label || program;
       // Sqrt-buckets from 0 → vmax
       const items = paymentRamp.map((color, i) => {
-        const lo = Math.round(Math.pow((i)     / nBuckets, 2) * vmax);
+        const lo = Math.round(Math.pow((i) / nBuckets, 2) * vmax);
         const hi = Math.round(Math.pow((i + 1) / nBuckets, 2) * vmax);
         return `<div class="legend-item"><span class="legend-swatch" style="background:${color}"></span>$${lo.toLocaleString()}–$${hi.toLocaleString()}K</div>`;
       });
