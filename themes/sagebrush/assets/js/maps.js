@@ -62,7 +62,9 @@
   const DEFAULT_DOMAIN = [5, 100];
 
   const basemap = {
-    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    // CARTO requires a key since Sept 2026; set as params.cartoKey in hugo.toml.
+    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=" +
+      (document.querySelector('meta[name="carto-key"]')?.content || ""),
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
     subdomains: "abcd",
