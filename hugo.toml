@@ -14,6 +14,7 @@ enableEmoji = false
   heroCredit = "Fort Keogh Livestock and Range Research Station, Montana | US Department of Agriculture"
   heroCreditURL = "https://www.flickr.com/photos/usdagov/8432666225"
   citationStyle = "chicago"
+  cartoKey = "cb1_2vy8_1_572019ba58c8822f6be9c375"   # public client key; restrict by referrer in the CARTO dashboard
 
 [params.social]
   github = "hepplerj/sbr-website"
