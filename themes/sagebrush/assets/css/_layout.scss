@@ -5659,3 +5659,35 @@ body { overflow-x: clip; }
 // Eyebrow's top margin was tuned for the un-banded layout — cancel
 // it; the band's own top padding handles the breathing room.
 .document-page__header .document-page__eyebrow { margin-top: 0; }
+
+// ── Survey grid ─────────────────────────────────────────────────────
+// A section of the GLO's 1878 Centennial Map "showing the extent of
+// public surveys": western Nebraska, where the township grid runs out
+// at the unsurveyed Sioux country. The grid is how the federal
+// government drew itself onto this ground, so it sits behind the bands
+// that frame the site as desaturated linework multiplied into the
+// panel.
+.page-header,
+.section-intro,
+.sightlines-page__header,
+.sightlines-single__header,
+.document-page > .document-page__header,
+.writing-page > .writing-header {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: url("/images/survey-1878-nebraska.webp") right 25% / cover no-repeat;
+    filter: grayscale(1) contrast(1.4);
+    mix-blend-mode: multiply;
+    opacity: 0.22;
+    // Fade in from the right so the map never sits under the title.
+    -webkit-mask-image: linear-gradient(to right, transparent 30%, #000 80%);
+    mask-image: linear-gradient(to right, transparent 30%, #000 80%);
+  }
+}
