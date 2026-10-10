@@ -3,6 +3,7 @@ title: "Farm Bankruptcies, 1899–2024"
 date: 2026-04-18
 lede: "Annual farmer bankruptcy filings across the United States over 126 years."
 weight: 35
+featured: true
 draft: false
 viz: chart
 themes: [farm-crisis, rural-economy]
