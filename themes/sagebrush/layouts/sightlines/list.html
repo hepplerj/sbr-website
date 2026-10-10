@@ -128,7 +128,6 @@
                   data-themes="{{ delimit .Params.themes "," }}"
                   data-regions="{{ delimit .Params.regions "," }}">
                 <a class="sightlines-card__link" href="{{ .RelPermalink }}">
-                  <p class="sightlines-card__type">{{ $g.label | singularize }}</p>
                   <div class="sightlines-card__main">
                     <h3 class="sightlines-card__title">{{ .Title }}</h3>
                     {{- with .Params.lede }}

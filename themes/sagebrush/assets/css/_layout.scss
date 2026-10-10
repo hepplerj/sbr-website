@@ -2502,25 +2502,12 @@ canvas {
 }
 .sightlines-card__link {
   display: grid;
-  grid-template-columns: 7.5rem 1fr 7rem;
+  grid-template-columns: 1fr 7rem;
   gap: 28px;
   align-items: center;
   padding: 24px 0;
   text-decoration: none;
   color: inherit;
-}
-.sightlines-card__type {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--rust);
-  margin: 0;
-  justify-self: start;
-  padding: 4px 9px;
-  border: 1px solid var(--rust);
-  line-height: 1.1;
 }
 .sightlines-card__title {
   font-family: var(--font-display);
@@ -2577,7 +2564,7 @@ canvas {
 
 @media (max-width: 56rem) {
   .sightlines-card__link {
-    grid-template-columns: 6rem 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
     padding: 22px 0;
   }
@@ -2585,11 +2572,8 @@ canvas {
 }
 @media (max-width: 36rem) {
   .sightlines-card__link {
-    grid-template-columns: 1fr;
     gap: 8px;
-    padding: 22px 0;
   }
-  .sightlines-card__type { justify-self: start; }
 }
 
 // ── Bibliography ─────────────────────────────
