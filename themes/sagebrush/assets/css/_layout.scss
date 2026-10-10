@@ -1301,26 +1301,45 @@ canvas {
   max-width: 44rem;
   margin: var(--space-4) 0 0;
 }
-.sightlines-single__meta {
+// Facts block at the foot of the prose: type, themes, regions, date.
+// Region chips match the essay tag chips (.narrative-header__tag).
+.sightlines-single__facts {
+  margin: var(--space-6, 2.5rem) 0 0;
+  padding: var(--space-4) 0 0;
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: 10px;
   font-family: var(--font-ui);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--soft);
-  margin: var(--space-5) 0 0;
+  font-size: 13px;
+
+  > div {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 12px;
+    align-items: baseline;
+  }
+  dt {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--soft);
+  }
+  dd { margin: 0; color: var(--ink); }
+}
+.sightlines-single__chips {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.45em;
-}
-.sightlines-single__meta-tag {
-  color: var(--soft);
-}
-.sightlines-single__meta-sep {
-  color: var(--rule);
-  margin: 0 0.25em;
-  user-select: none;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 3px 10px;
+    border: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--soft);
+  }
 }
 
 // Full-bleed viz block. Charts (SVG with viewBox) auto-scale to width;
