@@ -3,6 +3,7 @@ title: "Taylor Grazing Districts"
 date: 2026-04-20
 lede: "The ninety-three BLM grazing districts established under the Taylor Grazing Act of 1934: the administrative geography of the federal range."
 weight: 18
+featured: true
 draft: false
 viz: map
 themes: [public-lands, rural-economy]

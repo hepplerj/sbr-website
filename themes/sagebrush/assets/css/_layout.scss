@@ -1301,26 +1301,45 @@ canvas {
   max-width: 44rem;
   margin: var(--space-4) 0 0;
 }
-.sightlines-single__meta {
+// Facts block at the foot of the prose: type, themes, regions, date.
+// Region chips match the essay tag chips (.narrative-header__tag).
+.sightlines-single__facts {
+  margin: var(--space-6, 2.5rem) 0 0;
+  padding: var(--space-4) 0 0;
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: 10px;
   font-family: var(--font-ui);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--soft);
-  margin: var(--space-5) 0 0;
+  font-size: 13px;
+
+  > div {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 12px;
+    align-items: baseline;
+  }
+  dt {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--soft);
+  }
+  dd { margin: 0; color: var(--ink); }
+}
+.sightlines-single__chips {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.45em;
-}
-.sightlines-single__meta-tag {
-  color: var(--soft);
-}
-.sightlines-single__meta-sep {
-  color: var(--rule);
-  margin: 0 0.25em;
-  user-select: none;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 3px 10px;
+    border: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--soft);
+  }
 }
 
 // Full-bleed viz block. Charts (SVG with viewBox) auto-scale to width;
@@ -2483,25 +2502,12 @@ canvas {
 }
 .sightlines-card__link {
   display: grid;
-  grid-template-columns: 7.5rem 1fr 7rem;
+  grid-template-columns: 1fr 7rem;
   gap: 28px;
   align-items: center;
   padding: 24px 0;
   text-decoration: none;
   color: inherit;
-}
-.sightlines-card__type {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--rust);
-  margin: 0;
-  justify-self: start;
-  padding: 4px 9px;
-  border: 1px solid var(--rust);
-  line-height: 1.1;
 }
 .sightlines-card__title {
   font-family: var(--font-display);
@@ -2558,7 +2564,7 @@ canvas {
 
 @media (max-width: 56rem) {
   .sightlines-card__link {
-    grid-template-columns: 6rem 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
     padding: 22px 0;
   }
@@ -2566,11 +2572,8 @@ canvas {
 }
 @media (max-width: 36rem) {
   .sightlines-card__link {
-    grid-template-columns: 1fr;
     gap: 8px;
-    padding: 22px 0;
   }
-  .sightlines-card__type { justify-self: start; }
 }
 
 // ── Bibliography ─────────────────────────────
@@ -5659,3 +5662,161 @@ body { overflow-x: clip; }
 // Eyebrow's top margin was tuned for the un-banded layout — cancel
 // it; the band's own top padding handles the breathing room.
 .document-page__header .document-page__eyebrow { margin-top: 0; }
+
+// ── Survey grid ─────────────────────────────────────────────────────
+// A section of the GLO's 1878 Centennial Map "showing the extent of
+// public surveys": western Nebraska, where the township grid runs out
+// at the unsurveyed Sioux country. The grid is how the federal
+// government drew itself onto this ground, so it sits behind the bands
+// that frame the site as desaturated linework multiplied into the
+// panel.
+.page-header,
+.section-intro,
+.sightlines-page__header,
+.sightlines-single__header,
+.document-page > .document-page__header,
+.writing-page > .writing-header {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: url("/images/survey-1878-nebraska.webp") right 25% / cover no-repeat;
+    filter: grayscale(1) contrast(1.4);
+    mix-blend-mode: multiply;
+    opacity: 0.22;
+    // Fade in from the right so the map never sits under the title.
+    -webkit-mask-image: linear-gradient(to right, transparent 30%, #000 80%);
+    mask-image: linear-gradient(to right, transparent 30%, #000 80%);
+  }
+}
+
+// ── Home: intro row and plate lists ─────────────────────────────────
+// The intro row gives the project in the author's words, a way in, and
+// what's new; the plates below name real pages instead of describing
+// categories. The row shares the plates' four-column grid and 32px
+// gutters: text over plates 1–2, recents over plates 3–4.
+.home-intro {
+  display: grid;
+  gap: 36px 0;
+  padding: 44px 0 40px;
+  border-bottom: 1px solid var(--rule);
+
+  @media (min-width: 48rem) { grid-template-columns: 1fr 1fr; }
+}
+.home-intro__text,
+.home-intro__recent {
+  padding: 0 32px;
+}
+@media (min-width: 48rem) {
+  .home-intro__recent { border-left: 1px solid var(--rule); }
+}
+.home-intro__prose {
+  max-width: 38rem;
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink);
+
+  p { margin: 0 0 1em; }
+}
+.home-intro__more {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--ink);
+}
+.home-intro__more:hover { color: var(--rust); }
+.home-intro__head {
+  margin: 32px 0 12px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+}
+.home-intro__recent > .home-intro__head:first-child { margin-top: 0; }
+
+.home-start {
+  display: grid;
+  gap: 16px 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 36rem) { grid-template-columns: 1fr 1fr; }
+}
+.home-start__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+.home-start__kind {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.home-start__name {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink);
+  transition: color var(--duration) var(--ease);
+}
+.home-start__item:hover .home-start__name { color: var(--rust); }
+
+.home-recent {
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--faint);
+  }
+  time {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--soft);
+  }
+  a {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  a:hover { color: var(--rust); }
+}
+
+.plate__list {
+  flex: 1;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.4;
+
+  li + li { margin-top: 10px; }
+  a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 3px;
+  }
+  a:hover { color: var(--rust); text-decoration-color: currentColor; }
+}
+
