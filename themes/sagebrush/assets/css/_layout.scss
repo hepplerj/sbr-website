@@ -2502,12 +2502,22 @@ canvas {
 }
 .sightlines-card__link {
   display: grid;
-  grid-template-columns: 1fr 7rem;
+  grid-template-columns: 9rem 1fr 7rem;
   gap: 28px;
   align-items: center;
   padding: 24px 0;
   text-decoration: none;
   color: inherit;
+}
+.sightlines-card__thumb,
+.row-list__thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  background: var(--panel);
+  border: 1px solid var(--rule);
 }
 .sightlines-card__title {
   font-family: var(--font-display);
@@ -2564,7 +2574,7 @@ canvas {
 
 @media (max-width: 56rem) {
   .sightlines-card__link {
-    grid-template-columns: 1fr;
+    grid-template-columns: 7rem 1fr;
     gap: 20px;
     padding: 22px 0;
   }
@@ -2572,8 +2582,10 @@ canvas {
 }
 @media (max-width: 36rem) {
   .sightlines-card__link {
+    grid-template-columns: 1fr;
     gap: 8px;
   }
+  .sightlines-card__thumb { max-width: 12rem; }
 }
 
 // ── Bibliography ─────────────────────────────
@@ -3591,6 +3603,11 @@ textarea:focus-visible {
   line-height: 1.1;
   white-space: nowrap;
 }
+// Thumbnail variant (Atlas): thumb takes column 1, tag sits above the title.
+.row-list--thumbs .row-list__tag {
+  display: inline-block;
+  margin-bottom: 10px;
+}
 .row-list__tag-year {
   color: var(--soft);
   border-left: 1px solid var(--rule);
@@ -3662,6 +3679,7 @@ textarea:focus-visible {
     padding: 22px 0;
   }
   .row-list__tag { justify-self: start; }
+  .row-list__thumb { max-width: 12rem; }
 }
 
 /* ── Document single page (Survey register) ───────────────────────

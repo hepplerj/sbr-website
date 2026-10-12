@@ -128,6 +128,15 @@
                   data-themes="{{ delimit .Params.themes "," }}"
                   data-regions="{{ delimit .Params.regions "," }}">
                 <a class="sightlines-card__link" href="{{ .RelPermalink }}">
+                  {{- /* Thumbnails are static screenshots of the viz, captured
+                         by hand into static/images/sightlines/{slug}.webp.
+                         Missing file → empty placeholder keeps the grid aligned. */ -}}
+                  {{- $thumb := printf "images/sightlines/%s.webp" .File.ContentBaseName }}
+                  {{- if fileExists (printf "static/%s" $thumb) }}
+                  <img class="sightlines-card__thumb" src="{{ $thumb | relURL }}" alt="" width="480" height="320" loading="lazy" decoding="async">
+                  {{- else }}
+                  <span class="sightlines-card__thumb" aria-hidden="true"></span>
+                  {{- end }}
                   <div class="sightlines-card__main">
                     <h3 class="sightlines-card__title">{{ .Title }}</h3>
                     {{- with .Params.lede }}
