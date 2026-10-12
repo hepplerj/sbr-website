@@ -3,6 +3,7 @@ title: "A Century of Warming"
 date: 2026-04-18
 lede: "Annual temperature anomalies for the contiguous United States, 1895–2024, against the 20th-century mean."
 weight: 30
+featured: true
 draft: false
 viz: chart
 themes: [climate, dust-bowl]

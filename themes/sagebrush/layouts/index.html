@@ -44,36 +44,78 @@
   {{- end }}
 </section>
 
-{{- /* Plates row — four edge-to-edge columns (Pl. I-IV) that fills
-       the available vertical space between the hero and the footer.
-       No section heading, no top horizontal rule — the columns
-       themselves with their dividers are the structure. */ -}}
-<section class="home-plates" aria-label="Four ways into the project">
-  <div class="home-plates__grid">
-    <article class="plate">
-      <p class="plate__eyebrow">Maps</p>
-      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}#maps">Geographies</a></h2>
-      <p class="plate__body">Where federal land sits — grazing allotments, wilderness designations, the Bankhead-Jones land-utilization projects, and the flashpoints of conflict.</p>
-      <a class="plate__cta" href="{{ "/sightlines/" | relURL }}#maps">View &rarr;</a>
-    </article>
-    <article class="plate">
-      <p class="plate__eyebrow">Writing</p>
-      <h2 class="plate__title"><a href="{{ "/narrative/" | relURL }}">Essays &amp; field notes</a></h2>
-      <p class="plate__body">Long-form history of public-lands politics and the digital method behind the project.</p>
-      <a class="plate__cta" href="{{ "/narrative/" | relURL }}">View &rarr;</a>
-    </article>
-    <article class="plate">
-      <p class="plate__eyebrow">Networks</p>
-      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}#networks">People &amp; organizations</a></h2>
-      <p class="plate__body">The coalitions behind the rebellions — ranchers, legislators, think tanks, militias, and the ties between them.</p>
-      <a class="plate__cta" href="{{ "/sightlines/" | relURL }}#networks">View &rarr;</a>
-    </article>
-    <article class="plate">
-      <p class="plate__eyebrow">Charts</p>
-      <h2 class="plate__title"><a href="{{ "/sightlines/" | relURL }}#charts">Conditions over time</a></h2>
-      <p class="plate__body">A century of temperature, drought, farm stress, and aridification — the conditions that shaped land use and conflict.</p>
-      <a class="plate__cta" href="{{ "/sightlines/" | relURL }}#charts">View &rarr;</a>
-    </article>
+{{- /* Intro row — the project in the author's words (content/_index.md,
+       above <!--more-->) with the two orientation pages beneath it; the
+       newest essays and changelog entries alongside. Shares the plates'
+       grid so its columns line up with the boxes below. */ -}}
+{{- $start := slice (site.GetPage "/narrative/introduction") (site.GetPage "/sightlines/timeline") }}
+<section class="home-intro">
+  <div class="home-intro__text">
+    <div class="home-intro__prose">{{ .Summary }}</div>
+    <a class="home-intro__more" href="{{ "/about/" | relURL }}">About the project</a>
+
+    <h2 class="home-intro__head" id="home-start-title">Start here</h2>
+    <ul class="home-start" aria-labelledby="home-start-title">
+      {{- range $start }}{{ with . }}
+      <li>
+        <a class="home-start__item" href="{{ .RelPermalink }}">
+          <span class="home-start__kind">{{ if eq .Section "narrative" }}Essay{{ else }}Timeline{{ end }}</span>
+          <span class="home-start__name">{{ .Title }}</span>
+        </a>
+      </li>
+      {{- end }}{{ end }}
+    </ul>
+  </div>
+
+  <div class="home-intro__recent">
+    {{- with first 3 (complement $start (where site.RegularPages "Section" "narrative").ByDate.Reverse) }}
+    <h2 class="home-intro__head" id="home-writing-title">Recent writing</h2>
+    <ol class="home-recent" aria-labelledby="home-writing-title">
+      {{- range . }}
+      <li><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{- end }}
+    </ol>
+    {{- end }}
+
+    {{- with first 3 (where site.RegularPages "Section" "updates").ByDate.Reverse }}
+    <h2 class="home-intro__head" id="home-updates-title">Recently added</h2>
+    <ol class="home-recent" aria-labelledby="home-updates-title">
+      {{- range . }}
+      <li><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{- end }}
+    </ol>
+    <a class="home-intro__more" href="{{ "/updates/" | relURL }}">All updates</a>
+    {{- end }}
   </div>
 </section>
+
+{{- /* Plates row — four edge-to-edge columns that fill the available
+       vertical space. Each lists real pages: those marked
+       `featured: true` (else the first three by weight), plus a count
+       for the whole set. */ -}}
+{{- $sl := where site.RegularPages "Section" "sightlines" }}
+<section class="home-plates" aria-label="Four ways into the project">
+  <div class="home-plates__grid">
+    {{- partial "inline/home-plate.html" (dict "eyebrow" "Maps" "title" "Geographies" "url" "/sightlines/#maps" "noun" "maps" "pages" (where $sl "Params.viz" "map")) }}
+    {{- partial "inline/home-plate.html" (dict "eyebrow" "Writing" "title" "Essays & field notes" "url" "/narrative/" "noun" "essays" "pages" (where site.RegularPages "Section" "narrative")) }}
+    {{- partial "inline/home-plate.html" (dict "eyebrow" "Networks" "title" "People & organizations" "url" "/sightlines/#networks" "noun" "networks" "pages" (where $sl "Params.viz" "network")) }}
+    {{- partial "inline/home-plate.html" (dict "eyebrow" "Charts" "title" "Conditions over time" "url" "/sightlines/#charts" "noun" "charts" "pages" (where $sl "Params.viz" "chart")) }}
+  </div>
+</section>
+
 {{ end }}
+
+{{- define "partials/inline/home-plate.html" }}
+{{- $featured := where .pages "Params.featured" true }}
+{{- $show := cond (gt (len $featured) 0) $featured .pages }}
+<article class="plate">
+  <p class="plate__eyebrow">{{ .eyebrow }}</p>
+  <h2 class="plate__title"><a href="{{ .url | relURL }}">{{ .title }}</a></h2>
+  <ul class="plate__list">
+    {{- range first 3 $show.ByWeight }}
+    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    {{- end }}
+  </ul>
+  <a class="plate__cta" href="{{ .url | relURL }}">See all {{ .noun }} ({{ len .pages }})</a>
+</article>
+{{- end }}

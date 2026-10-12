@@ -19,14 +19,22 @@
 
 <section class="atlas-list">
   {{- if $entries }}
-    <ul class="row-list">
+    <ul class="row-list row-list--thumbs">
       {{- range $entries }}
         {{- $mode := .Params.atlas.mode }}
         {{- $tag := index $modeLabel $mode | default "Atlas" }}
         <li class="row-list__item">
           <a class="row-list__link" href="{{ .RelPermalink }}">
-            <p class="row-list__tag">{{ $tag }}</p>
+            {{- /* Static screenshot at static/images/atlas/{slug}.webp, same
+                   hand-captured convention as the sightlines list. */ -}}
+            {{- $thumb := printf "images/atlas/%s.webp" .File.ContentBaseName }}
+            {{- if fileExists (printf "static/%s" $thumb) }}
+            <img class="row-list__thumb" src="{{ $thumb | relURL }}" alt="" width="480" height="320" loading="lazy" decoding="async">
+            {{- else }}
+            <span class="row-list__thumb" aria-hidden="true"></span>
+            {{- end }}
             <div class="row-list__main">
+              <p class="row-list__tag">{{ $tag }}</p>
               <h2 class="row-list__title">{{ .Title }}</h2>
               {{- with .Params.lede }}
                 <p class="row-list__sub">{{ . | plainify | truncate 240 }}</p>

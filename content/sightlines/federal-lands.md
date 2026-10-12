@@ -3,6 +3,7 @@ title: "Federal Lands in the American West"
 date: 2026-04-17
 lede: "Federal ownership as a share of total land area, from the Far West across the Northern Plains."
 weight: 10
+featured: true
 draft: false
 viz: map
 themes: [public-lands]

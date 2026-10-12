@@ -59,30 +59,6 @@
     <p class="sightlines-single__kicker"><a href="{{ "/sightlines/" | relURL }}">Sightlines</a></p>
     <h1 class="sightlines-single__title">{{ .Title }}</h1>
     {{- with .Params.lede }}<p class="sightlines-single__lede">{{ . }}</p>{{ end }}
-    {{- /* Meta strip: viz type + themes + regions + date. JetBrains Mono
-           uppercase, dot-separated. Quietly establishes what kind of
-           sightline this is before the viz loads. */ -}}
-    <p class="sightlines-single__meta">
-      <span class="sightlines-single__meta-tag">{{ humanize $viz }}</span>
-      {{- with .Params.themes }}
-        <span class="sightlines-single__meta-sep" aria-hidden="true">·</span>
-        <span class="sightlines-single__meta-tag">{{- range $i, $t := . -}}
-          {{- if $i }}, {{ end -}}
-          {{- index $themeLabel $t | default (humanize $t) -}}
-        {{- end -}}</span>
-      {{- end }}
-      {{- with .Params.regions }}
-        <span class="sightlines-single__meta-sep" aria-hidden="true">·</span>
-        <span class="sightlines-single__meta-tag">{{- range $i, $r := . -}}
-          {{- if $i }}, {{ end -}}
-          {{- index $regionLabel $r | default (humanize $r) -}}
-        {{- end -}}</span>
-      {{- end }}
-      {{- with .Date }}
-        <span class="sightlines-single__meta-sep" aria-hidden="true">·</span>
-        <span class="sightlines-single__meta-tag"><time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time></span>
-      {{- end }}
-    </p>
   </header>
 
   {{- /* ── Full-bleed viz block ─────────────────────────────────────── */ -}}
@@ -98,6 +74,26 @@
   {{- /* ── Prose body ──────────────────────────────────────────────── */ -}}
   <div class="sightlines-single__body prose">
     {{ .Content }}
+
+    {{- /* Facts: what kind of sightline this is and what it covers.
+           Sits after the prose so the header leads with title + lede. */ -}}
+    <dl class="sightlines-single__facts">
+      <div><dt>Type</dt><dd>{{ humanize $viz }}</dd></div>
+      {{- with .Params.themes }}
+      <div><dt>Themes</dt><dd>{{- range $i, $t := . -}}
+        {{- if $i }}, {{ end -}}{{- index $themeLabel $t | default (humanize $t) -}}
+      {{- end -}}</dd></div>
+      {{- end }}
+      {{- with .Params.regions }}
+      <div><dt>Regions</dt><dd><ul class="sightlines-single__chips">
+        {{- range . }}<li>{{ index $regionLabel . | default (humanize .) }}</li>{{ end -}}
+      </ul></dd></div>
+      {{- end }}
+      {{- with .Date }}
+      <div><dt>Published</dt><dd><time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time></dd></div>
+      {{- end }}
+    </dl>
+
     {{ partial "cite.html" . }}
     {{ partial "coins.html" . }}
   </div>

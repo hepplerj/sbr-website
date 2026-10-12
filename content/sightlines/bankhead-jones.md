@@ -3,6 +3,7 @@ title: "Bankhead-Jones Act Lands"
 date: 2026-04-17
 lede: "National Grasslands and Land Utilization Projects — the federal lands acquired under Title III of the Bankhead-Jones Farm Tenant Act of 1937."
 weight: 20
+featured: true
 draft: false
 viz: map
 themes: [public-lands, bankhead-jones, dust-bowl]

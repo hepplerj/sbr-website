@@ -3,6 +3,7 @@ title: "A Century of Cattle Prices"
 date: 2026-05-22
 lede: "Prices received by US ranchers for cattle and calves, 1910–2025, in 2024 dollars."
 weight: 38
+featured: true
 draft: false
 viz: chart
 themes: [rural-economy]
