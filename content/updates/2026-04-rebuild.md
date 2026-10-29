@@ -10,7 +10,6 @@ summary: "A round of feature work on the visualization layer: county-level Follo
 
 ## New sightlines
 
-- **[Federal Payments by County](/sightlines/federal-payments-map/)** — a county-level choropleth recreating the structure of the Jay Taylor's *Follow the Money* project (Stanford, 2016). Pick one of ten federal-payment programs and a year between 1906 and 2020; the map shades each western county by the amount it received that year (2020 dollars).
 - **[BLM Grazing Allotments by State](/sightlines/grazing-allotments/)** — replaces the Nevada-only allotment view. A state selector lets you flip across all ten Taylor-Grazing-Act states, ~21,700 polygons in total split into per-state files. A second layer marks five hand-curated landmarks (Bunkerville, Owyhee, Harney County, Grand Staircase-Escalante, Elko) with explanatory blurbs.
 - **[USFS Range Allotments](/sightlines/usfs-range-allotments/)** — 8,440 Forest Service grazing allotments nationwide, fetched from the USDA EDW.
 

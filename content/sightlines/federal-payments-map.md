@@ -3,7 +3,7 @@ title: "Federal Payments by County"
 date: 2026-04-21
 lede: "The county-level map of federal payments to counties."
 weight: 22
-draft: false
+draft: true 
 viz: map
 themes: [public-lands, rural-economy]
 regions: [great-plains, intermountain-west, pacific, national]
