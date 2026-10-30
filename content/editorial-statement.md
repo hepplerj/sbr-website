@@ -9,7 +9,7 @@ toc: true
 
 ## Scope and selection
 
-The corpus of materials associated with land use management in the American West is vast. *Governing Ground* uses [Documents](/documents) as an annotated archive of primary sources relevant to the research and argument being developed in the project. The document archive is intentional and selective, relying largely on public laws, court filings, hearing transcripts, executive orders, and when possible secondary sources that I have permission to share. As new details come to light about relevant documents, people, or events, I refine the interpretive apparatus. *Governing Ground*'s archive is, of necessity, selective rather than comprehensive.
+The corpus of materials associated with land use management in the American West is vast. *Governing Ground* uses Documents as an annotated archive of primary sources relevant to the research and argument being developed in the project. The document archive is intentional and selective, relying largely on public laws, court filings, hearing transcripts, executive orders, and when possible secondary sources that I have permission to share. As new details come to light about relevant documents, people, or events, I refine the interpretive apparatus. *Governing Ground*'s archive is, of necessity, selective rather than comprehensive.
 
 ## Sourcing and permissions
 
