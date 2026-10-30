@@ -210,18 +210,25 @@ data file, render into the container.
   (`temp` cool→rust, `precip` brown→navy, `rust` sequential for
   counts). `scale: "sequential"` vs default diverging controls color
   domain mapping.
-- **`atlas.js`** — D3. Two modes, dispatched on `atlas.mode`:
+- **`atlas.js`** — D3. Four modes, dispatched on `atlas.mode`:
   `trends` (small-multiples with hover guide-line snapping to nearest
   Congress, click-to-pin, two-column detail panel below the charts —
   40/60 grid, stacks on narrow viewports; member drill lazy-fetches the
-  per-Congress JSON on demand and caches in-memory) and `footprint`
+  per-Congress JSON on demand and caches in-memory); `footprint`
   (ranked horizontal stacked bars of federal interest as % of state
   land, sort control with animated re-ranking, click-to-pin two-column
   detail: breakdown table + cumulative easement curve; data from
-  `build_federal_footprint.py`). SVG text/segments over a hit-rect need
-  `pointer-events: none` or they swallow row clicks. A prior heatmap
-  mode was stripped; restore from git history if a per-Congress view is
-  wanted again.
+  `build_federal_footprint.py` — SVG text/segments over a hit-rect need
+  `pointer-events: none` or they swallow row clicks); `lexicon`
+  (Producer-corpus term-frequency small multiples, one panel per
+  concept cluster, same pin/detail grammar but drilling concept →
+  term → concordance cross-link; data from `build_producer_terms.py`);
+  and `kwic` (Producer-corpus concordance browser — term picker fed by
+  a small index with per-year counts, clickable sparkline year filter,
+  lazily fetched per-term shards from `build_producer_kwic.py`, every
+  line deep-linked to the archive.org reader with in-item search
+  preloaded). A prior heatmap mode was stripped; restore from git
+  history if a per-Congress view is wanted again.
 - **`sightlines-map.js`** — loaded only on the sightlines list page.
   Handles theme-pill filtering and the mini AlbersUSA region-filter map.
   Uses `static/data/states.json` (us-atlas states-10m, 112KB) with

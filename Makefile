@@ -8,7 +8,7 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices follow-the-money fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices follow-the-money fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
 
 data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography
 
@@ -158,6 +158,17 @@ legislation-textreuse:
 
 bibliography:
 	$(PY) scripts/build_bibliography.py
+
+# Harvest the American Cattle Producer OCR corpus (archive.org, 508
+# issues, 1919-1961, ~100 MB one-time download cached under
+# scripts/.cache/producer/) and build yearly term-frequency series.
+producer-terms:
+	$(PY) scripts/build_producer_terms.py
+
+# Keyword-in-context shards for the concordance atlas page. Needs the
+# OCR cache from `make producer-terms` (does not download anything).
+producer-kwic:
+	$(PY) scripts/build_producer_kwic.py
 
 # Build the site (requires Hugo extended) and the Pagefind search
 # index. Pagefind runs after Hugo, indexing the built public/ tree
