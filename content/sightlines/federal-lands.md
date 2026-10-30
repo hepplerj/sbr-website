@@ -4,7 +4,7 @@ date: 2026-04-17
 lede: "Federal ownership as a share of total land area, from the Far West across the Northern Plains."
 weight: 10
 featured: true
-draft: false
+draft: true
 viz: map
 themes: [public-lands]
 regions: [northern-plains, rocky-mountain, intermountain-west, southwest]
@@ -30,6 +30,8 @@ Federal land ownership in the West spans a dramatic range. In Nevada, the federa
 Visually, the map conveys the degree of federal land ownership in the region. Throughout the Great Basin---Nevada, Utah, Idaho---the federal government manages a lot of land. That ownership and management influences where transfer arguments have shaped state politics for a century.
 
 Part of my argument, however, is that this representation of federal presence on the land in actual numbers occludes the influence of sagebrush-style politics across the Great Plains. Part of this is a reflection of recreation: the Interior and Far Western states have larger land management areas for grazing, fewer privatized tracts of land, and far more National Parks. Yet the federal presence on the Plains is still evident, more specifically in the [Bankhead-Jones Act lands](../bankhead-jones/).
+
+([I made an early version of this map in 2011](https://jasonheppler.org/projects/western-lands/).)
 
 ## Data and method
 
