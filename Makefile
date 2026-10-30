@@ -8,9 +8,9 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography
+data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -138,11 +138,6 @@ national-monuments:
 # of the NIFC annual table; re-verify against nifc.gov when extending.
 wildfire:
 	$(PY) scripts/build_wildfire.py
-
-# Climate-space trajectory (Southwest temp x precip). Derived join of
-# the regional climate files; run regions-climate first.
-climate-space:
-	$(PY) scripts/build_climate_space.py
 
 # Per-state temperature anomalies (NOAA CAG statewide), West/Plains,
 # ordered north-to-south for the latitude x time heatmap. 17 fetches.
