@@ -103,9 +103,9 @@ reuse"` + `howto:` method notes):
   ("36 shared passages · 898 words · Jaccard 0.245") + every shared
   passage. (The former standalone "Copied Clauses" page/`reuse` renderer
   was **merged into this modal and deleted**.)
-- **`legislation-genealogy.md`** "The Descent of a Bill" — `genealogy`
-  type. Year-column family tree, directed edges (width ∝ shared
-  5-grams, still the `sharedshingles` field), Nevada as rust root.
+- ~~`legislation-genealogy.md` "The Descent of a Bill"~~ — page
+  **removed 2026-10-30**; the `genealogy` renderer stays in charts.js
+  (year-column family tree, Nevada as root) if it's ever wanted again.
 - **`legislation-signatures.md`** "The Boilerplate DNA" — `concordance`
   type. Ranked table of phrases in ≥3 bills with state chips.
 

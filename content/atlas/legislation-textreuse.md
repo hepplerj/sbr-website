@@ -49,8 +49,7 @@ chart:
       resolution) are different genres and sit apart from the statute
       cluster.
 
-  Companion instruments (same data file):
-    - The Descent of a Bill — the genealogy network.
+  Companion instrument (same data file):
     - The Boilerplate DNA — the signature-phrase concordance.
 -->
 
