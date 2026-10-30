@@ -8,9 +8,9 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-consolidation farm-income cattle-prices follow-the-money fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline bibliography clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature west-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-income follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline bibliography
+data: federal-lands conus-temperature west-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -18,8 +18,8 @@ federal-lands:
 conus-temperature:
 	$(PY) scripts/build_conus_temperature.py
 
-conus-precipitation:
-	$(PY) scripts/build_conus_precipitation.py
+west-precipitation:
+	$(PY) scripts/build_west_precipitation.py
 
 regions-climate:
 	$(PY) scripts/build_regions_climate.py
@@ -29,6 +29,18 @@ bankhead-jones:
 
 us-federal-lands:
 	$(PY) scripts/build_us_federal_lands.py
+
+# Trust lands + FWS easements — the overlay layers for the alt federal-lands
+# map. Deliberately not in `data`: it's a few minutes of ArcGIS paging for an
+# experimental page, so run it on demand.
+federal-interests:
+	$(PY) scripts/build_federal_interests.py
+
+# "The Federal Footprint, State by State" atlas instrument — depends on
+# federal-interests' trust/easement outputs already being present. Not in
+# the `data` aggregate for the same reason federal-interests isn't.
+federal-footprint:
+	$(PY) scripts/build_federal_footprint.py
 
 grazing-districts:
 	$(PY) scripts/build_grazing_districts.py
@@ -42,8 +54,17 @@ grazing-allotments:
 farm-bankruptcies:
 	$(PY) scripts/build_farm_bankruptcies.py
 
-follow-the-money:
-	$(PY) scripts/build_follow_the_money.py
+# Rates come from the hand-transcribed series in scripts/data/; farm
+# counts (for the estimated-count view) are fetched from Dinterman's
+# historical-bankruptcies repo, same source as farm-bankruptcies.
+farm-foreclosures:
+	$(PY) scripts/build_farm_foreclosures.py
+
+# EXPERIMENT (plan/STATUS.md): merges the two JSONs above into a
+# combined two-panel dataset — hence the prerequisites.
+farm-distress: farm-bankruptcies farm-foreclosures
+	$(PY) scripts/build_farm_distress.py
+
 
 # Requires NASS_API_KEY env var (free at quickstats.nass.usda.gov/api).
 farm-consolidation:
@@ -107,8 +128,40 @@ fig-great-plains:
 timeline:
 	$(PY) scripts/build_timeline.py
 
+# Antiquities Act national monuments — curated dataset for the
+# designations-over-time scatter sightline. Embedded data (no clean
+# API exists); verify acreages against CRS R41330.
+national-monuments:
+	$(PY) scripts/build_national_monuments.py
+
+# US wildland fire totals (NIFC, 1983–present). Embedded transcription
+# of the NIFC annual table; re-verify against nifc.gov when extending.
+wildfire:
+	$(PY) scripts/build_wildfire.py
+
+# Per-state temperature anomalies (NOAA CAG statewide), West/Plains,
+# ordered north-to-south for the latitude x time heatmap. 17 fetches.
+states-temperature:
+	$(PY) scripts/build_states_temperature.py
+
+# Text-reuse analysis of the transcribed state sagebrush bills
+# (legislation.md) — similarity matrix, shared passages, signatures.
+legislation-textreuse:
+	$(PY) scripts/build_legislation_textreuse.py
+
 bibliography:
 	$(PY) scripts/build_bibliography.py
+
+# Harvest the American Cattle Producer OCR corpus (archive.org, 508
+# issues, 1919-1961, ~100 MB one-time download cached under
+# scripts/.cache/producer/) and build yearly term-frequency series.
+producer-terms:
+	$(PY) scripts/build_producer_terms.py
+
+# Keyword-in-context shards for the concordance atlas page. Needs the
+# OCR cache from `make producer-terms` (does not download anything).
+producer-kwic:
+	$(PY) scripts/build_producer_kwic.py
 
 # Build the site (requires Hugo extended) and the Pagefind search
 # index. Pagefind runs after Hugo, indexing the built public/ tree
@@ -127,3 +180,9 @@ serve:
 clean-data:
 	@echo "Not removing anything — rerun the build scripts instead."
 	@echo "Files live in static/data/ and are under version control."
+
+# One-time scaffolder: split legislation.md into Documents-archive
+# page-bundles (write-if-absent, never clobbers). Run manually when
+# adding a new state bill.
+legislation-documents:
+	$(PY) scripts/build_legislation_documents.py

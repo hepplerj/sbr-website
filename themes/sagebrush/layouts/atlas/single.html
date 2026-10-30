@@ -1,12 +1,34 @@
 {{ define "main" }}
 {{- /* Atlas dispatcher. Atlas pages are reference instruments (heatmaps,
-       sortable tables, scorecards) rather than the argument-with-a-viz
-       form of sightlines. Each page declares `atlas:` in frontmatter and
-       the matching JS module mounts onto data-viz="atlas". */ -}}
+       matrices, networks, scorecards) rather than the argument-with-a-viz
+       form of sightlines.
 
-{{- $cfg  := .Params.atlas -}}
+       Two mounting paths, chosen by frontmatter:
+         - `atlas:` block → atlas.js (the trends small-multiples), mounted
+           on data-viz="atlas". The original path.
+         - `chart:` / `network:` / `map:` block → the shared sightlines
+           renderers (charts.js / networks.js / maps.js), mounted on
+           data-viz="{kind}". Lets an instrument reuse any of the project's
+           viz engines while living in the Atlas section. head.html already
+           loads those libraries on `.Params.chart` etc. (section-
+           independent), so no JS-loading change is needed. */ -}}
+
 {{- $slug := .File.BaseFileName -}}
-{{- $id   := printf "atlas-%s" $slug -}}
+{{- $viz  := "atlas" -}}
+{{- $cfg  := .Params.atlas -}}
+{{- if .Params.chart -}}
+  {{- $viz = "chart" -}}{{- $cfg = .Params.chart -}}
+{{- else if .Params.network -}}
+  {{- $viz = "network" -}}{{- $cfg = .Params.network -}}
+{{- else if .Params.map -}}
+  {{- $viz = "map" -}}{{- $cfg = merge .Params.map (dict "fullbleed" true) -}}
+{{- end -}}
+{{- $id := printf "%s-%s" $viz $slug -}}
+
+{{- /* How-to disclosure sourced from `atlas.howto` or a top-level `howto`
+       (so chart-based instruments can carry method notes too). */ -}}
+{{- $howto := .Params.howto -}}
+{{- with .Params.atlas }}{{ with .howto }}{{ $howto = . }}{{ end }}{{ end -}}
 
 <article class="atlas-page prose">
   <header class="atlas-page__header">
@@ -15,10 +37,7 @@
     {{- with .Params.lede }}<p class="atlas-page__lede">{{ . }}</p>{{ end }}
   </header>
 
-  {{- /* Optional how-to disclosure rendered ABOVE the viz, sourced
-         from the page's `atlas.howto` array of markdown bullet lines.
-         Hidden when the field is absent. */ -}}
-  {{- with .Params.atlas.howto }}
+  {{- with $howto }}
     <details class="prose-details atlas-page__howto">
       <summary>How to use this chart</summary>
       <ul>
@@ -27,9 +46,9 @@
     </details>
   {{- end }}
 
-  <div class="atlas-page__viz"
+  <div class="atlas-page__viz{{ if ne $viz "atlas" }} atlas-page__viz--{{ $viz }}{{ end }}"
        id="{{ $id }}"
-       data-viz="atlas"
+       data-viz="{{ $viz }}"
        role="img"
        aria-label="{{ with .Params.lede }}{{ . }}{{ else }}Interactive atlas{{ end }}">
     <noscript>This atlas requires JavaScript.</noscript>

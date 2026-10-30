@@ -17,6 +17,7 @@ Right up front: nothing here was written by a generative AI. The only work gener
 - **Site infrastructure.** The Hugo theme, layout templates, partials, shortcodes, and CSS. The palette, typography system, and component library were built in conversation with me.
 - **Visualization code.** The Leaflet map module (`maps.js`), the D3 AlbersUSA map module (`d3-maps.js`), the D3 force-directed network module (`networks.js`), the D3 chart module (`charts.js`) that renders climate stripes, line plots, and bar charts, and the Sightlines index filter module (`sightlines-map.js`) with its clickable region mini-map.
 - **Data processing pipelines.** Python scripts that pull and aggregate open and government data.
+- **[Changelog posts](/updates/).** The first pass of the changelog posts are drafted by generative AI, but since these are not part of the research or scholarly apparatus I'm more comfortable with an AI handling a record of changes to the site.
 
 ## What AI did not write
 
@@ -40,7 +41,7 @@ Every dataset published on the site is produced by a small, reviewable Python sc
 
 **Climate and environment**
 - [`build_conus_temperature.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_conus_temperature.py) — annual CONUS temperature anomalies (NOAA NCEI Climate at a Glance)
-- [`build_conus_precipitation.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_conus_precipitation.py) — annual CONUS precipitation (NOAA NCEI)
+- [`build_west_precipitation.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_west_precipitation.py) — annual western-states precipitation (NOAA NCEI)
 - [`build_regions_climate.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_regions_climate.py) — temperature and precipitation for four western climate regions (NOAA NCEI)
 
 **Rural economy**
@@ -48,7 +49,6 @@ Every dataset published on the site is produced by a small, reviewable Python sc
 - [`build_farm_consolidation.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_farm_consolidation.py) — US farm count and average farm size, 1910–present (USDA NASS QuickStats API)
 - [`build_farm_income.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_farm_income.py) — US farm income and wealth time series (USDA ERS Farm Income and Wealth Statistics)
 - [`build_cattle_prices.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_cattle_prices.py) — cattle prices received by US ranchers, 1910–present, in 2024 dollars (USDA NASS QuickStats API + FRED CPI-U for deflation)
-- [`build_follow_the_money.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_follow_the_money.py) — federal revenue-sharing payments to western counties, 1906–2020 (*Follow the Money*, Stanford CESTA)
 
 **Politics and scholarship**
 - [`build_cosponsorship_network.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_cosponsorship_network.py) — 57-bill federal public-lands cosponsorship network, 96th–118th Congresses (GPO govinfo.gov BILLSTATUS + Congress.gov API)
@@ -69,6 +69,6 @@ AI assistance drafted these scripts in the first pass, as with the rest of the c
 
 ## Tools and sessions
 
-The generative AI used for this project is [Claude Code](https://www.claude.com/product/claude-code) (Anthropic), running a combination of Claude Sonnet 4.6 and Opus 4.6. The project's GitHub repository preserves the commits produced across sessions.
+The generative AI used for this project is [Claude Code](https://www.claude.com/product/claude-code) (Anthropic). The underlying model has changed as Anthropic released new ones: Claude Opus 4.7 and Sonnet 4.6 from April 2026 through early June 2026, Opus 4.8 from late June 2026 through July 2026, Claude Fable 5 in August 2026, and Opus 5.5 from October 2026 onward. The project's GitHub repository preserves the commits produced across sessions.
 
 Generative AI is more disciplined than I am about `git` commits, pull requests, and branching, and handles many of these commit messages for me.

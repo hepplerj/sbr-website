@@ -28,7 +28,7 @@ map:
 This map illustrates the 93 Taylor Grazing Act districts, colored by the year it was organized. The Taylor Grazing Act of 1934 divided the remaining public domain into administrative districts to manage grazing permits, stocking-rate decisions, and allotment boundaries. 
 
 
-These districts provide an overview; a closer frame can be viewed in the [BLM allotments by state](../grazing-allotments/) since individual district contains anywhere from dozens to hundreds of individual allotments.
+These districts provide an overview. A closer frame can be viewed in the [BLM allotments by state](../grazing-allotments/) since individual district contains anywhere from dozens to hundreds of individual allotments.
 
 The Taylor Grazing Act notably prompts a major conflict between ranchers and federal land management. Before 1934, ranchers grazed federal land under informal custom---"first in time, first in right." The Act instituted permits and fees, creating an administrative relationship between rancher and federal agency. What we might consider the first Sagebrush Rebellion emerged in the wake of the TGA when, between 1946 and 1948 Senator Pat McCarran's hearings into grazing fees and Bernard DeVoto's *Harper's* essays represented the poles of the debate. 
 

@@ -1,18 +1,35 @@
 // ─────────────────────────────────────────────
-// Governing Ground — atlas renderer (trends mode)
+// Governing Ground — atlas renderer
 //
-// Small-multiples line chart: one panel per CRS policy area, three
-// lines per panel (one per regional delegation), X = Congress (year
-// labels), Y = chosen metric. Mounts on data-viz="atlas".
+// Mounts on data-viz="atlas" and dispatches on `mode` (lowercase —
+// Hugo lowercases frontmatter keys, recursively):
 //
-// Config (lowercase — Hugo lowercases frontmatter keys):
+//   mode: trends   — congressional cosponsorship small multiples.
+//     { src, metric: permember|shareofregion|cosponsorships,
+//       chamber: both|house|senate }
+//
+//   mode: lexicon  — Producer-corpus term-frequency small multiples,
+//     one panel per concept cluster; click-to-pin opens a per-term
+//     detail with a drill chart and a cross-link into the concordance
+//     page. { src: /data/producer-terms.json,
+//             kwicpage: /atlas/producer-concordance/ }
+//
+//   mode: kwic     — Producer-corpus concordance browser. Term picker
+//     (from a small index), per-year sparkline filter, lazily fetched
+//     per-term KWIC shards, every line deep-linked to the archive.org
+//     reader with in-item search preloaded.
+//     { src: /data/producer-kwic/index.json }
+//
+// A `mode` field dispatches between two mounts:
+//   "trends"    — small-multiples (above). Unchanged; see renderTrends.
+//   "footprint" — ranked horizontal stacked bars, one row per state,
+//                 % of state land in federal fee / trust / easement
+//                 interest. See renderFootprint. Config:
 //   {
-//     src:     "/data/atlas-regional-timeseries.json",
-//     metric:  "permember" | "shareofregion" | "cosponsorships",
-//     chamber: "both" | "house" | "senate",
+//     mode: "footprint",
+//     src:  "/data/federal-footprint.json",
 //   }
 //
-// A `mode` field is accepted but currently only "trends" is supported.
 // A prior per-Congress heatmap mode was removed when the dual-entry
 // atlas was consolidated into a single trends entry; restore from git
 // history if a single-Congress view is wanted again.
@@ -69,14 +86,20 @@
     const src = cfg.src;
     if (!src) { console.error("atlas: missing src"); return; }
 
-    let metric  = (cfg.metric  || "permember").toLowerCase();
-    let chamber = (cfg.chamber || "both").toLowerCase();
-    if (!(metric  in METRIC_FIELD))   metric  = "permember";
-    if (!(chamber in CHAMBER_LABELS)) chamber = "both";
+    const mode = (cfg.mode || "trends").toLowerCase();
 
     fetch(src)
       .then(r => r.json())
-      .then(data => renderTrends(container, data, cfg, metric, chamber))
+      .then(data => {
+        if (mode === "footprint") return renderFootprint(container, data, cfg);
+        if (mode === "lexicon") return renderLexicon(container, data, cfg);
+        if (mode === "kwic")    return renderKwic(container, data, cfg);
+        let metric  = (cfg.metric  || "permember").toLowerCase();
+        let chamber = (cfg.chamber || "both").toLowerCase();
+        if (!(metric  in METRIC_FIELD))   metric  = "permember";
+        if (!(chamber in CHAMBER_LABELS)) chamber = "both";
+        renderTrends(container, data, cfg, metric, chamber);
+      })
       .catch(err => {
         console.error("atlas fetch failed", err);
         container.innerHTML = '<p class="atlas-viz__error">Could not load data.</p>';
@@ -555,6 +578,923 @@
     chamberSel.addEventListener("change", () => { draw(); updateDetailLeft(); });
     window.addEventListener("resize", debounce(() => { draw(); }, 120));
     draw();
+  }
+
+  // ─────────────────────── FOOTPRINT MODE ───────────────────────
+  // Ranked horizontal stacked bars, one row per state: federal interest
+  // as % of state land. Percent-of-state is computed here from
+  // `landacres` — never shipped in the data file, so the two can't
+  // disagree (spec §Output schema notes).
+  //
+  // Interaction model:
+  //   - Sort control re-ranks rows; existing rows animate to their new
+  //     y-position (d3 transition), matching the cosponsorship pinning
+  //     grammar used by renderTrends.
+  //   - Hover a row → highlight + one-line readout above the chart
+  //     (not a floating tooltip — matches spec instruction).
+  //   - Click a row → pin → two-column detail panel below (40/60,
+  //     stacks narrow): left = breakdown table, right = cumulative
+  //     easement-acquisition curve with hover guide.
+  const FOOTPRINT_AGENCY_COLORS = {
+    blm: "#c9a978", fs: "#4a9e5c", fws: "#8aa07c", nps: "#3a5982", dod: "#7a7367",
+  };
+  const FOOTPRINT_TRUST_COLOR     = "#a94b2b";
+  const FOOTPRINT_EASEMENT_COLOR  = "#1f6b66";
+
+  function renderFootprint(container, data, cfg) {
+    const agencies      = data.agencies || ["blm", "fs", "fws", "nps", "dod"];
+    const agencyLabels  = data.agencylabels || {};
+
+    const states = (data.states || []).map((s, i) => {
+      const land        = s.landacres || 1;
+      const feePct       = ((s.feetotal || 0) / land) * 100;
+      const trustPct     = ((s.trust || 0) / land) * 100;
+      const easeAcres    = (s.easements && s.easements.acres) || 0;
+      const easePct      = (easeAcres / land) * 100;
+      return Object.assign({}, s, {
+        _order: i,
+        _feePct: feePct,
+        _trustPct: trustPct,
+        _easementPct: easePct,
+        _easementAcres: easeAcres,
+        _totalPct: feePct + trustPct + easePct,
+      });
+    });
+
+    const SORTS = {
+      total:         { label: "Total federal interest %", fn: (a, b) => b._totalPct - a._totalPct },
+      fee:           { label: "Fee %",                     fn: (a, b) => b._feePct - a._feePct },
+      trust:         { label: "Trust %",                   fn: (a, b) => b._trustPct - a._trustPct },
+      easementpct:   { label: "Easement %",                fn: (a, b) => b._easementPct - a._easementPct },
+      easementacres: { label: "Easement acres",            fn: (a, b) => b._easementAcres - a._easementAcres },
+      fileorder:     { label: "North → South",             fn: (a, b) => a._order - b._order },
+    };
+    const sortLabels = {};
+    Object.keys(SORTS).forEach(k => { sortLabels[k] = SORTS[k].label; });
+
+    // ─── Controls ────────────────────────────────────────────────
+    const ctrls = controlsRow(container);
+    const sortSel = makeSelect(ctrls, "Sort by", sortLabels, "total");
+    const metaSpan = document.createElement("span");
+    metaSpan.className = "atlas-viz__meta";
+    metaSpan.textContent = `${states.length} states` + (data.retrieved ? ` · retrieved ${data.retrieved}` : "");
+    ctrls.appendChild(metaSpan);
+
+    // ─── Hover readout (fixed, not a floating tooltip) ─────────────
+    const readout = document.createElement("div");
+    readout.className = "atlas-footprint__readout";
+    readout.textContent = "Hover a state to see its federal-interest breakdown. Click to pin.";
+    container.appendChild(readout);
+
+    // ─── SVG canvas ─────────────────────────────────────────────────
+    const svgWrap = document.createElement("div");
+    svgWrap.className = "atlas-viz__svg-wrap";
+    container.appendChild(svgWrap);
+    const svg = d3.select(svgWrap).append("svg")
+      .attr("class", "atlas-viz__svg atlas-footprint__svg").attr("role", "img");
+
+    const hatchId = "footprint-trust-hatch";
+    const defs = svg.append("defs");
+    const hatchPattern = defs.append("pattern")
+      .attr("id", hatchId)
+      .attr("patternUnits", "userSpaceOnUse")
+      .attr("width", 4).attr("height", 4)
+      .attr("patternTransform", "rotate(45)");
+    hatchPattern.append("rect")
+      .attr("width", 4).attr("height", 4)
+      .attr("fill", FOOTPRINT_TRUST_COLOR).attr("fill-opacity", 0.6);
+    hatchPattern.append("line")
+      .attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 4)
+      .attr("stroke", FOOTPRINT_TRUST_COLOR).attr("stroke-width", 1.6);
+
+    const rowsGroup = svg.append("g").attr("class", "atlas-footprint__rows");
+
+    // ─── Legend (segment meaning) ───────────────────────────────────
+    const legend = document.createElement("div");
+    legend.className = "atlas-viz__legend-strip atlas-footprint__legend";
+    const legendItems = agencies.map(a => ({
+      key: a,
+      label: agencyLabels[a] || a.toUpperCase(), color: FOOTPRINT_AGENCY_COLORS[a] || "#999",
+    })).concat([
+      { key: "trust", label: "Trust (BIA LAR, hatched)", color: FOOTPRINT_TRUST_COLOR, hatch: true },
+      { key: "easements", label: "Easements", color: FOOTPRINT_EASEMENT_COLOR },
+    ]);
+    // Chip lookup by segment key, so hovering a bar segment can light up the
+    // matching legend entry.
+    const legendChips = new Map();
+    legendItems.forEach(li => {
+      const chip = document.createElement("span");
+      chip.className = "atlas-viz__legend-chip atlas-footprint__legend-chip";
+      chip.innerHTML = `<span class="atlas-viz__swatch" style="background:${li.color};border-radius:2px;${li.hatch ? "background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.35) 0 1px,transparent 1px 4px);" : ""}"></span>${escapeHtml(li.label)}`;
+      legend.appendChild(chip);
+      legendChips.set(li.key, chip);
+    });
+    container.insertBefore(legend, svgWrap);
+
+    // Mouse-follow segment popup. Lives in the svg wrapper so its coordinates
+    // are the same space as d3.pointer(ev, svgWrap).
+    const segTip = document.createElement("div");
+    segTip.className = "atlas-footprint__tip";
+    segTip.setAttribute("hidden", "");
+    svgWrap.appendChild(segTip);
+
+    const segLabel = key =>
+      key === "trust" ? "Land held in trust" :
+      key === "easements" ? "Federal easements" :
+      (agencyLabels[key] || key.toUpperCase());
+
+    function setHotSegment(key) {
+      legendChips.forEach((chip, k) => {
+        chip.classList.toggle("is-hot", k === key);
+        chip.classList.toggle("is-dim", key != null && k !== key);
+      });
+    }
+
+    function showSegTip(ev, d, seg) {
+      const [px, py] = d3.pointer(ev, svgWrap);
+      segTip.innerHTML = `<strong>${escapeHtml(segLabel(seg.key))}</strong>`
+        + `<span>${Math.round(seg.acres).toLocaleString()} acres · ${formatPctFP(seg.pct)} of ${escapeHtml(d.name)}</span>`;
+      segTip.removeAttribute("hidden");
+      // Right of the cursor unless that would clip; never past the wrap edge.
+      const w = segTip.offsetWidth || 180;
+      const x = (px + 14 + w > svgWrap.clientWidth) ? Math.max(2, px - w - 14) : px + 14;
+      segTip.style.left = x + "px";
+      segTip.style.top = Math.max(2, py - 34) + "px";
+    }
+
+    function hideSegTip() {
+      segTip.setAttribute("hidden", "");
+      setHotSegment(null);
+    }
+
+    // ─── Detail panel scaffold ────────────────────────────────────
+    const detail = document.createElement("div");
+    detail.className = "atlas-footprint__detail";
+    detail.setAttribute("hidden", "");
+    detail.innerHTML =
+        '<div class="atlas-footprint__detail-left"></div>'
+      + '<div class="atlas-footprint__detail-right"></div>';
+    container.appendChild(detail);
+    const detailLeft  = detail.querySelector(".atlas-footprint__detail-left");
+    const detailRight = detail.querySelector(".atlas-footprint__detail-right");
+
+    // ─── State ───────────────────────────────────────────────────
+    let pinnedAbbr = null;
+    let hoveredAbbr = null;
+
+    function currentSort() {
+      return SORTS[sortSel.value] || SORTS.total;
+    }
+
+    function segmentsFor(d, xScale) {
+      const land = d.landacres || 1;
+      const segs = [];
+      let cum = 0;
+      agencies.forEach(a => {
+        const acres = (d.fee && d.fee[a]) || 0;
+        const pct = (acres / land) * 100;
+        const x0 = xScale(cum);
+        cum += pct;
+        const x1 = xScale(cum);
+        segs.push({ key: a, x0, x1, pct, acres, color: FOOTPRINT_AGENCY_COLORS[a] || "#999" });
+      });
+      {
+        const acres = d.trust || 0;
+        const pct = d._trustPct;
+        const x0 = xScale(cum);
+        cum += pct;
+        const x1 = xScale(cum);
+        segs.push({ key: "trust", x0, x1, pct, acres, pattern: true });
+      }
+      {
+        const acres = d._easementAcres;
+        const pct = d._easementPct;
+        const x0 = xScale(cum);
+        cum += pct;
+        const x1 = xScale(cum);
+        segs.push({ key: "easements", x0, x1, pct, acres, color: FOOTPRINT_EASEMENT_COLOR });
+      }
+      return { segs, total: cum };
+    }
+
+    function readoutText(d) {
+      return `${d.name} (${d.abbr}) — ${formatPctFP(d._totalPct)} of state land under federal `
+        + `interest: fee ${formatPctFP(d._feePct)}, trust ${formatPctFP(d._trustPct)}, `
+        + `easements ${formatPctFP(d._easementPct)} (${Math.round(d._easementAcres).toLocaleString()} ac).`;
+    }
+    function setReadout(d) {
+      readout.textContent = d ? readoutText(d)
+        : "Hover a state to see its federal-interest breakdown. Click to pin.";
+    }
+
+    function draw(animate) {
+      const width  = svgWrap.clientWidth || 900;
+      const narrow = width < 560;
+      const rowH   = narrow ? 28 : 32;
+      const margin = { top: 6, right: 60, bottom: 6, left: narrow ? 46 : 150 };
+      const barMax = d3.max(states, d => d._totalPct) || 1;
+      const xScale = d3.scaleLinear().domain([0, barMax]).nice()
+        .range([margin.left, Math.max(margin.left + 40, width - margin.right)]);
+
+      const sorted = states.slice().sort(currentSort().fn);
+      const yOf = new Map(sorted.map((s, i) => [s.abbr, margin.top + i * rowH]));
+      const totalH = margin.top + sorted.length * rowH + margin.bottom;
+
+      svg.attr("viewBox", `0 0 ${width} ${totalH}`).attr("width", width).attr("height", totalH);
+
+      const rows = rowsGroup.selectAll(".atlas-footprint__row")
+        .data(states, d => d.abbr);
+
+      const rowsEnter = rows.enter().append("g")
+        .attr("class", "atlas-footprint__row")
+        .attr("transform", d => `translate(0, ${yOf.get(d.abbr)})`);
+
+      rowsEnter.append("rect")
+        .attr("class", "atlas-footprint__hit")
+        .attr("x", 0).attr("y", 1)
+        .attr("fill", "transparent");
+      rowsEnter.append("text")
+        .attr("class", "atlas-footprint__label")
+        .attr("text-anchor", "end");
+      rowsEnter.append("g").attr("class", "atlas-footprint__segments");
+      rowsEnter.append("text")
+        .attr("class", "atlas-footprint__value");
+
+      rows.exit().remove();
+
+      // Position: instant on enter, transition on re-sort of existing rows.
+      if (animate) {
+        rows.transition().duration(450).ease(d3.easeCubicOut)
+          .attr("transform", d => `translate(0, ${yOf.get(d.abbr)})`);
+      } else {
+        rows.attr("transform", d => `translate(0, ${yOf.get(d.abbr)})`);
+      }
+
+      const rowsAll = rowsEnter.merge(rows);
+
+      rowsAll.select(".atlas-footprint__hit")
+        .attr("width", width)
+        .attr("height", rowH - 2);
+
+      rowsAll.select(".atlas-footprint__label")
+        .attr("x", margin.left - 10)
+        .attr("y", rowH / 2).attr("dy", "0.35em")
+        .text(d => narrow ? d.abbr : `${d.abbr} — ${d.name}`);
+
+      rowsAll.each(function (d) {
+        const { segs, total } = segmentsFor(d, xScale);
+        const g = d3.select(this).select(".atlas-footprint__segments");
+        const sel = g.selectAll("rect").data(segs, s => s.key);
+        sel.enter().append("rect")
+          .merge(sel)
+            .attr("x", s => s.x0)
+            .attr("y", 3)
+            .attr("width", s => Math.max(0, s.x1 - s.x0))
+            .attr("height", rowH - 6)
+            .attr("fill", s => (s.pattern ? `url(#${hatchId})` : s.color));
+        sel.exit().remove();
+
+        d3.select(this).select(".atlas-footprint__value")
+          .attr("x", xScale(total) + 6)
+          .attr("y", rowH / 2).attr("dy", "0.35em")
+          .text(formatPctFP(total));
+      });
+
+      rowsAll
+        .classed("is-hover", d => d.abbr === hoveredAbbr)
+        .classed("is-pinned", d => d.abbr === pinnedAbbr);
+
+      rowsAll.select(".atlas-footprint__hit")
+        .on("mouseenter", function (ev, d) {
+          hoveredAbbr = d.abbr;
+          rowsAll.classed("is-hover", r => r.abbr === hoveredAbbr);
+          setReadout(d);
+        })
+        // Segments and labels are pointer-events:none (so clicks reach this
+        // rect), which means they can't take their own hover events. Instead,
+        // resolve the segment from the cursor's x — the SVG's user units equal
+        // CSS pixels here (viewBox width == width attr), so d3.pointer x
+        // compares directly against each segment's [x0, x1) span.
+        .on("mousemove", function (ev, d) {
+          const [mx] = d3.pointer(ev, svg.node());
+          const seg = segmentsFor(d, xScale).segs
+            .find(s => mx >= s.x0 && mx < s.x1 && s.x1 - s.x0 > 0);
+          if (seg && seg.pct > 0) {
+            setHotSegment(seg.key);
+            showSegTip(ev, d, seg);
+          } else {
+            hideSegTip();
+          }
+        })
+        .on("mouseleave", function () {
+          hoveredAbbr = null;
+          rowsAll.classed("is-hover", false);
+          hideSegTip();
+          setReadout(pinnedAbbr ? states.find(s => s.abbr === pinnedAbbr) : null);
+        })
+        .on("click", function (ev, d) {
+          pinnedAbbr = (pinnedAbbr === d.abbr) ? null : d.abbr;
+          rowsAll.classed("is-pinned", r => r.abbr === pinnedAbbr);
+          setReadout(pinnedAbbr ? d : null);
+          updateDetail();
+        });
+    }
+
+    // ─── Detail panel ────────────────────────────────────────────
+    function updateDetail() {
+      if (!pinnedAbbr) {
+        detail.setAttribute("hidden", "");
+        detailLeft.innerHTML = "";
+        detailRight.innerHTML = "";
+        return;
+      }
+      const d = states.find(s => s.abbr === pinnedAbbr);
+      if (!d) { detail.setAttribute("hidden", ""); return; }
+      detail.removeAttribute("hidden");
+
+      const land = d.landacres || 1;
+      const agencyRows = agencies.map(a => {
+        const acres = (d.fee && d.fee[a]) || 0;
+        const pct = (acres / land) * 100;
+        return `<tr><td>${escapeHtml(agencyLabels[a] || a.toUpperCase())}</td>
+          <td class="atlas-footprint__num">${Math.round(acres).toLocaleString()}</td>
+          <td class="atlas-footprint__num">${formatPctFP(pct)}</td></tr>`;
+      }).join("");
+
+      const ease = d.easements || {};
+      detailLeft.innerHTML =
+          `<header class="atlas-footprint__detail-header">`
+        + `<div class="atlas-footprint__detail-titles">`
+        + `<h3>${escapeHtml(d.name)} <span class="atlas-footprint__detail-abbr">(${escapeHtml(d.abbr)})</span></h3>`
+        + `<p class="atlas-footprint__detail-sub">${formatPctFP(d._totalPct)} of state land under federal interest</p>`
+        + `</div>`
+        + `<button type="button" class="atlas-footprint__unpin-btn">Unpin</button>`
+        + `</header>`
+        + `<table class="atlas-footprint__table">`
+        + `<thead><tr><th>Interest</th><th class="atlas-footprint__num">Acres</th><th class="atlas-footprint__num">% of state</th></tr></thead>`
+        + `<tbody>`
+        + agencyRows
+        + `<tr class="atlas-footprint__subtotal"><td>Fee total</td>`
+        + `<td class="atlas-footprint__num">${Math.round(d.feetotal || 0).toLocaleString()}</td>`
+        + `<td class="atlas-footprint__num">${formatPctFP(d._feePct)}</td></tr>`
+        + `<tr><td>Trust (BIA LAR)</td>`
+        + `<td class="atlas-footprint__num">${Math.round(d.trust || 0).toLocaleString()}</td>`
+        + `<td class="atlas-footprint__num">${formatPctFP(d._trustPct)}</td></tr>`
+        + `<tr><td>Easements (${(ease.tracts || 0).toLocaleString()} tracts)</td>`
+        + `<td class="atlas-footprint__num">${Math.round(d._easementAcres).toLocaleString()}</td>`
+        + `<td class="atlas-footprint__num">${formatPctFP(d._easementPct)}</td></tr>`
+        + `<tr class="atlas-footprint__grandtotal"><td>Grand total federal interest</td>`
+        + `<td class="atlas-footprint__num">${Math.round((d.feetotal || 0) + (d.trust || 0) + d._easementAcres).toLocaleString()}</td>`
+        + `<td class="atlas-footprint__num">${formatPctFP(d._totalPct)}</td></tr>`
+        + `</tbody></table>`
+        + `<p class="atlas-footprint__caveat">Easements are a property interest in private land, `
+        + `counted here as federal interest, not federal ownership.</p>`;
+
+      detailLeft.querySelector(".atlas-footprint__unpin-btn").onclick = () => {
+        pinnedAbbr = null;
+        hoveredAbbr = null;
+        draw(false);
+        setReadout(null);
+        updateDetail();
+      };
+
+      drawCurve(detailRight, d);
+    }
+
+    // ─── Right column: cumulative easement-acquisition curve ───────
+    function drawCurve(host, d) {
+      const ease = d.easements || {};
+      const cumulative = ease.cumulative || [];
+      host.innerHTML = '<h4 class="atlas-footprint__curve-title">Cumulative easement acreage acquired</h4>'
+        + '<div class="atlas-footprint__curve-wrap"></div>';
+      const wrap = host.querySelector(".atlas-footprint__curve-wrap");
+
+      if (!cumulative.length) {
+        wrap.innerHTML = '<p class="atlas-trend__detail-empty">No dated easement acquisitions on record for this state.</p>';
+        return;
+      }
+
+      const width  = wrap.clientWidth || 420;
+      const height = 220;
+      const margin = { top: 14, right: 16, bottom: 28, left: 52 };
+
+      const svgC = d3.select(wrap).append("svg")
+        .attr("class", "atlas-footprint__curve-svg")
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("width", width).attr("height", height).attr("role", "img");
+
+      const years = cumulative.map(p => p[0]);
+      const xDomain = [Math.min(1888, years[0]), Math.max(2026, years[years.length - 1])];
+      const xScale = d3.scaleLinear().domain(xDomain).range([margin.left, width - margin.right]);
+      const yScale = d3.scaleLinear().domain([0, d3.max(cumulative, p => p[1]) || 1]).nice()
+        .range([height - margin.bottom, margin.top]);
+
+      const area = d3.area()
+        .x(p => xScale(p[0])).y0(height - margin.bottom).y1(p => yScale(p[1]));
+      const line = d3.line()
+        .x(p => xScale(p[0])).y(p => yScale(p[1]));
+
+      svgC.append("path").datum(cumulative)
+        .attr("class", "atlas-footprint__curve-area").attr("d", area);
+      svgC.append("path").datum(cumulative)
+        .attr("class", "atlas-footprint__curve-line").attr("fill", "none").attr("d", line);
+
+      const siFormat = d3.format(".2~s");
+      const xAxis = d3.axisBottom(xScale).ticks(Math.max(2, Math.floor(width / 90))).tickFormat(d3.format("d"));
+      const yAxis = d3.axisLeft(yScale).ticks(4).tickFormat(siFormat);
+      svgC.append("g").attr("class", "atlas-trend__axis")
+        .attr("transform", `translate(0, ${height - margin.bottom})`).call(xAxis);
+      svgC.append("g").attr("class", "atlas-trend__axis")
+        .attr("transform", `translate(${margin.left}, 0)`).call(yAxis);
+
+      // Hover guide, snapping to the nearest recorded point.
+      const guide = svgC.append("g").attr("class", "atlas-footprint__curve-guide").style("display", "none");
+      guide.append("line")
+        .attr("y1", margin.top).attr("y2", height - margin.bottom)
+        .attr("class", "atlas-trend__hover-line");
+      guide.append("circle").attr("r", 3.5).attr("class", "atlas-footprint__curve-dot");
+      guide.append("text").attr("class", "atlas-trend__hover-label").attr("text-anchor", "middle");
+
+      svgC.append("rect")
+        .attr("x", margin.left).attr("y", margin.top)
+        .attr("width", Math.max(0, width - margin.left - margin.right))
+        .attr("height", Math.max(0, height - margin.top - margin.bottom))
+        .attr("fill", "transparent")
+        .style("cursor", "crosshair")
+        .on("mousemove", function (ev) {
+          const [mx] = d3.pointer(ev, this);
+          const yr = xScale.invert(mx);
+          let best = cumulative[0], bestD = Math.abs(yr - best[0]);
+          cumulative.forEach(p => {
+            const dd = Math.abs(yr - p[0]);
+            if (dd < bestD) { best = p; bestD = dd; }
+          });
+          const gx = xScale(best[0]), gy = yScale(best[1]);
+          guide.select("line").attr("x1", gx).attr("x2", gx);
+          guide.select("circle").attr("cx", gx).attr("cy", gy);
+          guide.select("text").attr("x", gx).attr("y", margin.top - 4)
+            .text(`${best[0]} · ${siFormat(best[1])} ac`);
+          guide.style("display", null);
+        })
+        .on("mouseleave", () => guide.style("display", "none"));
+
+      if (ease.undated) {
+        const cap = document.createElement("p");
+        cap.className = "atlas-footprint__undated";
+        cap.textContent = `${ease.undated.toLocaleString()} additional tract${ease.undated === 1 ? "" : "s"} `
+          + `have no recorded acquisition date and are omitted from this curve.`;
+        wrap.appendChild(cap);
+      }
+    }
+
+    sortSel.addEventListener("change", () => draw(true));
+    window.addEventListener("resize", debounce(() => draw(false), 120));
+    draw(false);
+  }
+  function formatPctFP(v) { return (Math.round(v * 10) / 10).toFixed(1) + "%"; }
+
+  // ───────────────────────── LEXICON MODE ─────────────────────────
+  // Producer-corpus vocabulary trends. Same interaction grammar as
+  // trends mode — small multiples, hover guide snapping to the nearest
+  // year, click-to-pin, two-column detail — but the unit is a concept
+  // cluster of period terms rather than a policy area, and the drill
+  // goes concept → term → concordance page instead of region → member.
+  const LEX_COLOR = "#a94b2b";
+  const LEX_METRICS = { rate: "Rate per 10,000 words", counts: "Raw count" };
+
+  function renderLexicon(container, data, cfg) {
+    const years    = data.years;
+    const concepts = data.concepts;
+    const kwicPage = cfg.kwicpage || null;
+
+    const ctrls = controlsRow(container);
+    const metricSel = makeSelect(ctrls, "Show", LEX_METRICS, "rate");
+    const metaSpan = document.createElement("span");
+    metaSpan.className = "atlas-viz__meta";
+    const totalWords = data.words.reduce((a, b) => a + b, 0);
+    metaSpan.textContent =
+      `${data.issues.reduce((a, b) => a + b, 0)} issues · `
+      + `${years[0]}–${years[years.length - 1]} · `
+      + `${(totalWords / 1e6).toFixed(1)}M words`;
+    ctrls.appendChild(metaSpan);
+
+    const svgWrap = document.createElement("div");
+    svgWrap.className = "atlas-viz__svg-wrap";
+    container.appendChild(svgWrap);
+    const svg = d3.select(svgWrap).append("svg")
+      .attr("class", "atlas-viz__svg").attr("role", "img");
+
+    const detail = document.createElement("div");
+    detail.className = "atlas-trend__detail";
+    detail.setAttribute("hidden", "");
+    detail.innerHTML =
+        '<div class="atlas-trend__detail-left"></div>'
+      + '<div class="atlas-trend__detail-right"></div>';
+    container.appendChild(detail);
+    const detailLeft  = detail.querySelector(".atlas-trend__detail-left");
+    const detailRight = detail.querySelector(".atlas-trend__detail-right");
+
+    let pinned = null;        // { year, cid } or null
+    let selectedTerm = null;  // term id for the right column
+
+    const vals = (row) => metricSel.value === "rate" ? row.rate : row.counts;
+    const fmtV = (v) => metricSel.value === "rate"
+      ? (v >= 10 ? v.toFixed(1) : v.toFixed(2)) : v.toLocaleString();
+
+    function draw() {
+      const width  = svgWrap.clientWidth || 900;
+      const cols   = width < 720 ? 2 : 3;
+      const rows   = Math.ceil(concepts.length / cols);
+      const margin = { top: 26, right: 14, bottom: 36, left: 46 };
+      const gap    = 28;
+      const panelW = (width - gap * (cols - 1)) / cols;
+      const panelH = 180;
+      const totalH = rows * panelH + (rows - 1) * gap + 16;
+
+      svg.attr("viewBox", `0 0 ${width} ${totalH}`)
+         .attr("width", width).attr("height", totalH);
+      svg.selectAll("*").remove();
+
+      const xScale = d3.scaleLinear()
+        .domain(d3.extent(years))
+        .range([margin.left, panelW - margin.right]);
+
+      concepts.forEach((con, ci) => {
+        const col = ci % cols;
+        const row = Math.floor(ci / cols);
+        const pg = svg.append("g")
+          .attr("transform", `translate(${col * (panelW + gap)}, ${row * (panelH + gap)})`);
+
+        const series = vals(con);
+        const yScale = d3.scaleLinear()
+          .domain([0, d3.max(series) || 1]).nice()
+          .range([panelH - margin.bottom, margin.top]);
+
+        pg.append("rect")
+          .attr("class", "atlas-trend__panel-bg")
+          .attr("width", panelW).attr("height", panelH)
+          .attr("fill", (pinned && pinned.cid === con.id) ? "#fff5e3" : "#fffdf8")
+          .attr("rx", 4);
+
+        const xAxis = d3.axisBottom(xScale)
+          .tickValues([1920, 1930, 1940, 1950, 1960])
+          .tickFormat(d3.format("d")).tickSize(3);
+        pg.append("g").attr("class", "atlas-trend__axis")
+          .attr("transform", `translate(0, ${panelH - margin.bottom})`).call(xAxis);
+        pg.append("g").attr("class", "atlas-trend__axis")
+          .attr("transform", `translate(${margin.left}, 0)`)
+          .call(d3.axisLeft(yScale).ticks(4).tickSize(3));
+
+        pg.append("text")
+          .attr("x", margin.left).attr("y", margin.top - 10)
+          .attr("class", "atlas-trend__title")
+          .text(con.label);
+
+        const lineGen = d3.line()
+          .x((v, i) => xScale(years[i]))
+          .y(v => yScale(v));
+        pg.append("path")
+          .datum(series).attr("class", "atlas-trend__line")
+          .attr("fill", "none").attr("stroke", LEX_COLOR)
+          .attr("stroke-width", 2).attr("opacity", 0.95)
+          .attr("d", lineGen);
+
+        // Guide groups: pinned (solid) and hover (dashed preview)
+        const mkGuide = (cls) => {
+          const g = pg.append("g").attr("class", cls).style("display", "none");
+          g.append("line")
+            .attr("class", cls + "-line")
+            .attr("y1", margin.top).attr("y2", panelH - margin.bottom);
+          g.append("circle").attr("r", cls === "atlas-trend__pin" ? 4 : 3)
+            .attr("fill", LEX_COLOR)
+            .attr("stroke", "#fff").attr("stroke-width", 1.5);
+          g.append("text")
+            .attr("class", cls + "-label")
+            .attr("text-anchor", "middle").attr("y", margin.top - 14);
+          return g;
+        };
+        const pinGroup   = mkGuide("atlas-trend__pin");
+        const hoverGroup = mkGuide("atlas-trend__hover");
+        const setGuide = (g, year) => {
+          const i = years.indexOf(year);
+          const x = xScale(year);
+          g.select("line").attr("x1", x).attr("x2", x);
+          g.select("circle").attr("cx", x).attr("cy", yScale(series[i]));
+          g.select("text").attr("x", x).text(`${year} · ${fmtV(series[i])}`);
+        };
+        if (pinned && pinned.cid === con.id) {
+          setGuide(pinGroup, pinned.year);
+          pinGroup.style("display", null);
+        }
+
+        const nearestYear = (inv) =>
+          years.reduce((a, b) => Math.abs(b - inv) < Math.abs(a - inv) ? b : a);
+        pg.append("rect")
+          .attr("class", "atlas-trend__capture")
+          .attr("x", margin.left).attr("y", margin.top)
+          .attr("width", panelW - margin.left - margin.right)
+          .attr("height", panelH - margin.top - margin.bottom)
+          .attr("fill", "transparent").style("cursor", "crosshair")
+          .on("mousemove", function (ev) {
+            const [mx] = d3.pointer(ev, this);
+            setGuide(hoverGroup, nearestYear(xScale.invert(mx)));
+            hoverGroup.style("display", null);
+          })
+          .on("mouseleave", () => hoverGroup.style("display", "none"))
+          .on("click", function (ev) {
+            const [mx] = d3.pointer(ev, this);
+            const year = nearestYear(xScale.invert(mx));
+            const same = pinned && pinned.year === year && pinned.cid === con.id;
+            pinned = same ? null : { year, cid: con.id };
+            selectedTerm = null;
+            draw();
+            updateDetailLeft();
+            renderDetailRight();
+          });
+      });
+    }
+
+    function updateDetailLeft() {
+      if (!pinned) { detail.setAttribute("hidden", ""); return; }
+      detail.removeAttribute("hidden");
+      const con = concepts.find(c => c.id === pinned.cid);
+      const yr  = pinned.year;
+      const yIdx = years.indexOf(yr);
+      const rows = con.terms.slice()
+        .sort((a, b) => vals(b)[yIdx] - vals(a)[yIdx]);
+      detailLeft.innerHTML =
+          `<header class="atlas-trend__detail-header">`
+        + `<div class="atlas-trend__detail-titles">`
+        + `<h3>${escapeHtml(con.label)}</h3>`
+        + `<p class="atlas-trend__detail-sub">${yr} · `
+        + `<span class="atlas-trend__detail-metric">${escapeHtml(LEX_METRICS[metricSel.value])}</span></p>`
+        + `</div>`
+        + `<button type="button" class="atlas-trend__unpin-btn">Unpin</button>`
+        + `</header>`
+        + `<ol class="atlas-trend__regions">`
+        + rows.map(t => `
+            <li class="atlas-trend__region-row${selectedTerm === t.id ? ' is-selected' : ''}">
+              <button type="button" data-term="${t.id}" class="atlas-trend__region-btn">
+                <span class="atlas-trend__region-left">
+                  <span class="atlas-trend__region-name">${escapeHtml(t.label)}</span>
+                  <span class="atlas-trend__region-sub">
+                    <span class="atlas-trend__region-sub-line">${t.counts.reduce((a, b) => a + b, 0).toLocaleString()} occurrences, 1919–1961</span>
+                  </span>
+                </span>
+                <span class="atlas-trend__region-right">
+                  <span class="atlas-trend__region-val">${fmtV(vals(t)[yIdx])}</span>
+                </span>
+              </button>
+            </li>`).join("")
+        + `</ol>`;
+      detailLeft.querySelector(".atlas-trend__unpin-btn").onclick = () => {
+        pinned = null; selectedTerm = null;
+        draw(); updateDetailLeft(); detailRight.innerHTML = "";
+      };
+      detailLeft.querySelectorAll(".atlas-trend__region-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedTerm = btn.dataset.term;
+          updateDetailLeft();
+          renderDetailRight();
+        });
+      });
+    }
+
+    function renderDetailRight() {
+      if (!pinned || !selectedTerm) {
+        detailRight.innerHTML =
+          '<p class="atlas-trend__detail-empty">Select a term on the left to see its full run.</p>';
+        return;
+      }
+      const con  = concepts.find(c => c.id === pinned.cid);
+      const term = con.terms.find(t => t.id === selectedTerm);
+      const series = vals(term);
+      const peakI  = series.indexOf(Math.max(...series));
+      detailRight.innerHTML =
+          `<header class="atlas-trend__right-header">`
+        + `<h4>${escapeHtml(term.label)}</h4>`
+        + `<p class="atlas-trend__right-sub">Peak ${years[peakI]} · ${fmtV(series[peakI])} · `
+        + `${term.counts.reduce((a, b) => a + b, 0).toLocaleString()} occurrences in 508 issues</p>`
+        + `</header>`
+        + `<div class="atlas-lex__term-chart"></div>`
+        + (kwicPage
+            ? `<p class="atlas-lex__kwic-link"><a href="${kwicPage}?term=${term.id}">Read these lines in context →</a></p>`
+            : "");
+
+      const wrap  = detailRight.querySelector(".atlas-lex__term-chart");
+      const width = wrap.clientWidth || 480;
+      const h = 170, m = { top: 14, right: 12, bottom: 26, left: 42 };
+      const x = d3.scaleLinear().domain(d3.extent(years)).range([m.left, width - m.right]);
+      const y = d3.scaleLinear().domain([0, d3.max(series) || 1]).nice()
+        .range([h - m.bottom, m.top]);
+      const tsvg = d3.select(wrap).append("svg")
+        .attr("viewBox", `0 0 ${width} ${h}`).attr("width", width).attr("height", h);
+      tsvg.append("g").attr("class", "atlas-trend__axis")
+        .attr("transform", `translate(0, ${h - m.bottom})`)
+        .call(d3.axisBottom(x).tickValues([1920, 1930, 1940, 1950, 1960])
+          .tickFormat(d3.format("d")).tickSize(3));
+      tsvg.append("g").attr("class", "atlas-trend__axis")
+        .attr("transform", `translate(${m.left}, 0)`)
+        .call(d3.axisLeft(y).ticks(4).tickSize(3));
+      tsvg.append("path").datum(series)
+        .attr("fill", "none").attr("stroke", LEX_COLOR).attr("stroke-width", 2)
+        .attr("d", d3.line().x((v, i) => x(years[i])).y(v => y(v)));
+      tsvg.append("circle")
+        .attr("cx", x(years[peakI])).attr("cy", y(series[peakI]))
+        .attr("r", 3.5).attr("fill", LEX_COLOR)
+        .attr("stroke", "#fff").attr("stroke-width", 1.5);
+    }
+
+    metricSel.addEventListener("change", () => { draw(); updateDetailLeft(); renderDetailRight(); });
+    window.addEventListener("resize", debounce(() => { draw(); }, 120));
+    draw();
+  }
+
+  // ───────────────────────── KWIC MODE ─────────────────────────
+  // Concordance browser. The index carries every term's per-year counts
+  // (for the picker and the sparkline); the lines themselves live in
+  // per-term shards fetched lazily and cached in memory. Every line
+  // links to the archive.org reader with in-item search preloaded, so
+  // each concordance line is one click from the page scan.
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const KWIC_CHUNK = 250;
+
+  function renderKwic(container, data, cfg) {
+    const years  = data.years;
+    const srcDir = cfg.src.replace(/\/[^/]+$/, "/");
+    const allTerms = data.concepts.flatMap(c =>
+      c.terms.map(t => ({ ...t, concept: c.id, conceptLabel: c.label })));
+    const shardCache = new Map();   // term id → shard JSON
+
+    const ctrls = controlsRow(container);
+    const termSel = document.createElement("label");
+    termSel.className = "atlas-viz__control";
+    termSel.innerHTML = `<span class="atlas-viz__control-label">Term:</span> `;
+    const sel = document.createElement("select");
+    sel.className = "atlas-viz__metric-select";
+    data.concepts.forEach(c => {
+      const og = document.createElement("optgroup");
+      og.label = c.label;
+      c.terms.forEach(t => {
+        const o = document.createElement("option");
+        o.value = t.id;
+        o.textContent = `${t.label} (${t.total.toLocaleString()})`;
+        og.appendChild(o);
+      });
+      sel.appendChild(og);
+    });
+    termSel.appendChild(sel);
+    ctrls.appendChild(termSel);
+
+    const search = document.createElement("input");
+    search.type = "search";
+    search.className = "atlas-trend__search atlas-kwic__search";
+    search.placeholder = "Filter lines…";
+    search.autocomplete = "off";
+    ctrls.appendChild(search);
+
+    const metaSpan = document.createElement("span");
+    metaSpan.className = "atlas-viz__meta";
+    ctrls.appendChild(metaSpan);
+
+    const sparkWrap = document.createElement("div");
+    sparkWrap.className = "atlas-kwic__spark";
+    container.appendChild(sparkWrap);
+
+    const linesWrap = document.createElement("div");
+    linesWrap.className = "atlas-kwic__lines-wrap";
+    container.appendChild(linesWrap);
+
+    let yearFilter = null;   // number or null
+    let query = "";
+    let shown = KWIC_CHUNK;  // pagination cursor
+
+    // Preselect from ?term= (cross-link from the lexicon page)
+    const urlTerm = new URLSearchParams(location.search).get("term");
+    if (urlTerm && allTerms.some(t => t.id === urlTerm)) sel.value = urlTerm;
+
+    function currentTerm() { return allTerms.find(t => t.id === sel.value); }
+
+    function drawSpark() {
+      const t = currentTerm();
+      sparkWrap.innerHTML = "";
+      const width = sparkWrap.clientWidth || 900;
+      const h = 74, m = { top: 6, right: 8, bottom: 18, left: 8 };
+      const x = d3.scaleBand().domain(years).range([m.left, width - m.right])
+        .paddingInner(0.25);
+      const y = d3.scaleLinear().domain([0, d3.max(t.byyear) || 1])
+        .range([h - m.bottom, m.top]);
+      const svg = d3.select(sparkWrap).append("svg")
+        .attr("viewBox", `0 0 ${width} ${h}`).attr("width", width).attr("height", h)
+        .attr("role", "img")
+        .attr("aria-label", `Occurrences of ${t.label} by year; click a bar to filter`);
+      svg.selectAll("rect").data(years).join("rect")
+        .attr("x", yr => x(yr))
+        .attr("y", (yr, i) => y(t.byyear[i]))
+        .attr("width", x.bandwidth())
+        .attr("height", (yr, i) => (h - m.bottom) - y(t.byyear[i]))
+        .attr("fill", yr => (yearFilter && yr !== yearFilter) ? "#d9cfc0" : LEX_COLOR)
+        .attr("rx", 1)
+        .style("cursor", "pointer")
+        .on("click", (ev, yr) => {
+          yearFilter = (yearFilter === yr) ? null : yr;
+          shown = KWIC_CHUNK;
+          drawSpark(); paintLines();
+        })
+        .append("title")
+        .text((yr, i) => `${yr}: ${t.byyear[i]} occurrence${t.byyear[i] === 1 ? "" : "s"}`);
+      [1920, 1930, 1940, 1950, 1960].forEach(yr => {
+        svg.append("text")
+          .attr("class", "atlas-kwic__spark-tick")
+          .attr("x", x(yr) + x.bandwidth() / 2).attr("y", h - 5)
+          .attr("text-anchor", "middle")
+          .text(yr);
+      });
+    }
+
+    function citeParts(k) {
+      // k = "1947-02_28_9" → date, volume, issue
+      const [date, vol, iss] = k.split("_");
+      const [y, mo] = date.split("-");
+      const month = MONTHS[parseInt(mo, 10) - 1] || "";
+      return {
+        year: parseInt(y, 10),
+        label: `${month} ${y}${vol ? ` · ${vol}:${iss}` : ""}`,
+        id: data.idprefix + k,
+      };
+    }
+
+    async function paintLines() {
+      const t = currentTerm();
+      let shard = shardCache.get(t.id);
+      if (!shard) {
+        linesWrap.innerHTML =
+          `<p class="atlas-trend__detail-loading">Loading ${escapeHtml(t.label)}…</p>`;
+        try {
+          const r = await fetch(`${srcDir}${t.id}.json`);
+          shard = await r.json();
+          shardCache.set(t.id, shard);
+        } catch (err) {
+          linesWrap.innerHTML =
+            '<p class="atlas-viz__error">Could not load concordance lines.</p>';
+          return;
+        }
+        if (sel.value !== t.id) return;   // user moved on during the await
+      }
+
+      const q = query.toLowerCase();
+      const matches = shard.lines.filter(ln => {
+        if (yearFilter && citeParts(ln.k).year !== yearFilter) return false;
+        if (q && !(`${ln.pre} ${ln.m} ${ln.post}`.toLowerCase().includes(q))) return false;
+        return true;
+      });
+
+      metaSpan.textContent =
+        `${matches.length.toLocaleString()} of ${shard.lines.length.toLocaleString()} lines`
+        + (yearFilter ? ` · ${yearFilter}` : "")
+        + (yearFilter ? " (click the bar again to clear)" : "");
+
+      const visible = matches.slice(0, shown);
+      let lastYear = null;
+      let html = '<ol class="atlas-kwic__lines">';
+      visible.forEach(ln => {
+        const cite = citeParts(ln.k);
+        if (cite.year !== lastYear) {
+          html += `<li class="atlas-kwic__year-head" aria-hidden="true">${cite.year}</li>`;
+          lastYear = cite.year;
+        }
+        const phrase = ln.m.includes(" ") ? `"${ln.m}"` : ln.m;
+        const href = `https://archive.org/details/${cite.id}?q=${encodeURIComponent(phrase)}`;
+        html += `<li class="atlas-kwic__line">`
+          + `<span class="atlas-kwic__text">…${escapeHtml(ln.pre)} `
+          + `<mark>${escapeHtml(ln.m)}</mark> ${escapeHtml(ln.post)}…</span>`
+          + `<a class="atlas-kwic__cite" href="${href}" target="_blank" rel="noopener">${cite.label} ↗</a>`
+          + `</li>`;
+      });
+      html += "</ol>";
+      if (matches.length > shown) {
+        html += `<button type="button" class="atlas-kwic__more">`
+          + `Show ${Math.min(KWIC_CHUNK, matches.length - shown).toLocaleString()} more `
+          + `(${(matches.length - shown).toLocaleString()} remaining)</button>`;
+      }
+      linesWrap.innerHTML = html;
+      const more = linesWrap.querySelector(".atlas-kwic__more");
+      if (more) more.addEventListener("click", () => { shown += KWIC_CHUNK; paintLines(); });
+    }
+
+    sel.addEventListener("change", () => {
+      yearFilter = null; query = ""; search.value = ""; shown = KWIC_CHUNK;
+      history.replaceState(null, "", `?term=${sel.value}`);
+      drawSpark(); paintLines();
+    });
+    search.addEventListener("input", debounce(() => {
+      query = search.value; shown = KWIC_CHUNK; paintLines();
+    }, 150));
+    window.addEventListener("resize", debounce(drawSpark, 120));
+
+    drawSpark();
+    paintLines();
   }
 
   // ───────────── Shared UI / drawing helpers ─────────────

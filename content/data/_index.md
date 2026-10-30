@@ -29,7 +29,9 @@ All of the data below is fetched, cleaned, and cached by a Python pipeline in th
 
 ### Climate and environment
 
-`conus-temperature.json`, `conus-precipitation.json`: Monthly-to-annual temperature and precipitation series for the contiguous United States (NOAA region 110), 1895–present. Fetched from the [NOAA NCEI "Climate at a Glance"](https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/) national time-series API. Baselined to the 20th-century mean for the anomaly presentation on the [CONUS Climate](/sightlines/conus-temperature/) stripes chart.
+`conus-temperature.json`: Monthly-to-annual temperature series for the contiguous United States (NOAA region 110), 1895–present. Fetched from the [NOAA NCEI "Climate at a Glance"](https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/) national time-series API. Baselined to the 20th-century mean for the anomaly presentation on the [CONUS Climate](/sightlines/conus-temperature/) stripes chart.
+
+`west-precipitation.json`: Annual precipitation for the eleven western public-land states (AZ, CA, CO, ID, MT, NV, NM, OR, UT, WA, WY), 1895–2024, averaged from NOAA Climate at a Glance statewide series with each state weighted by land area. Baselined to the 20th-century mean for the [A Drying West](/sightlines/precipitation-history/) stripes chart.
 
 `regions-temperature.json`, `regions-precipitation.json`: The same NOAA NCEI "Climate at a Glance" product, this time for four climate regions relevant to the sagebrush story: Northern Rockies and Plains, Southwest, Northwest, and West. Feeds the regional-comparison stripes chart.
 
@@ -40,12 +42,6 @@ All of the data below is fetched, cleaned, and cached by a Python pipeline in th
 `farm-consolidation.json`: Number of US farms (1910–present) and average farm size (1950–present), fetched from the [USDA NASS QuickStats API](https://quickstats.nass.usda.gov/api) (requires a free `NASS_API_KEY` environment variable). Both series indexed to 1950 = 100 on the [Farm Consolidation](/sightlines/farm-consolidation/) chart.
 
 `cattle-prices.json`: Annual prices received by US ranchers for cattle, steers & heifers, and calves, 1910–present, in dollars per hundredweight ($/cwt). Nominal values from the [USDA NASS QuickStats API](https://quickstats.nass.usda.gov/api) (`CATTLE [class] - PRICE RECEIVED, MEASURED IN $ / CWT`, national). Where NASS publishes only monthly values for early years, the script aggregates to an annual mean (≥10 months required). Real values are deflated to current-year dollars using CPI-U from the [Federal Reserve Bank of St. Louis (FRED)](https://fred.stlouisfed.org/series/CPIAUCNS). Feeds the [Century of Cattle Prices](/sightlines/cattle-prices/) chart.
-
-`follow-the-money.json`: An annual re-aggregation of the [*Follow the Money*](https://web.stanford.edu/group/spatialhistory/FollowTheMoney/) county-level federal-payments dataset, summed across all western counties and split by program. Ten revenue-sharing and in-lieu-of-taxes programs, 1906–2020, expressed in 2020 dollars.
-
-> Taylor, Joseph E., III, Krista Fryauff, Erik Steiner, Celena Allen, Alex Sherman, and Zephyr Frank. *Follow the Money: A Spatial History of In-Lieu Programs for Western Federal Lands.* Spatial History Project, CESTA, Stanford University, 1 June 2016. Licensed CC BY-NC 4.0.
-
-Feeds the [Federal Payments to Western Counties](/sightlines/federal-payments/) chart and [Federal Payments by County](/sightlines/federal-payments-map/) map.
 
 ### Politics and law
 

@@ -37,9 +37,7 @@ chart:
     - { year: 2014, label: "Drought-driven herd shortage" }
 ---
 
-Charted here are cattle prices for adult cattle (≥500 lbs), finished steers and heifers ready for slaughter, and weaned calves, based on 2024 prices.
-
-The shape of the chart is one of the more legible economic backdrops to the public lands and commodity politics on this site. Real cattle prices climbed steadily from the Depression through the postwar decades, peaked in 1973 at the highest real level of the twentieth century, then fell for more than two decades. By 1996 real prices reached a multi-decade trough, below where they had been at the end of World War II. The post-2014 recovery, driven by a multi-year drought in the southern Plains that culled the national herd, brought real prices back near 1970s levels.
+The chart above tracks cattle prices for adult cattle (≥500 lbs), finished steers and heifers ready for slaughter, and weaned calves, based on 2024 prices. Real cattle prices climbed steadily from the Depression through the postwar decades, peaked in 1973 at the highest real level of the twentieth century, then fell for more than two decades. By 1996 real prices reached a multi-decade trough, below where they had been at the end of World War II. 
 
 ## Data and method
 
@@ -50,6 +48,6 @@ The shape of the chart is one of the more legible economic backdrops to the publ
 
 ## Companion views
 
-- **[Farm Bankruptcies, 1899–2024](../farm-bankruptcies/)** — the bankruptcy filings that respond to the price collapses on this chart.
-- **[A Century of Consolidation](../farm-consolidation/)** — the long-run decline in farm count + rise in average farm size that the price arc helped drive.
-- **[Federal Public-Lands Timeline](../timeline/)** — the statutory and movement events sitting on top of this income story.
+- **[Farm Bankruptcies, 1899–2024](../farm-bankruptcies/)**
+- **[A Century of Consolidation](../farm-consolidation/)**
+- **[Federal Public-Lands Timeline](../timeline/)**

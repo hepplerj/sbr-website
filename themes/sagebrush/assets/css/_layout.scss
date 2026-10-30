@@ -703,6 +703,21 @@ canvas {
   line-height: 1.5;
   max-width: 44rem;
   margin: var(--space-4) 0 0;
+
+  // markdownify wraps the lede string in its own <p>; reset its
+  // margins so the lede stays a single visual block. Matches the
+  // .writing-header__desc treatment.
+  > p { margin: 0; }
+
+  // Inline link inside the lede (e.g. the changelog's RSS link).
+  // Ink text with a rust hairline underline, brightening on hover.
+  a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rust);
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
 }
 
 // Body paragraphs rendered inside the section header (e.g. the
@@ -1096,6 +1111,24 @@ canvas {
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
   max-width: 32rem;
+  display: block;
+}
+.byline__avatar {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.45em;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  background: var(--panel);
+}
+// Flat marks (SVG logos) sit inside a tinted circle like the photos.
+.byline__avatar[src$=".svg"] {
+  padding: 6px;
+  object-fit: contain;
+  box-sizing: border-box;
 }
 
 // ── Cite-this-page block ─────────────────────
@@ -1624,6 +1657,237 @@ canvas {
   pointer-events: none;
 }
 
+// ── Federal-interest overlays (alt map) ──────
+// Split layout: a single controls column on the left, the map as a stage on
+// the right. Applied only when the map has overlay layers (the alt
+// federal-interests map). The published map has no overlays, is never given
+// `.d3-map--split`, and keeps its corner-anchored legend over the map.
+.d3-map--split {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-4);
+  background: var(--color-bone);
+}
+
+// The map area. Positioning context for the stipple canvas and the floating
+// readout, both of which measure this box.
+.d3-map__stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;        // let the flex child shrink below its content width
+  align-self: stretch;
+}
+
+// One unified card holding the layer toggles, year filter, and legend as
+// stacked sections — that's the "one column" the whole panel reads as.
+.d3-map__controls {
+  flex: 0 0 15.5rem;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 10px var(--color-shadow);
+  font-family: var(--font-ui);
+}
+
+// Inside the column, the two former floating cards shed their own chrome and
+// become sections divided by a hairline.
+.d3-map--split .d3-map__layers,
+.d3-map--split .d3-map__legend {
+  position: static;
+  inset: auto;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0.85em 1em;
+}
+
+.d3-map--split .d3-map__legend {
+  border-top: 1px solid var(--color-border);
+}
+
+// Stack on narrow screens: controls above, map below.
+@media (max-width: 56rem) {
+  .d3-map--split {
+    flex-direction: column;
+  }
+  .d3-map__controls {
+    flex: none;
+    align-self: auto;
+    max-height: 40vh;
+  }
+}
+
+// Point layers render to a canvas stretched over the SVG; hit-testing goes
+// through a quadtree, so the canvas never takes the pointer.
+.d3-map__stipple {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.d3-map__overlay path {
+  pointer-events: none;   // the hover probe tests containment itself, so
+                          // overlays never steal hover from the fee layer
+}
+
+// Layer toggles — the reveal control (sits at the top of the controls column)
+.d3-map__layers {
+  .layer-item {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 3px 6px;
+    margin: 1px 0;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    opacity: 0.6;
+    transition: background 120ms var(--ease), opacity 120ms var(--ease);
+  }
+
+  .layer-item:hover { background: var(--color-cream); }
+  .layer-item.is-on { opacity: 1; }
+  .layer-item[disabled] { opacity: 0.3; cursor: default; }
+
+  .layer-item__box {
+    flex: none;
+    width: 0.75em;
+    height: 0.75em;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    opacity: 0.55;
+  }
+
+  .layer-item.is-on .layer-item__box {
+    background: currentColor;
+    opacity: 1;
+  }
+
+  .layer-item__label { line-height: 1.25; }
+
+  .layer-item__count {
+    display: block;
+    font-size: 0.78em;
+    opacity: 0.65;
+  }
+
+  .legend-swatch--multi {
+    background: linear-gradient(90deg, #4a9e5c 0 33%, #c9a978 33% 66%, #3a5982 66% 100%);
+  }
+}
+
+// Year-range control, tucked under its layer's toggle
+.d3-map__years {
+  padding: 0 6px 4px 6px;
+  margin-bottom: 2px;
+
+  input[type="range"] {
+    display: block;
+    width: 100%;
+    height: 14px;
+    margin: 1px 0;
+    accent-color: var(--color-rust, #a94b2b);
+    cursor: pointer;
+  }
+}
+
+.d3-map__years-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5em;
+  font-size: 0.78em;
+
+  output {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
+  }
+}
+
+.d3-map__years.is-narrowed .d3-map__years-readout output {
+  opacity: 1;
+  font-weight: 600;
+}
+
+.d3-map__years-label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
+}
+
+.d3-map__years-reset {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin-top: 2px;
+  font: inherit;
+  font-size: 0.76em;
+  color: inherit;
+  opacity: 0.6;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.d3-map__years-reset:hover { opacity: 1; }
+
+// Cursor-tracking variant of the readout — positioned in JS, so it must not
+// inherit the corner anchoring below.
+.d3-map__info--float {
+  top: 0;
+  left: 0;
+  right: auto;
+  opacity: 0;
+  transition: opacity 90ms var(--ease);
+  z-index: 3;
+}
+
+.d3-map__info--float.is-visible { opacity: 1; }
+
+// Composite hover readout — one row per interest present at the cursor
+.d3-map__probe-row {
+  display: flex;
+  gap: 0.5em;
+  margin-top: 0.35em;
+  font-size: 0.86em;
+  line-height: 1.3;
+}
+
+.d3-map__probe-key {
+  flex: none;
+  width: 5.5em;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.82em;
+  padding-top: 0.15em;
+}
+
+.d3-map__probe-row.is-absent .d3-map__probe-val {
+  opacity: 0.55;
+  font-style: italic;
+}
+
+.d3-map__probe-sub {
+  display: block;
+  opacity: 0.6;
+  font-size: 0.9em;
+}
+
 // Info + legend overlays — absolutely positioned over the SVG
 .d3-map__info {
   position: absolute;
@@ -1691,6 +1955,43 @@ canvas {
   .legend-reset:hover {
     background: var(--color-cream);
     border-color: var(--color-sage);
+  }
+}
+
+// Timeline mode — one canvas plus a playhead strip along the bottom.
+.d3-map--timeline canvas {
+  display: block;
+}
+
+.d3-map .d3-map__timeline {   // beats .info-panel's later max-width
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: var(--space-3);
+  max-width: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+
+  .d3-map__year {
+    flex: 1;
+    accent-color: var(--rust);
+  }
+
+  button,
+  select {
+    font: inherit;
+    font-size: var(--font-size-xs);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.3em 0.6em;
+    cursor: pointer;
+  }
+
+  button {
+    min-width: 2.5em;
   }
 }
 
@@ -2708,6 +3009,20 @@ canvas {
   height: auto;
 }
 
+// Vertical chart types (stripes-stacked = multiple region ribbons;
+// small-multiples = multiple stacked panels) get a smaller max-width
+// AND a viewport-height cap, because at the new full-width sightlines
+// layout they would otherwise produce charts taller than a laptop
+// screen. The viewBox is preserved by the SVG; this just shrinks the
+// rendered footprint so the chart fits a single screen comfortably.
+.chart-viz--stripes-stacked svg,
+.chart-viz--small-multiples svg {
+  max-width: 1000px;
+  max-height: 80vh;
+  width: auto;
+  margin: 0 auto;
+}
+
 .chart-viz--stripes svg {
   aspect-ratio: 1200 / 260;
 }
@@ -3042,6 +3357,429 @@ canvas {
   stroke-dasharray: 3 3;
 }
 
+// ── Scatter / event chart ──────────────────────────────────────────
+.chart-viz__scatter-grid line {
+  stroke: var(--rule);
+  stroke-width: 1px;
+  opacity: 0.5;
+}
+.chart-viz__scatter-dot {
+  stroke: var(--paper);
+  stroke-width: 1.5px;
+  cursor: pointer;
+  transition: r 120ms var(--ease);
+}
+// Modification glyphs (triangles). Reduction points down, restoration/
+// expansion points up — set via rotate() in JS. A paper stroke lifts
+// them off any dot they overlap.
+.chart-viz__scatter-modglyph {
+  stroke: var(--paper);
+  stroke-width: 1.5px;
+  cursor: pointer;
+  transition: opacity 120ms var(--ease);
+}
+// Dashed connector tracing a monument from designation → modification.
+.chart-viz__scatter-link {
+  stroke: var(--ink);
+  stroke-width: 1.25px;
+  stroke-dasharray: 3 3;
+  opacity: 0.4;
+}
+.chart-viz__scatter-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+// ── Latitude × time heatmap ─────────────────────────────────────────
+.chart-viz__heat-cell {
+  cursor: pointer;
+  shape-rendering: crispEdges;
+}
+.chart-viz__heat-cell:hover {
+  stroke: var(--ink);
+  stroke-width: 1.5px;
+}
+.chart-viz__heat-rowlabel {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  fill: var(--soft);
+}
+.chart-viz__heat-legendlabel {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  fill: var(--soft);
+}
+// Faint vertical guides dropping from era bands through the grid.
+.chart-viz__heat-eraguide {
+  stroke: var(--ink);
+  stroke-width: 1px;
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+// ── Similarity matrix ───────────────────────────────────────────────
+.chart-viz__matrix-cell {
+  cursor: pointer;
+  shape-rendering: crispEdges;
+  &.is-diag { cursor: default; opacity: 0.5; }
+}
+.chart-viz__matrix-val {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.chart-viz__matrix-rowlabel,
+.chart-viz__matrix-collabel {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+// Click-to-read modal — mirrors .network-viz__modal, wider for legal
+// text, Survey tokens. The matrix (and any chart) can open it; here it
+// carries the shared-passage detail merged in from the old drill.
+.chart-viz__modal {
+  // Fixed to the viewport (not the viz card) so the panel is capped at
+  // screen height and centers on screen no matter how tall the chart is.
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 2000;
+  &.is-open { display: block; }
+}
+.chart-viz__modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.4);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+.chart-viz__modal-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 640px;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  padding: 28px 30px 0;
+}
+.chart-viz__modal-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--soft);
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  &:hover { color: var(--rust); }
+}
+.chart-viz__modal-body {
+  flex: 1 1 auto;
+  min-height: 0;      // lets the body shrink + scroll inside the capped panel
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 28px;
+}
+.chart-viz__modal-kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 2rem 6px 0;
+}
+.chart-viz__modal-title {
+  font-family: var(--font-ui);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 2rem 8px 0;
+  line-height: 1.15;
+  .chart-viz__modal-arrow { color: var(--rust); }
+}
+.chart-viz__modal-meta {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--soft);
+  margin: 0 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.chart-viz__modal-empty {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--soft);
+  line-height: 1.55;
+}
+
+// Directional containment meter — two little bars showing what share of
+// each bill's phrasing appears in the other. The longer (rust) bar points
+// to the source; the asymmetry is the visual evidence of who copied whom.
+.chart-viz__meter-caption {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--soft);
+  margin: 0 0 8px;
+}
+.chart-viz__meter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+}
+.chart-viz__meter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(60px, 150px) 2.6rem;
+  align-items: center;
+  gap: 12px;
+}
+.chart-viz__meter-label {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chart-viz__meter-in {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--soft);
+}
+.chart-viz__meter-track {
+  position: relative;
+  height: 9px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+}
+.chart-viz__meter-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  min-width: 1px;
+  background: var(--rule);
+}
+.chart-viz__meter-row.is-dominant .chart-viz__meter-fill {
+  background: var(--rust);
+}
+.chart-viz__meter-val {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.chart-viz__matrix-hint {
+  color: var(--rust);
+  font-style: italic;
+}
+
+// ── Genealogy network ───────────────────────────────────────────────
+.chart-viz__gen-colguide {
+  stroke: var(--rule);
+  stroke-width: 1px;
+  opacity: 0.5;
+  stroke-dasharray: 2 4;
+}
+.chart-viz__gen-year {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--soft);
+}
+.chart-viz__gen-edge {
+  fill: none;
+  stroke: var(--rust);
+  opacity: 0.32;
+  cursor: pointer;
+  transition: opacity 120ms var(--ease);
+  &.is-hot { opacity: 0.85; }
+}
+.chart-viz__gen-arrow {
+  fill: var(--rust);
+  opacity: 0.55;
+}
+.chart-viz__gen-dot {
+  fill: var(--navy, #2f4a6e);
+  stroke: var(--paper);
+  stroke-width: 2px;
+  cursor: pointer;
+  &.is-root { fill: var(--rust); }
+}
+.chart-viz__gen-label {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--ink);
+  pointer-events: none;
+}
+
+// ── Borrowed-passage drill ──────────────────────────────────────────
+.chart-viz__reuse {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 62rem;
+  margin: 0 auto;
+}
+.chart-viz__reuse-card {
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--rust);
+  padding: 18px 22px;
+  background: var(--paper);
+}
+.chart-viz__reuse-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.chart-viz__reuse-src,
+.chart-viz__reuse-tgt {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 17px;
+}
+.chart-viz__reuse-arrow { color: var(--rust); font-weight: 700; }
+.chart-viz__reuse-score {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--soft);
+  margin-left: auto;
+}
+.chart-viz__reuse-passages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  li {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink);
+    padding-left: 14px;
+    border-left: 2px solid var(--rule);
+  }
+}
+
+// ── Signature-phrase concordance ────────────────────────────────────
+.chart-viz__concordance {
+  width: 100%;
+  max-width: 62rem;
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--soft);
+  }
+  .num { text-align: center; width: 4rem; }
+}
+.chart-viz__concordance-phrase {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 15px;
+  color: var(--ink);
+}
+.chart-viz__concordance-count {
+  display: inline-block;
+  min-width: 1.6rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--rust);
+  color: var(--paper);
+  font-weight: 700;
+  font-size: 13px;
+  text-align: center;
+}
+.chart-viz__concordance-chip {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  padding: 2px 9px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--soft);
+}
+// DOM legend below the SVG.
+.chart-viz__scatter-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 14px var(--space-5) 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--soft);
+}
+.chart-viz__scatter-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.chart-viz__scatter-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.chart-viz__scatter-glyph {
+  width: 0;
+  height: 0;
+  display: inline-block;
+}
+.chart-viz__scatter-glyph--down {
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 10px solid var(--soft);
+}
+.chart-viz__scatter-glyph--up {
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid var(--soft);
+}
+
 .chart-viz__line {
   fill: none;
   stroke: var(--color-rust);
@@ -3289,99 +4027,6 @@ canvas {
   font-weight: 500;
   font-variant-numeric: lining-nums tabular-nums;
   word-break: break-word;
-}
-
-.map-payments-ctl {
-  background: var(--color-bg);
-  padding: 0.75em 1em;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  box-shadow: 0 2px 10px var(--color-shadow);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
-  min-width: 320px;
-  width: 520px;
-  max-width: 90vw;
-}
-
-.map-payments-ctl__row {
-  display: flex;
-  gap: 0.75em;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
-
-.map-payments-ctl__field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-  flex: 1 1 auto;
-  min-width: 150px;
-
-  >span {
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-size: var(--font-size-xs);
-  }
-
-  select,
-  input[type="range"] {
-    font-family: var(--font-ui);
-    font-size: var(--font-size-sm);
-    background: var(--color-bg);
-    color: var(--color-ink);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: 0.3em 0.5em;
-    min-height: 36px;
-    cursor: pointer;
-  }
-
-  input[type="range"] {
-    padding: 0 0.3em;
-    accent-color: var(--color-rust);
-  }
-
-  strong {
-    color: var(--color-ink);
-    font-weight: 600;
-  }
-}
-
-.map-payments-ctl__field--year {
-  flex: 2 1 220px;
-}
-
-.map-payments-ctl__legend {
-  margin-top: 0.6em;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25em 0.75em;
-
-  h4 {
-    width: 100%;
-    margin: 0 0 0.2em;
-    font-size: var(--font-size-xs);
-    font-family: var(--font-ui);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-text-muted);
-  }
-
-  .legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35em;
-    font-size: 11px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .legend-swatch {
-    width: 14px;
-    height: 10px;
-    border-radius: 2px;
-  }
 }
 
 .map-stateselector {
@@ -4397,6 +5042,41 @@ textarea:focus-visible {
 /* Hidden state for filtered-out rows */
 .is-hidden { display: none !important; }
 
+/* AI-disclosure note on changelog entries (and any other AI-drafted
+   infrastructure-style writing that opts in). Quiet panel sitting at
+   the top of the body — reads as editorial chrome explaining the
+   provenance, not as a warning. */
+.ai-authored-note {
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--panel);
+  border-left: 2px solid var(--rust);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--soft);
+}
+.ai-authored-note__label {
+  margin: 0 0 0.35em;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rust);
+}
+.ai-authored-note__body {
+  margin: 0;
+  color: var(--ink);
+
+  a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rust);
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
+}
+
 /* Numbered row list — №01, №02, …, each row a clickable card */
 .writing-list {
   list-style: none;
@@ -4513,38 +5193,28 @@ textarea:focus-visible {
   padding: 36px var(--space-page) 80px;
 }
 
-.narrative-breadcrumb {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--soft);
-  margin: 0 0 56px;
-}
-.narrative-breadcrumb a {
-  color: var(--soft);
-  text-decoration: none;
-  transition: color var(--duration) var(--ease);
-}
-.narrative-breadcrumb a:hover { color: var(--rust); }
-.narrative-breadcrumb__sep { margin: 0 12px; color: var(--rule); }
-.narrative-breadcrumb__current { color: var(--ink); }
-
 .narrative-header {
   max-width: 56rem;     // ~910px per design spec
   margin: 0 auto 64px;
   text-align: center;
 }
-.narrative-header__kicker {
+.narrative-header__crumb {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--rust);
-  margin: 0 0 24px;
+  color: var(--soft);
+  margin: 0 0 28px;
+  a {
+    color: var(--soft);
+    text-decoration: none;
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
 }
+.narrative-header__crumb-sep { margin: 0 10px; color: var(--rule); }
+.narrative-header__kind { color: var(--rust); }
 .narrative-header__title {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 5.2vw, 3.6rem);   // unified site-wide; ~38–58px
@@ -4565,23 +5235,48 @@ textarea:focus-visible {
   line-height: 1.5;
   color: var(--soft);
   max-width: 39rem;
-  margin: 0 auto 28px;
+  margin: 0 auto;
 }
-.narrative-header__meta {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.narrative-header__rule {
+  width: 48px;
+  border: 0;
+  border-top: 2px solid var(--rust);
+  margin: 32px auto 24px;
+}
+// Colophon line: one quiet italic serif line. Items are separated by
+// a CSS middot so any of them (byline, date, place) can be missing.
+.narrative-header__line {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.4;
   color: var(--soft);
   margin: 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 16px;
+  align-items: center;
+  > * + *::before { content: "·"; margin: 0 0.5em; font-style: normal; }
+  .byline {
+    font: inherit;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    max-width: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .byline__name { font-style: normal; font-weight: 600; color: var(--ink); }
+  .byline__avatar { width: 32px; height: 32px; margin: 0; }
 }
-.narrative-header__meta time { color: var(--ink); }
-.narrative-header__byline { color: var(--ink); }
+.narrative-header__line .byline + *::before { margin-left: 0.4em; }
+// Phones: byline takes its own row so wrapping never strands a middot.
+@media (max-width: 600px) {
+  .narrative-header__line .byline { flex-basis: 100%; justify-content: center; margin-bottom: 6px; }
+  .narrative-header__line .byline + *::before { content: none; }
+}
 
 // Tag chips beneath the essay header. Centered to match the
 // centered article header above (max-width 56rem). Each chip is a
@@ -4696,17 +5391,16 @@ textarea:focus-visible {
    Works inside .narrative-body (or any prose container). */
 .pullquote {
   margin: 56px 0;
-  padding: 28px 0;
-  border-top: 1.5px solid var(--ink);
-  border-bottom: 1.5px solid var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(1.45rem, 2.1vw, 1.7rem);   // ~23–27px
-  font-weight: 500;
-  font-style: italic;
-  line-height: 1.32;
-  letter-spacing: -0.01em;
-  color: var(--ink);
+  padding: 32px 0 0;
+  border-top: 1px solid var(--rust);
   background: transparent;
+  font-family: var(--font-display);                // Zilla Slab — slab serif, upright
+  font-size: clamp(1.6rem, 2.5vw, 2rem);            // ~26–32px
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--ink);
   text-align: left;
 }
 .pullquote p { margin: 0; }
@@ -4734,24 +5428,42 @@ textarea:focus-visible {
 
 // Attribution line — small JetBrains Mono caps in --soft, with an
 // em-dash leading. Sits flush left under the quote.
-.pullquote__attr {
-  margin: 16px 0 0;
+// Single-line attribution: author · source, all in caps-tracked
+// JetBrains Mono. Author wears the rust accent for emphasis; source
+// stays in --soft. Wraps to a second line on narrow viewports when
+// the source is long.
+//
+// `.pullquote` prefix bumps the selector's specificity to (0,2,0) so
+// it outranks `.pullquote p { margin: 0 }` higher up the file — that
+// rule was zeroing the top margin and pulling the attribution flush
+// against the quote body.
+.pullquote .pullquote__attr {
+  margin: 44px 0 0;
   font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   font-style: normal;
+  line-height: 1.4;
   color: var(--soft);
 }
-.pullquote__attr-dash {
-  margin-right: 0.2em;
+.pullquote__author { color: var(--rust); }
+.pullquote__source {
+  font-style: normal;             // <cite> would italicize by default; we want roman caps
+  color: var(--soft);
+}
+.pullquote__attr-sep {
+  display: inline-block;
+  margin: 0 0.5em;
   color: var(--rule);
 }
-.pullquote__author { color: var(--ink); }
-.pullquote__source {
-  font-style: normal;             // override the default <cite> italic
-  color: var(--soft);
+// Inline italic emphasis inside the attribution falls back to natural-
+// case italic (so e.g. `_Title_` would read distinct from the tracked
+// caps surrounding it). Rarely needed at this size; safe to leave on.
+.pullquote__attr em,
+.pullquote__attr i {
+  font-style: italic;
 }
 // Linked author / source — hairline-underline that brightens to rust.
 .pullquote__attr a {
@@ -4768,18 +5480,11 @@ textarea:focus-visible {
   }
 }
 
-// Backward-compat for the older `<aside class="pullquote">…<cite>` markup.
-.pullquote cite {
-  display: block;
-  margin-top: 16px;
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-style: normal;
-  color: var(--soft);
-}
+// (Removed: backward-compat `.pullquote cite { display: block; … }`
+// rule that was forcing the new <cite class="pullquote__source"> to
+// break onto its own line. The shortcode is the only producer of
+// .pullquote markup now, so the legacy hand-written-HTML pattern
+// doesn't need a fallback.)
 
 /* Drop cap on first paragraph — override the rust drop cap to ink so
    it doesn't clash with the rust kicker above. */
@@ -5543,6 +6248,290 @@ textarea:focus-visible {
 .atlas-viz__name { font-weight: 500; }
 .atlas-viz__st   { color: var(--color-text-muted); font-size: 0.78rem; }
 .atlas-viz__ct   { text-align: right; font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+/* ───────── Atlas — Federal Footprint (ranked stacked bars) ───────── */
+.atlas-footprint__legend { margin: 0 0 0.75rem; }
+.atlas-footprint__legend-chip { cursor: default; }
+.atlas-footprint__legend-chip:hover { border-color: #ddd2bb; }
+
+.atlas-footprint__readout {
+  min-height: 1.4em;
+  margin: 0 0 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: #fffaf3;
+  border: 1px solid #e0d6c5;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #2b2b2b;
+}
+
+.atlas-footprint__svg { display: block; width: 100%; height: auto; font-family: inherit; }
+
+.atlas-footprint__row { cursor: pointer; }
+.atlas-footprint__hit { cursor: pointer; }
+
+// The hit rect is appended before the bar segments and text, so those sit on
+// top of it in SVG paint order. Without this, clicking the colored bar itself
+// (the natural target) lands on a handler-less segment rect and nothing pins.
+// (Segment hover is resolved from the cursor's x-position on the hit rect
+// instead — see the mousemove handler in renderFootprint.)
+.atlas-footprint__segments,
+.atlas-footprint__label,
+.atlas-footprint__value { pointer-events: none; }
+
+// Hovering a bar segment lights the matching legend chip and dims the rest
+.atlas-footprint__legend-chip {
+  transition: opacity 100ms var(--ease), background 100ms var(--ease);
+  border-radius: var(--radius-sm);
+  padding: 1px 5px;
+}
+
+.atlas-footprint__legend-chip.is-hot {
+  background: var(--color-cream);
+  outline: 1px solid var(--color-border);
+}
+
+.atlas-footprint__legend-chip.is-dim { opacity: 0.45; }
+
+// Mouse-follow segment popup, positioned in JS within the svg wrapper
+.atlas-viz__svg-wrap { position: relative; }
+
+.atlas-footprint__tip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 4;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 10px var(--color-shadow);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  padding: 4px 8px;
+  white-space: nowrap;
+
+  strong { display: block; }
+  span { color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+}
+.atlas-footprint__label {
+  fill: #2b2b2b;
+  font-size: 0.78rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.atlas-footprint__value {
+  fill: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.atlas-footprint__row.is-hover .atlas-footprint__label,
+.atlas-footprint__row.is-hover .atlas-footprint__value { fill: #a94b2b; }
+.atlas-footprint__row.is-hover .atlas-footprint__hit { fill: rgba(169, 75, 43, 0.06); }
+.atlas-footprint__row.is-pinned .atlas-footprint__label,
+.atlas-footprint__row.is-pinned .atlas-footprint__value { fill: #2b2b2b; font-weight: 700; }
+.atlas-footprint__row.is-pinned .atlas-footprint__hit { fill: rgba(169, 75, 43, 0.1); }
+.atlas-footprint__row.is-pinned .atlas-footprint__segments rect { stroke: #2b2b2b; stroke-width: 0.6; }
+
+/* Detail panel below the ranked bars — same 40/60 grid + card language
+   as the trends detail panel, namespaced for the footprint mode. */
+.atlas-footprint__detail {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e0d6c5;
+}
+.atlas-footprint__detail[hidden] { display: none; }
+@media (max-width: 720px) {
+  .atlas-footprint__detail { grid-template-columns: 1fr; }
+}
+.atlas-footprint__detail-left,
+.atlas-footprint__detail-right {
+  background: #fffaf3;
+  border: 1px solid #e0d6c5;
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  min-height: 180px;
+}
+.atlas-footprint__detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.atlas-footprint__detail-titles { min-width: 0; }
+.atlas-footprint__detail-header h3 {
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
+  color: #2b2b2b;
+}
+.atlas-footprint__detail-abbr {
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+.atlas-footprint__detail-sub {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.atlas-footprint__unpin-btn {
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid #c9a978;
+  color: #6b2d18;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.atlas-footprint__unpin-btn:hover {
+  background: #a94b2b;
+  border-color: #a94b2b;
+  color: #fff;
+}
+
+.atlas-footprint__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.atlas-footprint__table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid #c9a978;
+  padding: 0.3rem 0.4rem;
+}
+.atlas-footprint__table td {
+  padding: 0.3rem 0.4rem;
+  border-bottom: 1px solid #ece2cf;
+  color: #2b2b2b;
+}
+.atlas-footprint__num {
+  text-align: right;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.atlas-footprint__subtotal td { font-weight: 600; border-top: 1px solid #c9a978; }
+.atlas-footprint__grandtotal td {
+  font-weight: 700;
+  border-top: 2px solid #a94b2b;
+  border-bottom: none;
+}
+.atlas-footprint__caveat {
+  margin: 0.75rem 0 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.atlas-footprint__curve-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: #2b2b2b;
+}
+.atlas-footprint__curve-wrap { width: 100%; }
+.atlas-footprint__curve-svg { display: block; width: 100%; height: auto; font-family: inherit; }
+.atlas-footprint__curve-area { fill: #1f6b66; fill-opacity: 0.15; }
+.atlas-footprint__curve-line { stroke: #1f6b66; stroke-width: 2; stroke-linejoin: round; }
+.atlas-footprint__curve-dot { fill: #1f6b66; stroke: #fff; stroke-width: 1.5; }
+.atlas-footprint__undated {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+// ─── Atlas: lexicon mode (Producer vocabulary) ───────────────────
+.atlas-lex__term-chart { margin-top: 0.75rem; }
+.atlas-lex__term-chart svg { display: block; width: 100%; height: auto; }
+.atlas-lex__kwic-link {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+}
+.atlas-lex__kwic-link a {
+  color: #a94b2b;
+  font-weight: 600;
+  text-decoration: none;
+}
+.atlas-lex__kwic-link a:hover { text-decoration: underline; }
+
+// ─── Atlas: kwic mode (Producer concordance) ─────────────────────
+.atlas-kwic__search { max-width: 14rem; margin: 0; }
+.atlas-kwic__spark { margin: 0.75rem 0 0.5rem; }
+.atlas-kwic__spark svg { display: block; width: 100%; height: auto; }
+.atlas-kwic__spark-tick {
+  font-size: 0.62rem;
+  fill: var(--color-text-muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.atlas-kwic__lines-wrap { margin-top: 0.5rem; }
+.atlas-kwic__lines {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.atlas-kwic__year-head {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid #c9a978;
+  padding: 0.9rem 0 0.25rem;
+  margin-bottom: 0.15rem;
+}
+.atlas-kwic__line {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.32rem 0;
+  border-bottom: 1px solid #ece2cf;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.atlas-kwic__text { min-width: 0; }
+.atlas-kwic__text mark {
+  background: #f3e2b8;
+  color: inherit;
+  font-weight: 600;
+  padding: 0 0.15em;
+  border-radius: 2px;
+}
+.atlas-kwic__cite {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.atlas-kwic__cite:hover { color: #a94b2b; text-decoration: underline; }
+.atlas-kwic__more {
+  display: block;
+  margin: 1rem auto 0;
+  border: 1px solid #c9b98f;
+  border-radius: 999px;
+  background: #fffdf8;
+  padding: 0.35rem 1.1rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: #4a5640;
+  cursor: pointer;
+}
+.atlas-kwic__more:hover { border-color: #a94b2b; color: #a94b2b; }
+@media (max-width: 640px) {
+  .atlas-kwic__line { flex-direction: column; gap: 0.1rem; }
+}
 
 // Respect OS-level motion preferences (WCAG 2.3.3).
 // Also stops D3's running force simulation via the reduced-motion class

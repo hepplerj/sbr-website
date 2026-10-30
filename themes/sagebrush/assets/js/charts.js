@@ -89,28 +89,62 @@
     // sets it to something value-specific on mouseover. We cache the
     // default once and compare on every mousemove: matching = idle,
     // pin to CSS corner; differing = active hover, follow the cursor.
+    //
+    // `cfg.hideidlecard: true` suppresses the idle prompt entirely —
+    // the card stays hidden until the cursor is over a data element,
+    // then appears at the cursor. Good for dense charts where the idle
+    // card would cover data (e.g. the wide monuments scatter).
     const defaultPromptHTML = info.innerHTML;
-    const pinCardToCorner = () => {
-      info.style.left = "";
-      info.style.top = "";
-      info.style.right = "";
+    const hideIdle = cfg.hideidlecard === true || cfg.hideidlecard === "true";
+    if (hideIdle) info.style.display = "none";
+    const resetIdle = () => {
+      if (hideIdle) {
+        info.style.display = "none";
+      } else {
+        info.style.left = "";
+        info.style.top = "";
+        info.style.right = "";
+      }
     };
     container.addEventListener("mousemove", (event) => {
       if (info.innerHTML !== defaultPromptHTML) {
+        if (hideIdle) info.style.display = "";
         placeTimelineCard(info, container, event);
       } else {
-        pinCardToCorner();
+        resetIdle();
       }
     });
-    container.addEventListener("mouseleave", pinCardToCorner);
+    container.addEventListener("mouseleave", resetIdle);
 
     d3.json(cfg.src)
       .then((raw) => {
         const type = cfg.type || "stripes";
-        // Timeline reads both events + lane definitions from the raw JSON;
-        // every other chart type works off a single resolved array.
+        // Timeline + scatter read multiple arrays from the raw JSON
+        // (timeline: events + lanes; scatter: marks + modifications), so
+        // they take `raw` directly. Every other type works off a single
+        // resolved array.
         if (type === "timeline") {
           drawTimeline(container, cfg, raw, info);
+          return;
+        }
+        if (type === "scatter") {
+          drawScatter(container, cfg, raw, info);
+          return;
+        }
+        if (type === "heatmap") {
+          drawHeatmap(container, cfg, raw, info);
+          return;
+        }
+        if (type === "matrix") {
+          drawMatrix(container, cfg, raw, info);
+          return;
+        }
+        if (type === "concordance") {
+          drawConcordance(container, cfg, raw, info);
+          return;
+        }
+        if (type === "genealogy") {
+          drawGenealogy(container, cfg, raw, info);
           return;
         }
         const series = resolvePath(raw, cfg.datapath || "data");
@@ -672,7 +706,11 @@
       .attr("transform", `translate(0,${innerH})`)
       .call(d3.axisBottom(xScale).tickValues(tickYears).tickFormat((t) => t).tickSizeOuter(0));
     g.append("g").attr("class", "chart-viz__axis")
-      .call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format(",")).tickSizeOuter(0));
+      .call(d3.axisLeft(yScale).ticks(5)
+        // Wide values ("250,000") overflow the fixed left margin and
+        // collide with the rotated axis label — compact to SI ("250k").
+        .tickFormat(yMax >= 100000 ? d3.format("~s") : d3.format(","))
+        .tickSizeOuter(0));
 
     if (cfg.ylabel) {
       svg.append("text")
@@ -1250,6 +1288,649 @@
     });
   }
 
+  // ── Scatter / event chart ───────────────────────────────────────────
+  // Each datum is a mark at (xfield, yfield); y is log-scaled (good for
+  // values spanning many orders of magnitude — e.g. monument acreage
+  // from <100 to >10M). Color encodes a categorical field (e.g. party).
+  // An optional second array (cfg.modspath) holds *modification* events
+  // that reference a primary mark by name and are drawn as distinct
+  // glyphs connected back to their parent with a dashed line — built for
+  // the Bears Ears / Grand Staircase reduce-then-restore saga.
+  //
+  // cfg keys:
+  //   datapath      array of primary marks (default "data")
+  //   modspath      optional array of modification events
+  //   xfield        x value key (default "year")
+  //   yfield        y value key (default "value")
+  //   colorfield    categorical key → palette lookup (e.g. "party")
+  //   labelfield    key used for the hover heading + auto-labels
+  //   namefield     key linking a modification to its parent (default labelfield)
+  //   palette       { <category>: <named-or-hex color> }
+  //   catlabels     { <category>: "Legend label" }
+  //   labelthreshold  auto-label marks whose y exceeds this (0 = none)
+  //   yunit         suffix for the value in hover/axis (e.g. " acres")
+  //   periods       optional era spans (same shape as other charts)
+  function drawScatter(container, cfg, raw, info) {
+    const xKey = cfg.xfield || "year";
+    const yKey = cfg.yfield || "value";
+    const colorKey = cfg.colorfield || "category";
+    const labelKey = cfg.labelfield || "name";
+    const nameKey = cfg.namefield || labelKey;
+    const yUnit = cfg.yunit || "";
+
+    const marks = resolvePath(raw, cfg.datapath || "data") || [];
+    const mods = cfg.modspath ? (resolvePath(raw, cfg.modspath) || []) : [];
+    if (!Array.isArray(marks) || !marks.length) return;
+
+    const palette = lowerKeysShallow(cfg.palette || {});
+    const catLabels = lowerKeysShallow(cfg.catlabels || {});
+    const colorFor = (cat) => resolveColor(palette[String(cat).toLowerCase()], "#6b7a5a");
+
+    const allX = marks.map((d) => +d[xKey]).filter((v) => !isNaN(v));
+    const allY = marks.map((d) => +d[yKey]).filter((v) => v > 0);
+    if (!allX.length || !allY.length) return;
+
+    const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
+    const W = 1200;
+    const baseMarginLeft = 64, baseMarginRight = 24;
+    const baseInnerW = W - baseMarginLeft - baseMarginRight;
+    const xExtent = [Math.min(...allX) - 3, Math.max(...allX) + 3];
+    const eraPlan = planEraRows(periods, xExtent[0], xExtent[1], baseInnerW);
+    const PERIOD_H = eraStripHeight(eraPlan.maxRow);
+
+    const H = 480 + PERIOD_H;
+    const margin = { top: 40 + PERIOD_H, right: baseMarginRight, bottom: 42, left: baseMarginLeft };
+    const innerW = W - margin.left - margin.right;
+    const innerH = H - margin.top - margin.bottom;
+
+    const svg = d3.select(container).append("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .attr("role", "img")
+      .attr("aria-label", cfg.title || "Scatter chart");
+
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const xScale = d3.scaleLinear().domain(xExtent).range([0, innerW]);
+
+    // Log y. Pad the data extent by ~half a decade each way for
+    // breathing room rather than snapping out to full powers of ten,
+    // which would leave an empty decade above the largest mark.
+    const yMin = Math.min(...allY), yMax = Math.max(...allY);
+    const yScale = d3.scaleLog().domain([yMin / 1.6, yMax * 1.6]).range([innerH, 0]).clamp(true);
+
+    // ── grid + axes ──────────────────────────────────────────────────
+    const yTicks = yScale.ticks(6).filter((t) => Math.log10(t) % 1 === 0);
+    g.append("g").attr("class", "chart-viz__scatter-grid")
+      .selectAll("line").data(yTicks).join("line")
+      .attr("x1", 0).attr("x2", innerW)
+      .attr("y1", (d) => yScale(d)).attr("y2", (d) => yScale(d));
+
+    const decadeTicks = d3.range(Math.ceil(xExtent[0] / 10) * 10, xExtent[1] + 1, 20);
+    g.append("g").attr("class", "chart-viz__axis")
+      .attr("transform", `translate(0,${innerH})`)
+      .call(d3.axisBottom(xScale).tickValues(decadeTicks).tickFormat((y) => y).tickSizeOuter(0));
+    g.append("g").attr("class", "chart-viz__axis")
+      .call(d3.axisLeft(yScale).tickValues(yTicks).tickFormat(formatAcresShort).tickSizeOuter(0));
+
+    // Era strip (shared with line/bars/stripes).
+    if (periods.length) {
+      drawEraStrip(svg, periods, xScale, {
+        offsetX: margin.left,
+        offsetY: margin.top - 6,
+        rowMap: eraPlan.rows,
+        onHover: (p) => {
+          info.innerHTML = `
+            <h4>${p.start}–${p.end}</h4>
+            <div class="detail"><strong>${escapeHTML(p.label || "")}</strong></div>
+            ${p.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(p.description)}</div>` : ""}
+          `;
+        },
+        onLeave: () => { info.innerHTML = infoHTML(cfg); },
+      });
+    }
+
+    // ── modification connectors ──────────────────────────────────────
+    // For each monument that was later modified, build a chronological
+    // path [designation, …mods sorted by year] and draw consecutive
+    // dashed segments. Traces the Bears Ears saga as a single line:
+    // 2016 designation → 2017 reduction (drops) → 2021 restoration (climbs).
+    const markByName = new Map(marks.map((d) => [d[nameKey], d]));
+    const modsByName = d3.group(mods, (d) => d[nameKey]);
+    const modGroup = g.append("g").attr("class", "chart-viz__scatter-mods");
+    modsByName.forEach((group, name) => {
+      const parent = markByName.get(name);
+      if (!parent) return;
+      const path = [parent, ...group]
+        .filter((d) => +d[yKey] > 0)
+        .sort((a, b) => +a[xKey] - +b[xKey]);
+      for (let i = 0; i < path.length - 1; i++) {
+        modGroup.append("line")
+          .attr("class", "chart-viz__scatter-link")
+          .attr("x1", xScale(+path[i][xKey])).attr("y1", yScale(+path[i][yKey]))
+          .attr("x2", xScale(+path[i + 1][xKey])).attr("y2", yScale(+path[i + 1][yKey]));
+      }
+    });
+
+    const showMarkCard = (event, d, isMod) => {
+      const lines = [];
+      if (d.president) lines.push(`${d.president}${d.party ? " (" + d.party + ")" : ""}`);
+      if (d.agency) lines.push(d.agency + (d.states ? " · " + d.states.join(", ") : ""));
+      const valLabel = isMod
+        ? `${capitalize(d.kind || "change")} → ${formatAcres(+d[yKey])}${yUnit}`
+        : `${formatAcres(+d[yKey])}${yUnit}`;
+      info.innerHTML = `
+        <h4>${d[xKey]} · ${escapeHTML(String(d[labelKey] || d[nameKey] || ""))}</h4>
+        <div class="detail"><strong>${valLabel}</strong></div>
+        ${lines.length ? `<div class="detail">${escapeHTML(lines.join(" · "))}</div>` : ""}
+        ${d.note ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(d.note)}</div>` : ""}
+      `;
+    };
+    const hideCard = () => { info.innerHTML = infoHTML(cfg); };
+
+    // ── primary marks ────────────────────────────────────────────────
+    g.append("g").attr("class", "chart-viz__scatter-marks")
+      .selectAll("circle").data(marks.filter((d) => +d[yKey] > 0)).join("circle")
+      .attr("class", "chart-viz__scatter-dot")
+      .attr("cx", (d) => xScale(+d[xKey]))
+      .attr("cy", (d) => yScale(+d[yKey]))
+      .attr("r", 7)
+      .attr("fill", (d) => colorFor(d[colorKey]))
+      .on("mouseover", function (event, d) {
+        d3.select(this).attr("r", 10);
+        showMarkCard(event, d, false);
+      })
+      .on("mousemove", (event) => placeTimelineCard(info, container, event))
+      .on("mouseout", function () { d3.select(this).attr("r", 7); hideCard(); });
+
+    // ── modification glyphs (down = reduction, up = restoration/expand) ─
+    const symbolFor = (kind) =>
+      kind === "reduction" ? d3.symbolTriangle : d3.symbolTriangle;
+    g.append("g").attr("class", "chart-viz__scatter-modmarks")
+      .selectAll("path").data(mods.filter((d) => +d[yKey] > 0)).join("path")
+      .attr("class", (d) => "chart-viz__scatter-modglyph mod-" + String(d.kind || "x").replace(/[^a-z0-9]/gi, ""))
+      .attr("transform", (d) => {
+        const flip = d.kind === "reduction" ? 180 : 0;   // point down for a cut
+        return `translate(${xScale(+d[xKey])},${yScale(+d[yKey])}) rotate(${flip})`;
+      })
+      .attr("d", d3.symbol().type((d) => symbolFor(d.kind)).size(120))
+      .attr("fill", (d) => colorFor(d.party))
+      .on("mouseover", function (event, d) {
+        d3.select(this).attr("opacity", 0.7);
+        showMarkCard(event, d, true);
+      })
+      .on("mousemove", (event) => placeTimelineCard(info, container, event))
+      .on("mouseout", function () { d3.select(this).attr("opacity", 1); hideCard(); });
+
+    // ── auto-labels for the big marks ────────────────────────────────
+    const threshold = cfg.labelthreshold != null ? +cfg.labelthreshold : 0;
+    if (threshold > 0) {
+      g.append("g").attr("class", "chart-viz__scatter-labels")
+        .selectAll("text").data(marks.filter((d) => +d[yKey] >= threshold)).join("text")
+        .attr("class", "chart-viz__scatter-label")
+        .attr("x", (d) => xScale(+d[xKey]))
+        .attr("y", (d) => yScale(+d[yKey]) - 12)
+        .attr("text-anchor", "middle")
+        .text((d) => d[labelKey]);
+    }
+
+    // ── legend (party swatches + modification glyph key) ─────────────
+    const cats = Array.from(new Set(marks.map((d) => String(d[colorKey])))).filter(Boolean);
+    const legend = document.createElement("div");
+    legend.className = "chart-viz__scatter-legend";
+    const swatches = cats.map((c) => {
+      const lbl = catLabels[c.toLowerCase()] || c;
+      return `<span class="chart-viz__scatter-legend-item"><span class="chart-viz__scatter-swatch" style="background:${colorFor(c)}"></span>${escapeHTML(lbl)}</span>`;
+    });
+    if (mods.length) {
+      swatches.push(`<span class="chart-viz__scatter-legend-item"><span class="chart-viz__scatter-glyph chart-viz__scatter-glyph--down"></span>Reduced</span>`);
+      swatches.push(`<span class="chart-viz__scatter-legend-item"><span class="chart-viz__scatter-glyph chart-viz__scatter-glyph--up"></span>Restored / expanded</span>`);
+    }
+    legend.innerHTML = swatches.join("");
+    container.appendChild(legend);
+  }
+
+  // Shallow lowercase-key normalizer (Hugo lowercases frontmatter, but
+  // JSON palette/labels keys may arrive cased — normalize for lookup).
+  function lowerKeysShallow(obj) {
+    const out = {};
+    Object.keys(obj || {}).forEach((k) => { out[k.toLowerCase()] = obj[k]; });
+    return out;
+  }
+
+  function capitalize(s) {
+    s = String(s || "");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // 1347 → "1,347 acres" ; 704000 → "704,000 acres" ; 10950000 → "10.95M acres"
+  function formatAcres(n) {
+    n = +n;
+    if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 1 : 2).replace(/\.0+$/, "") + "M acres";
+    return n.toLocaleString("en-US") + " acres";
+  }
+  // Axis-tick form: 1k / 10k / 100k / 1M / 10M
+  function formatAcresShort(n) {
+    n = +n;
+    if (n >= 1e6) return (n / 1e6) + "M";
+    if (n >= 1e3) return (n / 1e3) + "k";
+    return String(n);
+  }
+
+  // ── Latitude × time heatmap (Hovmöller) ─────────────────────────────
+  // Rows are places (states ordered north→south), columns are years,
+  // cell color is the temperature anomaly on a diverging blue→cream→
+  // rust scale. The whole grid reddens toward the right; the spatial
+  // structure of the warming — which latitudes warm first and hardest —
+  // becomes legible. Reads raw.rows ([{state, abbr, lat, anomalies[]}])
+  // + raw.years (shared column axis).
+  function drawHeatmap(container, cfg, raw, info) {
+    const rows = raw.rows || [];
+    const years = raw.years || [];
+    if (!rows.length || !years.length) return;
+    const minYear = years[0], maxYear = years[years.length - 1];
+
+    const W = 1200;
+    const ROW = 26;
+    const baseInnerW = W - 30 - 52;   // right + left, finalized below
+    // Optional era/period bands ("swimlane" annotations) above the grid
+    // — same shape as the other charts: { start, end, label, description }.
+    // Reserve top margin for the packed strip.
+    const periods = (cfg.periods || []).filter((p) => p.start != null && p.end != null);
+    const eraPlan = planEraRows(periods, minYear, maxYear + 1, baseInnerW);
+    const stripH = periods.length ? eraStripHeight(eraPlan.maxRow) + 8 : 0;
+
+    const margin = { top: 16 + stripH, right: 30, bottom: 64, left: 52 };
+    const innerW = W - margin.left - margin.right;
+    const innerH = rows.length * ROW;
+    const H = innerH + margin.top + margin.bottom;
+
+    const svg = d3.select(container).append("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`).attr("preserveAspectRatio", "xMidYMid meet")
+      .attr("role", "img").attr("aria-label", cfg.title || "Temperature anomaly heatmap");
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleBand().domain(years).range([0, innerW]);
+    const y = d3.scaleBand().domain(d3.range(rows.length)).range([0, innerH]);
+    // Continuous year scale for era spans + guide lines (scaleBand can't
+    // interpolate arbitrary span endpoints).
+    const xLin = d3.scaleLinear().domain([minYear, maxYear + 1]).range([0, innerW]);
+
+    // Diverging color, symmetric about zero, capped so a couple of
+    // extreme cells don't wash out the rest. Matches the `temp` stripes
+    // palette: navy → cream → rust.
+    const absExt = d3.max(rows, (r) => d3.max(r.anomalies, (v) => (v == null ? 0 : Math.abs(v)))) || 1;
+    const dom = Math.min(4.5, absExt);
+    const color = d3.scaleLinear()
+      .domain([-dom, -dom / 2, 0, dom / 2, dom])
+      .range(["#2f4a6e", "#7f9ab3", "#f5efe1", "#b88553", "#7c3519"])
+      .clamp(true);
+
+    const hideCard = () => { info.innerHTML = infoHTML(cfg); };
+
+    rows.forEach((r, ri) => {
+      g.append("g").selectAll("rect")
+        .data(r.anomalies.map((v, yi) => ({ v, year: years[yi] })).filter((d) => d.v != null))
+        .join("rect")
+        .attr("class", "chart-viz__heat-cell")
+        .attr("x", (d) => x(d.year)).attr("y", y(ri))
+        .attr("width", x.bandwidth()).attr("height", y.bandwidth())
+        .attr("fill", (d) => color(d.v))
+        .on("mouseover", function (event, d) {
+          info.innerHTML = `<h4>${escapeHTML(r.state)} · ${d.year}</h4>
+            <div class="detail"><strong>${d.v > 0 ? "+" : ""}${d.v.toFixed(2)}°F</strong> vs 1901–2000</div>`;
+        })
+        .on("mousemove", (event) => placeTimelineCard(info, container, event))
+        .on("mouseout", hideCard);
+      // row label (state abbr)
+      g.append("text").attr("class", "chart-viz__heat-rowlabel")
+        .attr("x", -8).attr("y", y(ri) + y.bandwidth() / 2 + 4).attr("text-anchor", "end").text(r.abbr);
+    });
+
+    // Era / period "swimlane" annotations above the grid, with faint
+    // vertical guides dropping through the cells so the eye can connect
+    // a label to its years.
+    if (periods.length) {
+      periods.forEach((p) => {
+        [p.start, p.end].forEach((yr) => {
+          g.append("line").attr("class", "chart-viz__heat-eraguide")
+            .attr("x1", xLin(+yr)).attr("x2", xLin(+yr)).attr("y1", 0).attr("y2", innerH);
+        });
+      });
+      drawEraStrip(svg, periods, xLin, {
+        offsetX: margin.left,
+        offsetY: margin.top - 6,
+        rowMap: eraPlan.rows,
+        onHover: (p) => {
+          info.innerHTML = `<h4>${p.start}–${p.end}</h4>
+            <div class="detail"><strong>${escapeHTML(p.label || "")}</strong></div>
+            ${p.description ? `<div class="detail chart-viz__timeline-info-desc">${escapeHTML(p.description)}</div>` : ""}`;
+        },
+        onLeave: () => { info.innerHTML = infoHTML(cfg); },
+      });
+    }
+
+    // X axis — decade ticks.
+    const decadeTicks = years.filter((yr) => yr % 20 === 0);
+    const axis = g.append("g").attr("class", "chart-viz__axis").attr("transform", `translate(0,${innerH})`);
+    decadeTicks.forEach((yr) => {
+      const cx = x(yr) + x.bandwidth() / 2;
+      axis.append("line").attr("x1", cx).attr("x2", cx).attr("y1", 0).attr("y2", 6).attr("stroke", "currentColor");
+      axis.append("text").attr("x", cx).attr("y", 20).attr("text-anchor", "middle").text(yr);
+    });
+
+    // Color legend — a gradient bar with min/0/max labels.
+    const lw = 260, lh = 12, lx = innerW - lw, ly = innerH + 38;
+    const gradId = (container.id || "heat") + "-grad";
+    const defs = svg.append("defs");
+    const grad = defs.append("linearGradient").attr("id", gradId).attr("x1", "0%").attr("x2", "100%");
+    [-dom, -dom / 2, 0, dom / 2, dom].forEach((v, i) => {
+      grad.append("stop").attr("offset", `${i * 25}%`).attr("stop-color", color(v));
+    });
+    const lg = g.append("g").attr("transform", `translate(${lx},${ly})`);
+    lg.append("rect").attr("width", lw).attr("height", lh).attr("fill", `url(#${gradId})`).attr("stroke", "var(--rule)");
+    [[-dom, "start"], [0, "middle"], [dom, "end"]].forEach(([v, anch]) => {
+      lg.append("text").attr("class", "chart-viz__heat-legendlabel")
+        .attr("x", v === 0 ? lw / 2 : (v < 0 ? 0 : lw)).attr("y", lh + 14)
+        .attr("text-anchor", anch).text((v > 0 ? "+" : "") + v + "°F");
+    });
+  }
+
+  // ── Similarity matrix ───────────────────────────────────────────────
+  // A symmetric n×n matrix (documents × documents) rendered as a heatmap
+  // with categorical labels on both axes and a muted diagonal. Built for
+  // the legislation text-reuse data: how much each state bill's language
+  // overlaps every other's. cfg: matrixfield (which matrix in raw to
+  // show — "jaccard" | "cosine"), labelfield (raw.states[].name).
+  function drawMatrix(container, cfg, raw, info) {
+    const items = raw.states || raw.items || [];
+    const field = cfg.matrixfield || "jaccard";
+    const M = raw[field];
+    if (!items.length || !M) return;
+    const n = items.length;
+    const labels = items.map((s) => s.name || s.label || s.slug);
+    const slugs = items.map((s) => s.slug);
+    const nameBySlug = new Map(items.map((s) => [s.slug, s.name || s.label || s.slug]));
+
+    // Pair lookup (order-independent) → the shared-passage detail behind
+    // each cell. This is where the old standalone "Copied Clauses" drill
+    // now lives: click a cell to read the verbatim text the two bills share.
+    const pairKey = (a, b) => [a, b].sort().join("|");
+    const pairMap = new Map((raw.pairs || []).map((p) => [pairKey(p.a, p.b), p]));
+
+    const CELL = 54;
+    const margin = { top: 96, right: 30, bottom: 20, left: 128 };
+    const gridW = n * CELL, gridH = n * CELL;
+    const W = gridW + margin.left + margin.right;
+    const H = gridH + margin.top + margin.bottom;
+
+    const svg = d3.select(container).append("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`).attr("preserveAspectRatio", "xMidYMid meet")
+      .attr("role", "img").attr("aria-label", cfg.title || "Similarity matrix");
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Color: off-diagonal max drives the ramp so the diagonal (self=1)
+    // doesn't flatten everything else.
+    let vmax = 0;
+    for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) if (a !== b) vmax = Math.max(vmax, M[a][b]);
+    const color = d3.scaleSequential().domain([0, vmax || 1])
+      .interpolator(d3.interpolateRgb("#f5efe1", "#7c3519"));
+
+    const hideCard = () => { info.innerHTML = infoHTML(cfg); };
+
+    // ── Click-to-read modal (mirrors the networks.js node modal) ──────
+    const modal = document.createElement("div");
+    modal.className = "chart-viz__modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-hidden", "true");
+    modal.innerHTML =
+      `<div class="chart-viz__modal-backdrop" data-close></div>` +
+      `<div class="chart-viz__modal-panel">` +
+        `<button class="chart-viz__modal-close" data-close aria-label="Close">&times;</button>` +
+        `<div class="chart-viz__modal-body"></div>` +
+      `</div>`;
+    container.appendChild(modal);
+    const modalBody = modal.querySelector(".chart-viz__modal-body");
+    const closeModal = () => {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";     // release the page scroll lock
+    };
+    modal.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", closeModal));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+    function renderPair(r, c) {
+      const p = pairMap.get(pairKey(slugs[r], slugs[c]));
+      if (!p) {
+        return `<h3 class="chart-viz__modal-title">${escapeHTML(labels[r])} ↔ ${escapeHTML(labels[c])}</h3>` +
+               `<p class="chart-viz__modal-empty">No comparison on record for this pair.</p>`;
+      }
+      // Directional containment: what share of each bill's five-word
+      // phrases turns up in the other. The asymmetry is the evidence of
+      // direction — the more fully reproduced bill is the likely source.
+      const ab = p.containab || 0, ba = p.containba || 0, aDom = ab >= ba;
+      const nameA = nameBySlug.get(p.a), nameB = nameBySlug.get(p.b);
+      const aInB = Math.round(ab * 100), bInA = Math.round(ba * 100);
+      const passages = p.passages || [];
+      const passageWords = passages.reduce((s, t) => s + t.split(/\s+/).length, 0);
+      const jac = (p.jaccard || 0).toFixed(3);
+      const countLine = passages.length
+        ? `${passages.length} shared passage${passages.length === 1 ? "" : "s"} · ${passageWords} words · Jaccard ${jac}`
+        : `Jaccard ${jac}`;
+      const meterRow = (src, tgt, pct, dom) =>
+        `<div class="chart-viz__meter-row${dom ? " is-dominant" : ""}">` +
+          `<span class="chart-viz__meter-label">${escapeHTML(src)} <span class="chart-viz__meter-in">in</span> ${escapeHTML(tgt)}</span>` +
+          `<span class="chart-viz__meter-track"><span class="chart-viz__meter-fill" style="width:${pct}%"></span></span>` +
+          `<span class="chart-viz__meter-val">${pct}%</span>` +
+        `</div>`;
+      const meter = aDom
+        ? meterRow(nameA, nameB, aInB, true) + meterRow(nameB, nameA, bInA, false)
+        : meterRow(nameB, nameA, bInA, true) + meterRow(nameA, nameB, aInB, false);
+      return `<p class="chart-viz__modal-kicker">Shared legal text</p>` +
+        `<h3 class="chart-viz__modal-title">${escapeHTML(nameA)} <span class="chart-viz__modal-arrow" aria-hidden="true">↔</span> ${escapeHTML(nameB)}</h3>` +
+        `<p class="chart-viz__meter-caption">Share of each bill's five-word phrases found in the other:</p>` +
+        `<div class="chart-viz__meter-group" role="group" aria-label="Directional phrase containment">${meter}</div>` +
+        `<p class="chart-viz__modal-meta">${countLine}</p>` +
+        (passages.length
+          ? `<ul class="chart-viz__reuse-passages">${passages.map((t) => `<li>“…${escapeHTML(t)}…”</li>`).join("")}</ul>`
+          : `<p class="chart-viz__modal-empty">No run of eight or more identical words appears in both bills — these two share only scattered phrasing.</p>`);
+    }
+    const openPair = (r, c) => {
+      modalBody.innerHTML = renderPair(r, c);
+      modalBody.scrollTop = 0;
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";   // lock page scroll behind the modal
+    };
+
+    for (let r = 0; r < n; r++) {
+      for (let c = 0; c < n; c++) {
+        const v = M[r][c];
+        const diag = r === c;
+        g.append("rect")
+          .attr("class", "chart-viz__matrix-cell" + (diag ? " is-diag" : ""))
+          .attr("x", c * CELL).attr("y", r * CELL)
+          .attr("width", CELL - 2).attr("height", CELL - 2)
+          .attr("fill", diag ? "var(--rule)" : color(v))
+          .on("mouseover", function (event) {
+            if (diag) return;
+            d3.select(this).attr("stroke", "var(--ink)").attr("stroke-width", 2);
+            info.innerHTML = `<h4>${escapeHTML(labels[r])} ↔ ${escapeHTML(labels[c])}</h4>
+              <div class="detail">${capitalize(field)} similarity: <strong>${v.toFixed(3)}</strong></div>
+              <div class="detail chart-viz__matrix-hint">Click to read the shared text</div>`;
+          })
+          .on("mousemove", (event) => placeTimelineCard(info, container, event))
+          .on("mouseout", function () { d3.select(this).attr("stroke", null); hideCard(); })
+          .on("click", () => { if (!diag) openPair(r, c); });
+        // value label for legible off-diagonal cells
+        if (!diag && v >= vmax * 0.14) {
+          g.append("text").attr("class", "chart-viz__matrix-val")
+            .attr("x", c * CELL + (CELL - 2) / 2).attr("y", r * CELL + (CELL - 2) / 2 + 4)
+            .attr("text-anchor", "middle")
+            .attr("pointer-events", "none")
+            .attr("fill", v > vmax * 0.55 ? "var(--paper)" : "var(--ink)")
+            .text(v.toFixed(2).replace(/^0/, ""));
+        }
+      }
+    }
+    // Row labels (left) and column labels (rotated, top).
+    for (let i = 0; i < n; i++) {
+      g.append("text").attr("class", "chart-viz__matrix-rowlabel")
+        .attr("x", -10).attr("y", i * CELL + CELL / 2).attr("text-anchor", "end")
+        .attr("dominant-baseline", "middle").text(labels[i]);
+      g.append("text").attr("class", "chart-viz__matrix-collabel")
+        .attr("transform", `translate(${i * CELL + CELL / 2},-10) rotate(-45)`)
+        .attr("text-anchor", "start").text(labels[i]);
+    }
+  }
+
+  // ── Genealogy network ───────────────────────────────────────────────
+  // Bills laid out left→right in year columns; a directed edge runs from
+  // the earlier bill to the later one (for same-year pairs, from the more
+  // fully reproduced bill, by containment) with width ∝ shared phrases.
+  // The descent of the model text becomes a family tree. cfg: edgemin
+  // (min shared 5-grams to draw an edge, default 90), rootslug.
+  function drawGenealogy(container, cfg, raw, info) {
+    const states = (raw.states || []).filter((s) => s.year != null);
+    if (!states.length) return;
+    const byslug = new Map(states.map((s) => [s.slug, s]));
+    const edgeMin = cfg.edgemin != null ? +cfg.edgemin : 90;
+    const rootSlug = cfg.rootslug || "nevada";
+
+    // Build directed edges from the pair list.
+    const rawEdges = (raw.pairs || [])
+      .filter((p) => byslug.has(p.a) && byslug.has(p.b))
+      .map((p) => {
+        const A = byslug.get(p.a), B = byslug.get(p.b);
+        let src, tgt;
+        if (A.year !== B.year) { [src, tgt] = A.year < B.year ? [A, B] : [B, A]; }
+        else { src = (p.containab >= p.containba) ? A : B; tgt = src === A ? B : A; }
+        return { src, tgt, grams: p.sharedshingles || 0, jaccard: p.jaccard || 0 };
+      });
+    // Keep edges above the threshold, plus every node's single strongest
+    // link so nothing floats disconnected.
+    const keep = new Set();
+    rawEdges.forEach((e, idx) => { if (e.grams >= edgeMin) keep.add(idx); });
+    states.forEach((s) => {
+      let best = -1, bestG = 0;
+      rawEdges.forEach((e, idx) => {
+        if ((e.src === s || e.tgt === s) && e.grams > bestG) { bestG = e.grams; best = idx; }
+      });
+      if (best >= 0) keep.add(best);
+    });
+    const edges = [...keep].map((i) => rawEdges[i]);
+
+    // Layout: year columns (scalePoint), vertical spread within a year.
+    const years = Array.from(new Set(states.map((s) => s.year))).sort((a, b) => a - b);
+    const W = 1200, H = 620;
+    const margin = { top: 40, right: 150, bottom: 46, left: 90 };
+    const innerW = W - margin.left - margin.right;
+    const innerH = H - margin.top - margin.bottom;
+
+    const svg = d3.select(container).append("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`).attr("preserveAspectRatio", "xMidYMid meet")
+      .attr("role", "img").attr("aria-label", cfg.title || "Legislation genealogy");
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scalePoint().domain(years).range([0, innerW]).padding(0.5);
+    const byYear = d3.group(states, (s) => s.year);
+    const pos = new Map();
+    years.forEach((yr) => {
+      const col = byYear.get(yr).slice().sort((a, b) => b.words - a.words);
+      col.forEach((s, i) => {
+        pos.set(s.slug, { x: x(yr), y: innerH * (i + 1) / (col.length + 1) });
+      });
+    });
+
+    const rNode = d3.scaleSqrt().domain([0, d3.max(states, (s) => s.words)]).range([6, 30]);
+    const wEdge = d3.scaleLinear().domain([edgeMin, d3.max(edges, (e) => e.grams) || edgeMin]).range([1.5, 9]).clamp(true);
+    const hideCard = () => { info.innerHTML = infoHTML(cfg); };
+
+    // Year column guides + axis labels.
+    years.forEach((yr) => {
+      g.append("line").attr("class", "chart-viz__gen-colguide")
+        .attr("x1", x(yr)).attr("x2", x(yr)).attr("y1", -12).attr("y2", innerH + 10);
+      g.append("text").attr("class", "chart-viz__gen-year")
+        .attr("x", x(yr)).attr("y", innerH + 32).attr("text-anchor", "middle").text(yr);
+    });
+
+    // Edges (drawn first, under nodes).
+    const edgeG = g.append("g");
+    edges.forEach((e) => {
+      const s = pos.get(e.src.slug), t = pos.get(e.tgt.slug);
+      const rt = rNode(e.tgt.words);
+      // Curved path; stop short of the target node so the arrow shows.
+      const xm = (s.x + t.x) / 2;
+      const dx = t.x - s.x, dy = t.y - s.y, len = Math.hypot(dx, dy) || 1;
+      const tx = t.x - (dx / len) * (rt + 9), ty = t.y - (dy / len) * (rt + 9);
+      edgeG.append("path").attr("class", "chart-viz__gen-edge")
+        .attr("d", `M${s.x},${s.y} C${xm},${s.y} ${xm},${ty} ${tx},${ty}`)
+        .attr("stroke-width", wEdge(e.grams))
+        .on("mouseover", function () {
+          d3.select(this).classed("is-hot", true);
+          info.innerHTML = `<h4>${escapeHTML(e.src.name)} → ${escapeHTML(e.tgt.name)}</h4>
+            <div class="detail"><strong>${e.grams}</strong> shared five-word phrases</div>`;
+        })
+        .on("mousemove", (event) => placeTimelineCard(info, container, event))
+        .on("mouseout", function () { d3.select(this).classed("is-hot", false); hideCard(); });
+      // Arrowhead at the trimmed endpoint.
+      const ang = Math.atan2(dy, dx), a = 0.5, h = 9;
+      edgeG.append("path").attr("class", "chart-viz__gen-arrow")
+        .attr("d", `M${tx},${ty} L${tx - h * Math.cos(ang - a)},${ty - h * Math.sin(ang - a)} L${tx - h * Math.cos(ang + a)},${ty - h * Math.sin(ang + a)} Z`);
+    });
+
+    // Nodes.
+    states.forEach((s) => {
+      const p = pos.get(s.slug);
+      const isRoot = s.slug === rootSlug;
+      const node = g.append("g").attr("class", "chart-viz__gen-node").attr("transform", `translate(${p.x},${p.y})`);
+      node.append("circle")
+        .attr("class", "chart-viz__gen-dot" + (isRoot ? " is-root" : ""))
+        .attr("r", rNode(s.words))
+        .on("mouseover", function () {
+          info.innerHTML = `<h4>${escapeHTML(s.name)} · ${s.year}</h4>
+            <div class="detail">${s.words.toLocaleString()} words${isRoot ? " · model text" : ""}</div>`;
+        })
+        .on("mousemove", (event) => placeTimelineCard(info, container, event))
+        .on("mouseout", hideCard);
+      node.append("text").attr("class", "chart-viz__gen-label")
+        .attr("x", rNode(s.words) + 7).attr("y", 4).text(s.name);
+    });
+  }
+
+  // (The former standalone "borrowed-passage drill" renderer was merged
+  // into drawMatrix: clicking a matrix cell now opens a modal with that
+  // pair's copied passages. The .chart-viz__reuse-passages styles it reuses
+  // remain in the stylesheet.)
+
+  // ── Signature-phrase concordance ────────────────────────────────────
+  // A ranked table of the phrases that recur across the most bills — the
+  // boilerplate DNA of the model legislation. cfg: none required.
+  function drawConcordance(container, cfg, raw, info) {
+    if (info) info.style.display = "none";
+    const names = new Map((raw.states || []).map((s) => [s.slug, s.name]));
+    const sigs = (raw.signatures || []).slice();
+
+    const table = document.createElement("table");
+    table.className = "chart-viz__concordance";
+    table.innerHTML =
+      `<thead><tr><th>Shared five-word phrase</th><th class="num">Bills</th><th>Appears in</th></tr></thead>`;
+    const tb = document.createElement("tbody");
+    sigs.forEach((s) => {
+      const chips = s.states.map((sl) =>
+        `<span class="chart-viz__concordance-chip">${escapeHTML(names.get(sl) || sl)}</span>`).join("");
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        `<td class="chart-viz__concordance-phrase">“${escapeHTML(s.text)}”</td>` +
+        `<td class="num"><span class="chart-viz__concordance-count">${s.count}</span></td>` +
+        `<td>${chips}</td>`;
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    container.appendChild(table);
+  }
+
   // ── Small-multiples line chart ──────────────────────────────────────
   // Stacked panels sharing an x-axis. Each panel is its own linear line
   // on its own y-scale — honest about unlike scales, unlike an indexed
@@ -1271,12 +1952,16 @@
     }));
     if (!panels.length) return;
 
-    // Extract per-panel data
+    // Extract per-panel data. Null y-values are KEPT: the line
+    // generator's .defined() breaks the path there, and null runs
+    // render as explicit "data gap" bands (below) rather than being
+    // silently bridged — panels with different coverage (e.g. a series
+    // that starts later or was discontinued) stay visually honest.
     panels.forEach((p) => {
       p.data = series.map((d) => ({
         x: +d[x],
         y: (d[p.field] == null || d[p.field] === "") ? null : +d[p.field] / p.scale,
-      })).filter((d) => !isNaN(d.x) && d.y != null).sort((a, b) => a.x - b.x);
+      })).filter((d) => !isNaN(d.x)).sort((a, b) => a.x - b.x);
     });
 
     const W = 1200;
@@ -1347,6 +2032,33 @@
         .join("line")
         .attr("x1", 0).attr("x2", innerW)
         .attr("y1", (t) => yScale(t)).attr("y2", (t) => yScale(t));
+
+      // Explicit bands over runs of null values (same treatment as
+      // drawBars) so a panel whose series starts late, ends early, or
+      // has a hole reads as "not measured", not as zero.
+      const gaps = [];
+      let gapStart = null;
+      p.data.forEach((d) => {
+        if (d.y == null) { if (gapStart === null) gapStart = d.x; }
+        else if (gapStart !== null) { gaps.push([gapStart, d.x]); gapStart = null; }
+      });
+      if (gapStart !== null && p.data.length) gaps.push([gapStart, p.data[p.data.length - 1].x]);
+      gaps.forEach(([a, b]) => {
+        g.append("rect")
+          .attr("class", "chart-viz__gap")
+          .attr("x", xScale(a))
+          .attr("y", 0)
+          .attr("width", xScale(b) - xScale(a))
+          .attr("height", panelH);
+        if (xScale(b) - xScale(a) > 70) {
+          g.append("text")
+            .attr("class", "chart-viz__gap-label")
+            .attr("x", (xScale(a) + xScale(b)) / 2)
+            .attr("y", panelH / 2 + 4)
+            .attr("text-anchor", "middle")
+            .text("data gap");
+        }
+      });
 
       // Line
       g.append("path")
@@ -1443,7 +2155,7 @@
 
         const rows = panelGroups.map((pg, pi) => {
           const pt = byX[pi].get(snapX);
-          if (!pt) {
+          if (!pt || pt.y == null) {
             trackerDots[pi].style("display", "none");
             return `<div class="detail"><strong style="color:${pg.p.color}">${pg.p.label}:</strong> —</div>`;
           }

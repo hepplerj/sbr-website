@@ -7,7 +7,7 @@ featured: true
 draft: false
 viz: chart
 themes: [climate, dust-bowl]
-regions: [national]
+regions: [rocky-mountain, intermountain-west, southwest, pacific-northwest, pacific-southwest]
 chart:
   src: /data/conus-temperature.json
   type: stripes

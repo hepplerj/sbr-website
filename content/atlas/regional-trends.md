@@ -19,15 +19,9 @@ This view plots cosponsorship attention across six CRS policy areas and twenty-f
 
 The three regional delegations are:
 
-- **Great Plains** — Montana, Wyomoing, Colorado, North Dakota, South Dakota, Nebraska, Kansas.
-- **American West** — Alaska, Arizona, California, Hawaii, Idaho, New Mexico, Nevada, Oregon, Utah, Washington.
-- **Midwest** — Iowa, Illinois, Indiana, Michigan, Minnesota, Missouri, Ohio, Wisconsin.
-
-> 2026-06-04: While I consider the visualization contained here to be complete, the text is still in a draft state. Follow the [changelog](/updates/) for updates to this page.
-
-## A note on the 119th
-
-The 119th Congress is still in session as of this build. Cosponsorship counts will continue to accumulate.
+- **Great Plains**: Montana, Wyomoing, Colorado, North Dakota, South Dakota, Nebraska, Kansas.
+- **American West**: Alaska, Arizona, California, Hawaii, Idaho, New Mexico, Nevada, Oregon, Utah, Washington.
+- **Midwest**: Iowa, Illinois, Indiana, Michigan, Minnesota, Missouri, Ohio, Wisconsin.
 
 ## Data and method
 
@@ -38,4 +32,4 @@ This series uses two data sources, dispatched on Congress number:
 
 The same regional and policy-area schema applies to both eras. The `byChamber` and `byParty` breakdowns are computed at build time and shipped in `atlas-regional-timeseries.json` (~120 KB for 24 Congresses).
 
-The **per-member metric** divides cosponsorships by delegation size for *that Congress only* — accounting for delegation turnover. When you switch chamber to House or Senate, the divisor narrows to just that chamber's members from the region.
+The **per-member metric** divides cosponsorships by delegation size for *that Congress only* to account for delegation turnover. When you switch chamber to House or Senate, the divisor narrows to just that chamber's members from the region.
