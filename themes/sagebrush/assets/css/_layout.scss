@@ -703,6 +703,21 @@ canvas {
   line-height: 1.5;
   max-width: 44rem;
   margin: var(--space-4) 0 0;
+
+  // markdownify wraps the lede string in its own <p>; reset its
+  // margins so the lede stays a single visual block. Matches the
+  // .writing-header__desc treatment.
+  > p { margin: 0; }
+
+  // Inline link inside the lede (e.g. the changelog's RSS link).
+  // Ink text with a rust hairline underline, brightening on hover.
+  a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rust);
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
 }
 
 // Body paragraphs rendered inside the section header (e.g. the
@@ -2976,6 +2991,20 @@ canvas {
   height: auto;
 }
 
+// Vertical chart types (stripes-stacked = multiple region ribbons;
+// small-multiples = multiple stacked panels) get a smaller max-width
+// AND a viewport-height cap, because at the new full-width sightlines
+// layout they would otherwise produce charts taller than a laptop
+// screen. The viewBox is preserved by the SVG; this just shrinks the
+// rendered footprint so the chart fits a single screen comfortably.
+.chart-viz--stripes-stacked svg,
+.chart-viz--small-multiples svg {
+  max-width: 1000px;
+  max-height: 80vh;
+  width: auto;
+  margin: 0 auto;
+}
+
 .chart-viz--stripes svg {
   aspect-ratio: 1200 / 260;
 }
@@ -5241,6 +5270,41 @@ textarea:focus-visible {
 /* Hidden state for filtered-out rows */
 .is-hidden { display: none !important; }
 
+/* AI-disclosure note on changelog entries (and any other AI-drafted
+   infrastructure-style writing that opts in). Quiet panel sitting at
+   the top of the body — reads as editorial chrome explaining the
+   provenance, not as a warning. */
+.ai-authored-note {
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--panel);
+  border-left: 2px solid var(--rust);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--soft);
+}
+.ai-authored-note__label {
+  margin: 0 0 0.35em;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rust);
+}
+.ai-authored-note__body {
+  margin: 0;
+  color: var(--ink);
+
+  a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rust);
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
+}
+
 /* Numbered row list — №01, №02, …, each row a clickable card */
 .writing-list {
   list-style: none;
@@ -5540,17 +5604,16 @@ textarea:focus-visible {
    Works inside .narrative-body (or any prose container). */
 .pullquote {
   margin: 56px 0;
-  padding: 28px 0;
-  border-top: 1.5px solid var(--ink);
-  border-bottom: 1.5px solid var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(1.45rem, 2.1vw, 1.7rem);   // ~23–27px
-  font-weight: 500;
-  font-style: italic;
-  line-height: 1.32;
-  letter-spacing: -0.01em;
-  color: var(--ink);
+  padding: 32px 0 0;
+  border-top: 1px solid var(--rust);
   background: transparent;
+  font-family: var(--font-display);                // Zilla Slab — slab serif, upright
+  font-size: clamp(1.6rem, 2.5vw, 2rem);            // ~26–32px
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--ink);
   text-align: left;
 }
 .pullquote p { margin: 0; }
@@ -5578,24 +5641,42 @@ textarea:focus-visible {
 
 // Attribution line — small JetBrains Mono caps in --soft, with an
 // em-dash leading. Sits flush left under the quote.
-.pullquote__attr {
-  margin: 16px 0 0;
+// Single-line attribution: author · source, all in caps-tracked
+// JetBrains Mono. Author wears the rust accent for emphasis; source
+// stays in --soft. Wraps to a second line on narrow viewports when
+// the source is long.
+//
+// `.pullquote` prefix bumps the selector's specificity to (0,2,0) so
+// it outranks `.pullquote p { margin: 0 }` higher up the file — that
+// rule was zeroing the top margin and pulling the attribution flush
+// against the quote body.
+.pullquote .pullquote__attr {
+  margin: 44px 0 0;
   font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   font-style: normal;
+  line-height: 1.4;
   color: var(--soft);
 }
-.pullquote__attr-dash {
-  margin-right: 0.2em;
+.pullquote__author { color: var(--rust); }
+.pullquote__source {
+  font-style: normal;             // <cite> would italicize by default; we want roman caps
+  color: var(--soft);
+}
+.pullquote__attr-sep {
+  display: inline-block;
+  margin: 0 0.5em;
   color: var(--rule);
 }
-.pullquote__author { color: var(--ink); }
-.pullquote__source {
-  font-style: normal;             // override the default <cite> italic
-  color: var(--soft);
+// Inline italic emphasis inside the attribution falls back to natural-
+// case italic (so e.g. `_Title_` would read distinct from the tracked
+// caps surrounding it). Rarely needed at this size; safe to leave on.
+.pullquote__attr em,
+.pullquote__attr i {
+  font-style: italic;
 }
 // Linked author / source — hairline-underline that brightens to rust.
 .pullquote__attr a {
@@ -5612,18 +5693,11 @@ textarea:focus-visible {
   }
 }
 
-// Backward-compat for the older `<aside class="pullquote">…<cite>` markup.
-.pullquote cite {
-  display: block;
-  margin-top: 16px;
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-style: normal;
-  color: var(--soft);
-}
+// (Removed: backward-compat `.pullquote cite { display: block; … }`
+// rule that was forcing the new <cite class="pullquote__source"> to
+// break onto its own line. The shortcode is the only producer of
+// .pullquote markup now, so the legacy hand-written-HTML pattern
+// doesn't need a fallback.)
 
 /* Drop cap on first paragraph — override the rust drop cap to ink so
    it doesn't clash with the rust kicker above. */

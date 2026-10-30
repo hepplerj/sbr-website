@@ -1,7 +1,6 @@
 ---
 title: "Updates"
 heading: "Changelog"
+lede: "Each entry notes what changed and why: new visualizations, revised narrative, corrected data, or structural changes to the site will all be documented here. Subscribe to the changelog's specific **[RSS feed](/updates/index.xml)** for project updates."
 outputs: ["HTML", "RSS"]
 ---
-
-Each entry notes what changed and why: new visualizations, revised narrative, corrected data, or structural changes to the site will all be documented here. Subscribe to the changelog's specific **[RSS feed](/updates/index.xml)** for project updates.
