@@ -37,7 +37,6 @@ All scripts write to `../static/data/` relative to the `scripts/` directory.
 | `build_grazing_allotments.py` | `grazing-allotments-<state>.geojson` (×10) + manifest | BLM National Grazing Allotment Polygons, pre-split per state (AZ, CA, CO, ID, MT, NV, NM, OR, UT, WY) — ~21,700 polygons total, enables the state-selector UI |
 | `build_farm_bankruptcies.py` | `farm-bankruptcies.json` | `rdinter/historical-bankruptcies` (Stam ERS compilation + US Courts Table F-2) |
 | `build_farm_consolidation.py` | `farm-consolidation.json` | USDA NASS QuickStats API (farm count 1910+, avg farm size 1950+) — requires `NASS_API_KEY` env var |
-| `build_follow_the_money.py` | `follow-the-money.json` | Taylor et al., *Follow the Money* (Stanford Spatial History, CC BY-NC 4.0) — county-year federal-payments CSV, re-aggregated to annual totals by program |
 | `build_cosponsorship_network.py` | `cosponsorship-network.json` | GPO `govinfo.gov` BILLSTATUS bulk data (free, no API key); curated bill list in the script |
 | `build_timeline.py` | `timeline.json` | Hand-curated 30-event federal-public-lands chronology (agencies + statutes + proclamations + rebellions), 1872–2024 |
 | `build_bibliography.py` | `data/bibliography.json` | `Articles.bibtex` + `Books.bibtex` at the project root (Zotero / BibDesk exports) |

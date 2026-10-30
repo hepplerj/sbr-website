@@ -41,12 +41,6 @@ All of the data below is fetched, cleaned, and cached by a Python pipeline in th
 
 `cattle-prices.json`: Annual prices received by US ranchers for cattle, steers & heifers, and calves, 1910–present, in dollars per hundredweight ($/cwt). Nominal values from the [USDA NASS QuickStats API](https://quickstats.nass.usda.gov/api) (`CATTLE [class] - PRICE RECEIVED, MEASURED IN $ / CWT`, national). Where NASS publishes only monthly values for early years, the script aggregates to an annual mean (≥10 months required). Real values are deflated to current-year dollars using CPI-U from the [Federal Reserve Bank of St. Louis (FRED)](https://fred.stlouisfed.org/series/CPIAUCNS). Feeds the [Century of Cattle Prices](/sightlines/cattle-prices/) chart.
 
-`follow-the-money.json`: An annual re-aggregation of the [*Follow the Money*](https://web.stanford.edu/group/spatialhistory/FollowTheMoney/) county-level federal-payments dataset, summed across all western counties and split by program. Ten revenue-sharing and in-lieu-of-taxes programs, 1906–2020, expressed in 2020 dollars.
-
-> Taylor, Joseph E., III, Krista Fryauff, Erik Steiner, Celena Allen, Alex Sherman, and Zephyr Frank. *Follow the Money: A Spatial History of In-Lieu Programs for Western Federal Lands.* Spatial History Project, CESTA, Stanford University, 1 June 2016. Licensed CC BY-NC 4.0.
-
-Feeds the [Federal Payments to Western Counties](/sightlines/federal-payments/) chart and [Federal Payments by County](/sightlines/federal-payments-map/) map.
-
 ### Politics and law
 
 `cosponsorship-network.json`: Bill-cosponsorship network for a curated set of 41 federal public-lands bills across the 96th–118th Congresses (1979–2024). Bills from the 108th Congress onward are fetched from the [GPO govinfo.gov BILLSTATUS](https://www.govinfo.gov/bulkdata/BILLSTATUS) bulk-XML feed (free, no key); earlier bills use the [Congress.gov API v3](https://api.congress.gov/) (free key). Each node is a legislator who cosponsored at least two bills in the set; each edge is a shared-cosponsorship tie. Feeds the [Cosponsorship Network](/sightlines/cosponsorship-network/) visualization.

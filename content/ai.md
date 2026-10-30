@@ -49,7 +49,6 @@ Every dataset published on the site is produced by a small, reviewable Python sc
 - [`build_farm_consolidation.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_farm_consolidation.py) — US farm count and average farm size, 1910–present (USDA NASS QuickStats API)
 - [`build_farm_income.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_farm_income.py) — US farm income and wealth time series (USDA ERS Farm Income and Wealth Statistics)
 - [`build_cattle_prices.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_cattle_prices.py) — cattle prices received by US ranchers, 1910–present, in 2024 dollars (USDA NASS QuickStats API + FRED CPI-U for deflation)
-- [`build_follow_the_money.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_follow_the_money.py) — federal revenue-sharing payments to western counties, 1906–2020 (*Follow the Money*, Stanford CESTA)
 
 **Politics and scholarship**
 - [`build_cosponsorship_network.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_cosponsorship_network.py) — 57-bill federal public-lands cosponsorship network, 96th–118th Congresses (GPO govinfo.gov BILLSTATUS + Congress.gov API)

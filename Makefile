@@ -8,9 +8,9 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices follow-the-money fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income follow-the-money cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography
+data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire climate-space states-temperature legislation-textreuse bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -65,8 +65,6 @@ farm-foreclosures:
 farm-distress: farm-bankruptcies farm-foreclosures
 	$(PY) scripts/build_farm_distress.py
 
-follow-the-money:
-	$(PY) scripts/build_follow_the_money.py
 
 # Requires NASS_API_KEY env var (free at quickstats.nass.usda.gov/api).
 farm-consolidation:
