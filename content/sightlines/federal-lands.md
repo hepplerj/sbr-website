@@ -4,7 +4,7 @@ date: 2026-04-17
 lede: "Federal ownership as a share of total land area, from the Far West across the Northern Plains."
 weight: 10
 featured: true
-draft: true
+draft: false
 viz: map
 themes: [public-lands]
 regions: [northern-plains, rocky-mountain, intermountain-west, southwest]
