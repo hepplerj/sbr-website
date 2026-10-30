@@ -35,13 +35,7 @@ chart:
         description: "Obama's 2016 designation, Trump's 2017 reduction, and Biden's 2021 restoration — the modern climax of the monument-as-overreach grievance." }
 ---
 
-> **Draft.** The dataset is a curated selection of significant Antiquities
-> Act designations, not the complete ~160-monument list, and acreages are
-> approximate proclaimed figures pending verification against
-> [CRS report R41330](https://crsreports.congress.gov/) and the
-> proclamation texts. The visualization and the data scaffold are in
-> place; the prose below is a working draft. Follow the
-> [changelog](/updates/) for when this leaves draft.
+> **Draft.** The dataset is a curated selection of significant Antiquities Act designations, not the complete ~160-monument list, and acreages are approximate proclaimed figures pending verification against [CRS report R41330](https://crsreports.congress.gov/) and the proclamation texts. The visualization and the data scaffold are in place; the prose below is a working draft. Follow the [changelog](/updates/) for when this leaves draft.
 
 <!--
   SCAFFOLD — Jason to write the prose. Headings + editorial cues + the
@@ -85,11 +79,5 @@ chart:
     ## How to read this chart
 -->
 
-The Antiquities Act of 1906 gave the president a power Congress has
-spent the century since trying, and failing, to take back: the ability
-to set aside federal land as a national monument by proclamation alone.
-This chart plots the significant designations across that century —
-each dot a monument at the year it was proclaimed, its height the
-acreage locked up, its color the party of the president who signed it.
+The Antiquities Act of 1906 gave the president a power Congress has spent the century since trying, and failing, to take back: the ability to set aside federal land as a national monument by proclamation alone. This chart plots the significant designations across that century — each dot a monument at the year it was proclaimed, its height the acreage locked up, its color the party of the president who signed it.
 
-*(Draft prose continues — see scaffold above.)*

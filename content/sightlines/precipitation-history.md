@@ -1,7 +1,7 @@
 ---
 title: "A Drying West"
 date: 2026-04-18
-lede: "Annual precipitation anomalies for the eleven western public-land states, 1895–2024. Each stripe is one year against the 20th-century mean. Brown for drier than average, blue for wetter."
+lede: "Annual precipitation anomalies for the eleven western states, 1895–2024. Each stripe is one year against the 20th-century mean. Brown for drier than average, blue for wetter."
 weight: 40
 draft: false
 viz: chart
@@ -29,8 +29,7 @@ chart:
         description: "The driest stretch in the western record: precipitation averaged 0.8 inches below the 20th-century mean, and 2020 was the driest year since 1895." }
 ---
 
-Each vertical stripe in the graph represents a single year, color indicating the year's total precipitation across the country compared to the 1901-2000 average. Brown indicates drier years, cream for near average, and blue for wetter years. The data is drawn from the [U.S. Geological Survey](https://www.usgs.gov/special-topics/lcmap/lcmap-conus-reference-data). This chart can be read alongside the [temperature-anomaly chart](../temperature-history/), which illustrates the warming climate story. Taken together the two charts describe the drying West: warmer *and* (regionally) drier.
-
+Each vertical stripe in the graph represents a single year, color indicating the year's total precipitation across the country compared to the 1901-2000 average. Brown indicates drier years, cream for near average, and blue for wetter years. The data is drawn from the National Oceanic and Atmospheric Administration. This chart can be read alongside the [temperature-anomaly chart](../temperature-history/), which illustrates the warming climate story. Taken together the two charts describe the drying West: warmer *and* (regionally) drier.
 
 | Event | Temperature anomaly | Precipitation anomaly |
 |---|---|---|
