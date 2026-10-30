@@ -1111,6 +1111,22 @@ canvas {
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
   max-width: 32rem;
+  display: block;
+}
+.byline__author {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  vertical-align: middle;
+}
+.byline__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px var(--rule);
 }
 
 // ── Cite-this-page block ─────────────────────
@@ -5243,7 +5259,15 @@ textarea:focus-visible {
   gap: 16px;
 }
 .narrative-header__meta time { color: var(--ink); }
-.narrative-header__byline { color: var(--ink); }
+.narrative-header__meta { align-items: center; }
+.narrative-header__meta .byline {
+  font: inherit;
+  color: var(--ink);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  max-width: none;
+}
 
 // Tag chips beneath the essay header. Centered to match the
 // centered article header above (max-width 56rem). Each chip is a

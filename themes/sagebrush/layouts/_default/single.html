@@ -36,14 +36,6 @@
     {{- end }}
   </header>
 
-  {{- /* Changelog entries are AI-drafted infrastructure-style writing,
-         not narrative prose. Per the project's AI bright line (see
-         /ai/), every changelog post carries a small disclosure note
-         above the body content. Hand-edited posts can opt out with
-         `aiAuthored: false` in frontmatter. */ -}}
-  {{- $isChangelog := eq .Section "updates" -}}
-  {{- $aiAuthored  := and $isChangelog (ne .Params.aiAuthored false) -}}
-
   {{- if $wantsToc }}
     <div class="page-body">
       <aside class="page-toc" aria-label="Sections of this essay">
@@ -51,13 +43,11 @@
         {{ .TableOfContents }}
       </aside>
       <div class="prose {{ if eq $type "narrative" }}prose--essay{{ else if or (eq $type "maps") (eq $type "networks") }}prose--wide{{ end }}">
-        {{ if $aiAuthored }}{{ partial "ai-authored-note.html" . }}{{ end }}
         {{ .Content }}
       </div>
     </div>
   {{- else }}
     <div class="prose {{ if eq $type "narrative" }}prose--essay{{ else if or (eq $type "maps") (eq $type "networks") }}prose--wide{{ end }}">
-      {{ if $aiAuthored }}{{ partial "ai-authored-note.html" . }}{{ end }}
       {{ .Content }}
     </div>
   {{- end }}

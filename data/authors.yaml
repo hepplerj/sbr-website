@@ -1,0 +1,7 @@
+# Author → avatar mapping for partials/byline.html. Keys must match
+# the names used in `authors:` frontmatter exactly. Avatars live in
+# static/images/authors/ (downloaded, not hotlinked).
+Jason Heppler:
+  avatar: /images/authors/jason-heppler.jpg
+Claude:
+  avatar: /images/authors/claude.svg
