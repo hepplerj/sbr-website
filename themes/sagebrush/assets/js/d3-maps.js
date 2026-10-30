@@ -39,6 +39,7 @@
     catch (err) { console.error("Invalid D3 map config for", id, err); return; }
 
     if (cfg.renderer !== "d3") return;
+    if (cfg.mode === "timeline") return initTimeline(container, cfg);
     container.dataset.initialized = "true";
     container.classList.add("viz-embed__frame--live", "d3-map");
     container.innerHTML = "";
@@ -180,6 +181,159 @@
         resetBtn.hidden = true;
         applyFilter();
       });
+    }
+  }
+
+  // ── Timeline mode ───────────────────────────
+  // mode: "timeline" — point tracts (lon/lat) over us-atlas states, fitted
+  // to a set of focus states, with a year playhead. This one uses a real
+  // geoAlbers projection; it never touches the pre-projected fedland file.
+  //   statessrc: "/data/states.json"
+  //   src:       { fields: [...lon, lat, acres, year...], tracts: [[...]] }
+  //   focus:     ["30", "38", ...]   state FIPS to fit the view to and tally
+  //   start:     1930                first year on the slider
+  //   color:     "#1f6b66"           older tracts; newly acquired draw in --rust
+  //   windows:   [0, 10, 1]          0 = cumulative, n = acquired in last n years
+  function initTimeline(container, cfg) {
+    container.dataset.initialized = "true";
+    container.classList.add("viz-embed__frame--live", "d3-map", "d3-map--timeline");
+    container.innerHTML = "";
+
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("role", "img");
+    canvas.setAttribute("aria-label", cfg.infotitle || "Easement tracts over time");
+    container.appendChild(canvas);
+
+    const info = document.createElement("div");
+    info.className = "info-panel d3-map__info";
+    container.appendChild(info);
+
+    const windows = cfg.windows || [0, 10, 1];
+    const winLabel = (n) => n === 0 ? "All acquired to date" : n === 1 ? "Acquired that year" : `Acquired in last ${n} years`;
+    const controls = document.createElement("div");
+    controls.className = "info-panel d3-map__timeline";
+    controls.innerHTML = `
+      <button type="button" class="d3-map__play" aria-label="Play">▶</button>
+      <input type="range" class="d3-map__year" aria-label="Year">
+      <select class="d3-map__window" aria-label="Which tracts to show">
+        ${windows.map((n) => `<option value="${n}">${winLabel(n)}</option>`).join("")}
+      </select>`;
+    container.appendChild(controls);
+    const playBtn = controls.querySelector(".d3-map__play");
+    const slider  = controls.querySelector(".d3-map__year");
+    const winSel  = controls.querySelector(".d3-map__window");
+
+    const css = getComputedStyle(container);
+    const col = (v, fb) => css.getPropertyValue(v).trim() || fb;
+    const C = {
+      bg: col("--paper", "#f1ebdb"), land: col("--faint", "#ddd4bd"), focus: col("--panel", "#e9e1cd"),
+      rule: col("--rule", "#cdc2a9"), ink: col("--ink", "#28323b"),
+      old: cfg.color || "#1f6b66", fresh: col("--rust", "#a2502c"),
+    };
+    const focusIds = new Set((cfg.focus || []).map(String));
+
+    Promise.all([d3.json(cfg.statessrc || "/data/states.json"), d3.json(cfg.src)])
+      .then(([topo, data]) => setup(topo, data))
+      .catch((err) => {
+        container.classList.add("viz-embed__frame--error");
+        container.innerHTML = `<div class="viz-embed__error">Map could not load: ${err.message}</div>`;
+      });
+
+    function setup(topo, data) {
+      const states = topojson.feature(topo, topo.objects.states).features;
+      const focus  = states.filter((f) => focusIds.has(String(f.id)));
+      const mesh   = topojson.mesh(topo, topo.objects.states, (a, b) => a !== b);
+      const F = Object.fromEntries(data.fields.map((f, i) => [f, i]));
+      const tracts = data.tracts.filter((t) => t[F.year] != null);
+      const years  = tracts.map((t) => t[F.year]);
+      const start  = cfg.start || d3.min(years);
+      const end    = d3.max(years);
+
+      slider.min = start; slider.max = end; slider.value = start;
+      let pts = [];
+
+      function layout() {
+        const w = container.clientWidth, h = container.clientHeight;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        canvas.style.width = w + "px"; canvas.style.height = h + "px";
+        canvas.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const pad = Math.min(w, h) * 0.06;
+        const projection = d3.geoAlbers()
+          .fitExtent([[pad, pad], [w - pad, h - pad - controls.offsetHeight]], { type: "FeatureCollection", features: focus });
+        const path = d3.geoPath(projection);
+
+        // Native point-in-polygon on an unscaled scratch canvas tells us which
+        // tracts sit inside the focus states (for the tallies).
+        const focusPath = new Path2D(path({ type: "FeatureCollection", features: focus }));
+        const hit = document.createElement("canvas").getContext("2d");
+        pts = [];
+        for (const t of tracts) {
+          const p = projection([t[F.lon], t[F.lat]]);
+          if (!p || p[0] < -10 || p[1] < -10 || p[0] > w + 10 || p[1] > h + 10) continue;
+          const acres = t[F.acres] || 0;
+          pts.push({ x: p[0], y: p[1], year: t[F.year], acres,
+                     r: Math.min(6, 0.7 + Math.sqrt(acres) / 12),
+                     inFocus: hit.isPointInPath(focusPath, p[0], p[1]) });
+        }
+        pts.sort((a, b) => a.year - b.year);
+        layout.paths = {
+          land: new Path2D(path({ type: "FeatureCollection", features: states })),
+          focus: focusPath,
+          mesh: new Path2D(path(mesh)),
+        };
+        draw();
+      }
+
+      function draw() {
+        const ctx = canvas.getContext("2d");
+        const w = container.clientWidth, h = container.clientHeight;
+        const year = +slider.value, win = +winSel.value;
+        const from = win === 0 ? -Infinity : year - win + 1;
+        const P = layout.paths;
+
+        ctx.fillStyle = C.bg; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = C.land; ctx.fill(P.land);
+        ctx.fillStyle = C.focus; ctx.fill(P.focus);
+        ctx.strokeStyle = C.bg; ctx.lineWidth = 1; ctx.stroke(P.mesh);
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2; ctx.stroke(P.focus);
+
+        let n = 0, acres = 0;
+        for (const p of pts) {
+          if (p.year > year) break;
+          if (p.year < from) continue;
+          const fresh = p.year === year;
+          ctx.globalAlpha = fresh ? 0.95 : 0.55;
+          ctx.fillStyle = fresh ? C.fresh : C.old;
+          ctx.beginPath(); ctx.arc(p.x, p.y, fresh ? p.r + 1 : p.r, 0, 2 * Math.PI); ctx.fill();
+          if (p.inFocus) { n++; acres += p.acres; }
+        }
+        ctx.globalAlpha = 1;
+
+        const fmt = d3.format(",");
+        info.innerHTML = `<h4>${year}</h4><div class="detail">${winLabel(win)}: <strong>${fmt(n)}</strong> tracts,
+          <strong>${fmt(Math.round(acres))}</strong> acres in ${cfg.focuslabel || "the highlighted states"}.
+          <span style="color:${C.fresh}">●</span> acquired in ${year}</div>`;
+      }
+
+      let timer = null;
+      function stop() { clearInterval(timer); timer = null; playBtn.textContent = "▶"; playBtn.setAttribute("aria-label", "Play"); }
+      playBtn.addEventListener("click", () => {
+        if (timer) return stop();
+        if (+slider.value >= end) slider.value = start;
+        playBtn.textContent = "❚❚"; playBtn.setAttribute("aria-label", "Pause");
+        timer = setInterval(() => {
+          if (+slider.value >= end) return stop();
+          slider.value = +slider.value + 1; draw();
+        }, cfg.speed || 200);
+      });
+      slider.addEventListener("input", () => { stop(); draw(); });
+      winSel.addEventListener("change", draw);
+
+      let resizeTimer;
+      new ResizeObserver(() => { clearTimeout(resizeTimer); resizeTimer = setTimeout(layout, 100); }).observe(container);
+      layout();
     }
   }
 
