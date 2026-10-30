@@ -69,6 +69,6 @@ AI assistance drafted these scripts in the first pass, as with the rest of the c
 
 ## Tools and sessions
 
-The generative AI used for this project is [Claude Code](https://www.claude.com/product/claude-code) (Anthropic), running a combination of Claude Sonnet 4.6 and Opus 4.6. The project's GitHub repository preserves the commits produced across sessions.
+The generative AI used for this project is [Claude Code](https://www.claude.com/product/claude-code) (Anthropic). The underlying model has changed as Anthropic released new ones: Claude Opus 4.7 and Sonnet 4.6 from April through early June 2026 (with a brief use of Opus 4.6 in May), Opus 4.8 from late June through July, Claude Fable 5 in August, and Opus 5.5 from October onward. The project's GitHub repository preserves the commits produced across sessions, and AI-drafted commits name the model that wrote them.
 
 Generative AI is more disciplined than I am about `git` commits, pull requests, and branching, and handles many of these commit messages for me.
