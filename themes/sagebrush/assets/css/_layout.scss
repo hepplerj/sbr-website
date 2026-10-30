@@ -1128,6 +1128,12 @@ canvas {
   background: var(--panel);
   box-shadow: 0 0 0 1px var(--rule);
 }
+// Flat marks (SVG logos) sit inside a tinted circle like the photos.
+.byline__avatar[src$=".svg"] {
+  padding: 6px;
+  object-fit: contain;
+  box-sizing: border-box;
+}
 
 // ── Cite-this-page block ─────────────────────
 .cite-block {
@@ -5259,14 +5265,22 @@ textarea:focus-visible {
   gap: 16px;
 }
 .narrative-header__meta time { color: var(--ink); }
-.narrative-header__meta { align-items: center; }
-.narrative-header__meta .byline {
-  font: inherit;
-  color: var(--ink);
-  margin: 0;
-  padding: 0;
-  border: 0;
-  max-width: none;
+// Byline sits on its own line between deck and meta row: sentence
+// case serif so the name reads as a name, avatar sized to the text.
+.narrative-header__byline {
+  margin: 0 0 14px;
+  .byline {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: normal;
+    color: var(--soft);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    max-width: none;
+  }
+  .byline__author { color: var(--ink); gap: 0.55em; }
+  .byline__avatar { width: 32px; height: 32px; }
 }
 
 // Tag chips beneath the essay header. Centered to match the

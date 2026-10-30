@@ -37,8 +37,8 @@
     {{- end }}
     {{- /* Authors cascade from each section's _index.md: narrative →
            Jason Heppler, updates → Claude. See partials/byline.html. */ -}}
+    {{- with partial "byline.html" . }}<p class="narrative-header__byline">{{ . }}</p>{{ end }}
     <p class="narrative-header__meta">
-      {{- partial "byline.html" . }}
       {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
       {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
       {{- with .Params.place }}<span>{{ . }}</span>{{ end }}
