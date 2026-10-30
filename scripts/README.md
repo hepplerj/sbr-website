@@ -28,7 +28,7 @@ All scripts write to `../static/data/` relative to the `scripts/` directory.
 | ------ | ------ | -------------- |
 | `build_federal_lands.py` | `federal-lands.geojson` | `PublicaMundi/MappingAPI` state boundaries + CRS R42346 ownership-share table |
 | `build_conus_temperature.py` | `conus-temperature.json` | NOAA NCEI Climate at a Glance, national region 110 (monthly tavg → annual mean → anomaly) |
-| `build_conus_precipitation.py` | `conus-precipitation.json` | NOAA NCEI Climate at a Glance, national region 110 (monthly pcp → annual sum → anomaly) |
+| `build_west_precipitation.py` | `west-precipitation.json` | NOAA NCEI Climate at a Glance, statewide annual pcp for the 11 western states → land-area-weighted mean → anomaly |
 | `build_regions_climate.py` | `regions-precipitation.json`, `regions-temperature.json` | NOAA NCEI Climate at a Glance, regional time series (nClimDiv) — Northern Rockies & Plains, Southwest, Northwest, West |
 | `build_bankhead_jones.py` | `national_grasslands.geojson`, `land_utilization_projects.geojson`, `federal_lands.geojson` | USDA Forest Service Enterprise Data Warehouse, via the author's earlier Bankhead-Jones project |
 | `build_us_federal_lands.py` | `fedland.topojson` | PAD-US + Census state boundaries, pre-projected to AlbersUSA (the file is 2014-vintage) |

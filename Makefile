@@ -8,9 +8,9 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature west-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
 
-data: federal-lands conus-temperature conus-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography
+data: federal-lands conus-temperature west-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography
 
 federal-lands:
 	$(PY) scripts/build_federal_lands.py
@@ -18,8 +18,8 @@ federal-lands:
 conus-temperature:
 	$(PY) scripts/build_conus_temperature.py
 
-conus-precipitation:
-	$(PY) scripts/build_conus_precipitation.py
+west-precipitation:
+	$(PY) scripts/build_west_precipitation.py
 
 regions-climate:
 	$(PY) scripts/build_regions_climate.py

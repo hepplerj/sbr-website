@@ -41,7 +41,7 @@ Every dataset published on the site is produced by a small, reviewable Python sc
 
 **Climate and environment**
 - [`build_conus_temperature.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_conus_temperature.py) — annual CONUS temperature anomalies (NOAA NCEI Climate at a Glance)
-- [`build_conus_precipitation.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_conus_precipitation.py) — annual CONUS precipitation (NOAA NCEI)
+- [`build_west_precipitation.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_west_precipitation.py) — annual western-states precipitation (NOAA NCEI)
 - [`build_regions_climate.py`](https://github.com/hepplerj/sbr-website/blob/main/scripts/build_regions_climate.py) — temperature and precipitation for four western climate regions (NOAA NCEI)
 
 **Rural economy**

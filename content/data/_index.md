@@ -29,7 +29,9 @@ All of the data below is fetched, cleaned, and cached by a Python pipeline in th
 
 ### Climate and environment
 
-`conus-temperature.json`, `conus-precipitation.json`: Monthly-to-annual temperature and precipitation series for the contiguous United States (NOAA region 110), 1895–present. Fetched from the [NOAA NCEI "Climate at a Glance"](https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/) national time-series API. Baselined to the 20th-century mean for the anomaly presentation on the [CONUS Climate](/sightlines/conus-temperature/) stripes chart.
+`conus-temperature.json`: Monthly-to-annual temperature series for the contiguous United States (NOAA region 110), 1895–present. Fetched from the [NOAA NCEI "Climate at a Glance"](https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/) national time-series API. Baselined to the 20th-century mean for the anomaly presentation on the [CONUS Climate](/sightlines/conus-temperature/) stripes chart.
+
+`west-precipitation.json`: Annual precipitation for the eleven western public-land states (AZ, CA, CO, ID, MT, NV, NM, OR, UT, WA, WY), 1895–2024, averaged from NOAA Climate at a Glance statewide series with each state weighted by land area. Baselined to the 20th-century mean for the [A Drying West](/sightlines/precipitation-history/) stripes chart.
 
 `regions-temperature.json`, `regions-precipitation.json`: The same NOAA NCEI "Climate at a Glance" product, this time for four climate regions relevant to the sagebrush story: Northern Rockies and Plains, Southwest, Northwest, and West. Feeds the regional-comparison stripes chart.
 
