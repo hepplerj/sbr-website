@@ -31,8 +31,6 @@ Visually, the map conveys the degree of federal land ownership in the region. Th
 
 Part of my argument, however, is that this representation of federal presence on the land in actual numbers occludes the influence of sagebrush-style politics across the Great Plains. Part of this is a reflection of recreation: the Interior and Far Western states have larger land management areas for grazing, fewer privatized tracts of land, and far more National Parks. Yet the federal presence on the Plains is still evident, more specifically in the [Bankhead-Jones Act lands](../bankhead-jones/).
 
-([I made an early version of this map in 2011](https://jasonheppler.org/projects/western-lands/).)
-
 ## Data and method
 
 State-level federal ownership shares are drawn from publicly reported BLM, USFS, NPS, FWS, and DoD holdings (all-agency totals, compiled by the Congressional Research Service). Shading uses a cream-to-rust ramp with seven bins chosen to resolve both the Plains (1–6 %) and the high-federal Intermountain West (60–80 %). State polygons are simplified boundaries from a public US-states GeoJSON.
