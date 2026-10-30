@@ -9,8 +9,8 @@
 
   Accepts either `authors: [Name, Name]` (preferred, list) or
   `author: Name` (singular shorthand) in frontmatter. Avatars come from
-  data/authors.yaml, keyed by the exact author name; an author with no
-  entry renders as name only.
+  data/authors.yaml, keyed by the exact author name, and render as a
+  group ahead of the names; an author with no entry gets no avatar.
 */ -}}
 {{- $authors := slice -}}
 {{- with .Params.authors -}}
@@ -20,11 +20,11 @@
 {{- end -}}
 {{- if $authors }}
   {{- $last := sub (len $authors) 1 }}
-  <span class="byline">By {{ range $i, $name := $authors -}}
-    {{- if gt $i 0 }}{{ if eq $i $last }} and {{ else }}, {{ end }}{{ end -}}
-    <span class="byline__author">
-      {{- with index hugo.Data.authors $name }}{{ with .avatar }}<img class="byline__avatar" src="{{ . | relURL }}" alt="" width="24" height="24">{{ end }}{{ end -}}
-      {{ $name -}}
-    </span>
-  {{- end }}</span>
+  <span class="byline">
+    {{- range $authors }}{{ with index hugo.Data.authors . }}{{ with .avatar }}<img class="byline__avatar" src="{{ . | relURL }}" alt="" width="24" height="24">{{ end }}{{ end }}{{ end -}}
+    <span class="byline__names">By {{ range $i, $name := $authors -}}
+      {{- if gt $i 0 }}{{ if eq $i $last }} and {{ else }}, {{ end }}{{ end -}}
+      <span class="byline__name">{{ $name }}</span>
+    {{- end }}</span>
+  </span>
 {{- end -}}

@@ -1113,20 +1113,16 @@ canvas {
   max-width: 32rem;
   display: block;
 }
-.byline__author {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45em;
-  vertical-align: middle;
-}
 .byline__avatar {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.45em;
   width: 24px;
   height: 24px;
   border-radius: 50%;
   object-fit: cover;
   flex: none;
   background: var(--panel);
-  box-shadow: 0 0 0 1px var(--rule);
 }
 // Flat marks (SVG logos) sit inside a tinted circle like the photos.
 .byline__avatar[src$=".svg"] {
@@ -5197,38 +5193,28 @@ textarea:focus-visible {
   padding: 36px var(--space-page) 80px;
 }
 
-.narrative-breadcrumb {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--soft);
-  margin: 0 0 56px;
-}
-.narrative-breadcrumb a {
-  color: var(--soft);
-  text-decoration: none;
-  transition: color var(--duration) var(--ease);
-}
-.narrative-breadcrumb a:hover { color: var(--rust); }
-.narrative-breadcrumb__sep { margin: 0 12px; color: var(--rule); }
-.narrative-breadcrumb__current { color: var(--ink); }
-
 .narrative-header {
   max-width: 56rem;     // ~910px per design spec
   margin: 0 auto 64px;
   text-align: center;
 }
-.narrative-header__kicker {
+.narrative-header__crumb {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--rust);
-  margin: 0 0 24px;
+  color: var(--soft);
+  margin: 0 0 28px;
+  a {
+    color: var(--soft);
+    text-decoration: none;
+    transition: color var(--duration) var(--ease);
+    &:hover { color: var(--rust); }
+  }
 }
+.narrative-header__crumb-sep { margin: 0 10px; color: var(--rule); }
+.narrative-header__kind { color: var(--rust); }
 .narrative-header__title {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 5.2vw, 3.6rem);   // unified site-wide; ~38–58px
@@ -5249,38 +5235,47 @@ textarea:focus-visible {
   line-height: 1.5;
   color: var(--soft);
   max-width: 39rem;
-  margin: 0 auto 28px;
+  margin: 0 auto;
 }
-.narrative-header__meta {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.narrative-header__rule {
+  width: 48px;
+  border: 0;
+  border-top: 2px solid var(--rust);
+  margin: 32px auto 24px;
+}
+// Colophon line: one quiet italic serif line. Items are separated by
+// a CSS middot so any of them (byline, date, place) can be missing.
+.narrative-header__line {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.4;
   color: var(--soft);
   margin: 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 16px;
-}
-.narrative-header__meta time { color: var(--ink); }
-// Byline sits on its own line between deck and meta row: sentence
-// case serif so the name reads as a name, avatar sized to the text.
-.narrative-header__byline {
-  margin: 0 0 14px;
+  align-items: center;
+  > * + *::before { content: "·"; margin: 0 0.5em; font-style: normal; }
   .byline {
-    font-family: var(--font-body);
-    font-size: 1rem;
-    font-style: normal;
-    color: var(--soft);
+    font: inherit;
+    color: inherit;
     margin: 0;
     padding: 0;
     border: 0;
     max-width: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
   }
-  .byline__author { color: var(--ink); gap: 0.55em; }
-  .byline__avatar { width: 32px; height: 32px; }
+  .byline__name { font-style: normal; font-weight: 600; color: var(--ink); }
+  .byline__avatar { width: 32px; height: 32px; margin: 0; }
+}
+.narrative-header__line .byline + *::before { margin-left: 0.4em; }
+// Phones: byline takes its own row so wrapping never strands a middot.
+@media (max-width: 600px) {
+  .narrative-header__line .byline { flex-basis: 100%; justify-content: center; margin-bottom: 6px; }
+  .narrative-header__line .byline + *::before { content: none; }
 }
 
 // Tag chips beneath the essay header. Centered to match the

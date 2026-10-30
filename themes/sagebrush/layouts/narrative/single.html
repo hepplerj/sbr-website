@@ -1,8 +1,8 @@
 {{ define "main" }}
 {{- /* Narrative essay — Survey register.
 
-       Per the design handoff: breadcrumb at top, centered article
-       header with kicker + serif title + italic deck + meta row, then
+       Centered article header: crumb line (section / kind), serif
+       title, italic deck, short rust rule, one colophon line, then
        the body in a generous reading column. Footnotes inherit the
        existing `.footnotes` styling (already Survey-shaped from the
        documents work). Two read-next cards at the bottom link to
@@ -17,28 +17,31 @@
        Changelog entries (/updates/) render through this layout too:
        content/updates/_index.md cascades `type: narrative` to its
        pages. $isUpdate swaps the labels and adds the AI-disclosure
-       note; breadcrumb and related-filter follow the page's section. */ -}}
+       note; crumb link and related-filter follow the page's section. */ -}}
 {{- $isUpdate := eq .Section "updates" -}}
 {{- $noun := cond $isUpdate "update" "essay" -}}
 
 <article class="narrative-page">
 
-  <nav class="narrative-breadcrumb" aria-label="Breadcrumb">
-    {{- with .CurrentSection }}<a href="{{ .RelPermalink }}">{{ or .Params.heading .Title }}</a>{{ end }}
-    <span class="narrative-breadcrumb__sep">/</span>
-    <span class="narrative-breadcrumb__current">{{ .Title }}</span>
-  </nav>
-
   <header class="narrative-header">
-    <p class="narrative-header__kicker">{{ strings.FirstUpper $noun }}</p>
+    {{- /* One crumb line (section link / kind) replaces the old
+           breadcrumb + kicker pair. */}}
+    <p class="narrative-header__crumb">
+      {{- with .CurrentSection }}<a href="{{ .RelPermalink }}">{{ or .Params.heading .Title }}</a>{{ end -}}
+      <span class="narrative-header__crumb-sep" aria-hidden="true">/</span>
+      <span class="narrative-header__kind">{{ strings.FirstUpper $noun }}</span>
+    </p>
     <h1 class="narrative-header__title">{{ .Title }}</h1>
     {{- with or .Params.lede .Description .Params.summary }}
       <p class="narrative-header__deck">{{ . | markdownify }}</p>
     {{- end }}
-    {{- /* Authors cascade from each section's _index.md: narrative →
-           Jason Heppler, updates → Claude. See partials/byline.html. */ -}}
-    {{- with partial "byline.html" . }}<p class="narrative-header__byline">{{ . }}</p>{{ end }}
-    <p class="narrative-header__meta">
+    <hr class="narrative-header__rule">
+    {{- /* Colophon line: avatar + byline, date, reading time, place.
+           Separators come from CSS so any item can be absent. Authors
+           cascade from each section's _index.md (narrative → Jason
+           Heppler, updates → Claude); see partials/byline.html. */}}
+    <p class="narrative-header__line">
+      {{- partial "byline.html" . }}
       {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "January 2, 2006" }}</time>{{ end }}
       {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
       {{- with .Params.place }}<span>{{ . }}</span>{{ end }}
