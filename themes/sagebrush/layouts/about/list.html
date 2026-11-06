@@ -11,7 +11,7 @@
 <article class="about-page">
 
   <header class="about-statement">
-    <p class="about-statement__eyebrow">About the project</p>
+    <h1 class="about-statement__title">About the project</h1>
     {{- with .Params.lede }}
       <p class="about-statement__lede">{{ . | markdownify }}</p>
     {{- end }}
@@ -24,8 +24,7 @@
   <aside class="about-colophon" aria-label="Colophon">
     <p class="about-colophon__head">Colophon</p>
     <dl class="about-colophon__list">
-      <div><dt>Display &amp; body</dt><dd>Source Sans</dd></div>
-      <div><dt>Labels &amp; data</dt><dd>JetBrains Mono</dd></div>
+      <div><dt>Type</dt><dd>Source Serif 4</dd></div>
       <div><dt>Maps</dt><dd>Leaflet · D3</dd></div>
       <div><dt>Built with</dt><dd>Hugo</dd></div>
       <div><dt>Source</dt><dd><a href="https://github.com/hepplerj/sbr-website">github.com/hepplerj/sbr-website</a></dd></div>

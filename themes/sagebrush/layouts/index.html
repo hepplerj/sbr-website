@@ -19,7 +19,6 @@
          standfirst is italic Spectral, CTAs use the Space Mono button
          pattern. Image, overlay, and credit remain. */ -}}
   <div class="hero__inner">
-    <p class="hero__kicker">A digital history of the sagebrush rebellions</p>
     {{- $words := split .Site.Title " " }}
     <h1 class="hero__title">
       {{- range $words -}}
@@ -96,10 +95,10 @@
 {{- $sl := where site.RegularPages "Section" "sightlines" }}
 <section class="home-plates" aria-label="Four ways into the project">
   <div class="home-plates__grid">
-    {{- partial "inline/home-plate.html" (dict "eyebrow" "Maps" "title" "Geographies" "url" "/sightlines/#maps" "noun" "maps" "pages" (where $sl "Params.viz" "map")) }}
-    {{- partial "inline/home-plate.html" (dict "eyebrow" "Writing" "title" "Essays & field notes" "url" "/narrative/" "noun" "essays" "pages" (where site.RegularPages "Section" "narrative")) }}
-    {{- partial "inline/home-plate.html" (dict "eyebrow" "Networks" "title" "People & organizations" "url" "/sightlines/#networks" "noun" "networks" "pages" (where $sl "Params.viz" "network")) }}
-    {{- partial "inline/home-plate.html" (dict "eyebrow" "Charts" "title" "Conditions over time" "url" "/sightlines/#charts" "noun" "charts" "pages" (where $sl "Params.viz" "chart")) }}
+    {{- partial "inline/home-plate.html" (dict "title" "Geographies" "url" "/sightlines/#maps" "noun" "maps" "pages" (where $sl "Params.viz" "map")) }}
+    {{- partial "inline/home-plate.html" (dict "title" "Essays & field notes" "url" "/narrative/" "noun" "essays" "pages" (where site.RegularPages "Section" "narrative")) }}
+    {{- partial "inline/home-plate.html" (dict "title" "People & organizations" "url" "/sightlines/#networks" "noun" "networks" "pages" (where $sl "Params.viz" "network")) }}
+    {{- partial "inline/home-plate.html" (dict "title" "Conditions over time" "url" "/sightlines/#charts" "noun" "charts" "pages" (where $sl "Params.viz" "chart")) }}
   </div>
 </section>
 
@@ -109,7 +108,6 @@
 {{- $featured := where .pages "Params.featured" true }}
 {{- $show := cond (gt (len $featured) 0) $featured .pages }}
 <article class="plate">
-  <p class="plate__eyebrow">{{ .eyebrow }}</p>
   <h2 class="plate__title"><a href="{{ .url | relURL }}">{{ .title }}</a></h2>
   <ul class="plate__list">
     {{- range first 3 $show.ByWeight }}

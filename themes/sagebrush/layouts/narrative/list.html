@@ -35,7 +35,6 @@
            content/narrative/_index.md. The big H1 uses `heading` so
            the two can vary independently (e.g. title: "Essays &
            field notes" / heading: "Writing"). */ -}}
-    <p class="writing-header__kicker">{{ .Title }}</p>
     <div class="writing-header__row">
       <h1 class="writing-header__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
       {{- /* Lede may contain inline markdown (links, emphasis). Use a

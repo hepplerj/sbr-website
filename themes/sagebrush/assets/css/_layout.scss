@@ -121,8 +121,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
   color: var(--ink);
   text-decoration: none;
   padding: 0.4em 0;
@@ -201,8 +199,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   // Was rust on ink — failed the legibility check; switched to paper
   // (full brightness) for the column heads. The rust accent still
   // signals the column-head role via the wordmark/blurb pairing.
@@ -279,8 +275,6 @@ canvas {
   border-top: 1px solid var(--ink-rule);
   font-family: var(--font-ui);
   font-size: 9.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--ink-soft);
   max-width: var(--measure-full);
   margin: 0 auto;
@@ -368,17 +362,6 @@ canvas {
 // Kicker — Source Sans UPPERCASE tracked, set in paper so it reads
 // cleanly over the dark photo (rust was tonally too close to the
 // photograph's mid-warms to hold).
-.hero__kicker {
-  font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--paper);
-  opacity: 0.88;
-  margin: 0 0 var(--space-4);
-}
-
 // Stacked title — "Governing / Ground", Zilla Slab 700 at 78px, tight
 .hero__title {
   font-family: var(--font-display);
@@ -421,8 +404,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
   text-decoration: none;
   border-radius: 0;
   transition: background var(--duration) var(--ease),
@@ -463,7 +444,6 @@ canvas {
   line-height: 1.35;
   color: var(--color-cream);
   opacity: 0.72;
-  letter-spacing: 0.03em;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 
   // On narrow viewports allow wrap rather than horizontal overflow.
@@ -550,8 +530,6 @@ canvas {
 .figure__number {
   font-family: var(--font-ui);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
   color: var(--ink);
   margin-right: 0.5em;
 }
@@ -620,11 +598,10 @@ canvas {
   }
 }
 .error-page__code {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: clamp(3rem, 11vw, 5.5rem);
   font-weight: 500;
   line-height: 1;
-  letter-spacing: 0.04em;
   color: var(--rule);
   margin: 0;
 }
@@ -656,8 +633,6 @@ canvas {
     font-family: var(--font-ui);
     font-size: 0.6875rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
     color: var(--ink);
     text-decoration: none;
     border-bottom: 1.5px solid transparent;
@@ -665,16 +640,6 @@ canvas {
     transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
     &:hover { color: var(--rust); border-bottom-color: var(--rust); }
   }
-}
-
-.section-intro__eyebrow {
-  font-family: var(--font-ui);
-  font-size: 0.6875rem;            // 11px
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: var(--rust);
-  margin: 0 0 var(--space-4);
 }
 
 // Title stacks above the lede sitewide — the wide side-by-side row
@@ -784,8 +749,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 0.6875rem;            // 11px
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
   color: var(--soft);
   margin: 0 0 var(--space-3);
   display: flex;
@@ -877,19 +840,8 @@ canvas {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   color: var(--rust);
   margin: 0 0 6px;
-}
-.plate__eyebrow {
-  font-family: var(--font-ui);
-  font-size: 9.5px;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--soft);
-  margin: 0 0 14px;
 }
 .plate__title {
   font-family: var(--font-display);
@@ -919,8 +871,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--ink);
   text-decoration: none;
   align-self: flex-start;
@@ -983,8 +933,6 @@ canvas {
 
 .page-toc__label {
   font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
   color: var(--color-text-muted);
   margin: 0 0 var(--space-3);
 }
@@ -1043,16 +991,6 @@ canvas {
   }
 }
 
-.page-header__eyebrow {
-  font-family: var(--font-ui);
-  font-size: 0.6875rem;            // 11px
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: var(--rust);
-  margin: 0 0 var(--space-4);
-}
-
 .page-header__title {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 5.2vw, 3.6rem);
@@ -1078,8 +1016,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 0.6875rem;            // 11px
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
   color: var(--soft);
   margin: var(--space-5) 0 0;
   display: flex;
@@ -1111,8 +1047,6 @@ canvas {
 
 .cite-block__label {
   font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
   color: var(--color-text-muted);
   margin: 0 0 var(--space-2);
 }
@@ -1265,24 +1199,6 @@ canvas {
     padding: var(--space-7) var(--space-5) var(--space-5);
   }
 }
-.sightlines-single__kicker {
-  font-family: var(--font-ui);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: var(--rust);
-  margin: 0 0 var(--space-4);
-
-  a {
-    color: inherit;
-    text-decoration: none;
-    border-bottom: 1.5px solid transparent;
-    padding-bottom: 0.15em;
-    transition: border-color var(--duration) var(--ease);
-    &:hover { border-bottom-color: var(--rust); }
-  }
-}
 .sightlines-single__title {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 5.2vw, 3.6rem);
@@ -1320,8 +1236,6 @@ canvas {
   }
   dt {
     font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--soft);
   }
   dd { margin: 0; color: var(--ink); }
@@ -1417,24 +1331,6 @@ canvas {
   margin-bottom: var(--space-4);
 }
 
-.map-page__eyebrow {
-  font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--color-text-muted);
-  margin: 0 0 0.2em;
-
-  a {
-    color: var(--color-text-muted);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-rust);
-    }
-  }
-}
-
 .map-page__title {
   font-family: var(--font-display);
   font-size: clamp(1.1rem, 1.8vw, 1.5rem);
@@ -1463,8 +1359,6 @@ canvas {
 .map-page__btn {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
   background: var(--color-bg);
   color: var(--color-ink);
   border: 1px solid var(--color-border);
@@ -1683,8 +1577,6 @@ canvas {
     border-radius: var(--radius-sm);
     font: inherit;
     font-size: var(--font-size-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     cursor: pointer;
   }
 
@@ -1778,8 +1670,6 @@ canvas {
 .network-viz__type {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
   color: var(--color-rust);
   margin-top: 0.25em;
 }
@@ -1816,8 +1706,6 @@ canvas {
 }
 .network-viz__color-toggle-label {
   color: var(--color-text-muted);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   margin-right: 0.15em;
 }
 // Squared chips, matching the Survey filter/chip vocabulary used
@@ -1833,7 +1721,6 @@ canvas {
   font-family: inherit;
   font-size: inherit;
   font-weight: 600;
-  letter-spacing: 0.04em;
   line-height: 1.4;
   transition: background var(--duration) var(--ease),
               color var(--duration) var(--ease),
@@ -1866,8 +1753,6 @@ canvas {
 
 .network-viz__filter-label {
   color: var(--color-text-muted);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   margin-right: 0.15em;
 }
 
@@ -1980,8 +1865,6 @@ canvas {
 .network-viz__modal-meta {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
   color: var(--color-rust);
   margin: 0 0 var(--space-3);
 }
@@ -1999,8 +1882,6 @@ canvas {
 .network-viz__modal-section {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
   color: var(--color-text-muted);
   margin: 0 0 var(--space-3);
   font-weight: 600;
@@ -2032,8 +1913,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
   padding: 0.25em 0.6em;
   border-radius: 999px;
   background: var(--color-cream-dark);
@@ -2051,8 +1930,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   padding: 0.25em 0.6em;
   border-radius: 999px;
   border: 1px solid currentColor;
@@ -2094,7 +1971,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
-  letter-spacing: 0.02em;
   margin-bottom: 0.1em;
 }
 
@@ -2124,7 +2000,6 @@ canvas {
   border: 1px solid var(--color-border);
   border-radius: 999px;
   padding: 0.35em 0.9em;
-  letter-spacing: 0.03em;
   pointer-events: none;
   transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
 }
@@ -2177,15 +2052,6 @@ canvas {
   margin: 0 auto 48px;
   padding: var(--space-5) var(--space-page) var(--space-3);   // trimmed band chrome — was 56/36
   border-bottom: 1.5px solid var(--ink);
-}
-.sightlines-page__kicker {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--rust);
-  margin: 0 0 28px;
 }
 // Stacked: title above lede sitewide. The earlier side-by-side row
 // reads less editorial than the stacked rhythm.
@@ -2249,8 +2115,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--rust);
   margin: 0 0 6px;
   padding-bottom: 10px;
@@ -2292,8 +2156,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--rule);
@@ -2386,8 +2248,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--soft);
 }
 
@@ -2416,8 +2276,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--rule);
@@ -2547,8 +2405,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 .sightlines-card__themes li {
   color: var(--soft);
@@ -2562,8 +2418,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--ink);
   text-align: right;
   margin: 0;
@@ -2621,8 +2475,6 @@ canvas {
 .bibliography-group__count {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
   color: var(--color-text-muted);
   margin: 0;
 }
@@ -2797,7 +2649,6 @@ canvas {
   font-size: 15px;
   font-weight: 500;
   fill: var(--color-text-muted);
-  letter-spacing: 0.02em;
   pointer-events: none;
   user-select: none;
   transition: fill 120ms var(--ease);
@@ -2836,7 +2687,6 @@ canvas {
   font-size: 12px;
   font-weight: 500;
   fill: var(--color-ink);
-  letter-spacing: 0.02em;
   pointer-events: none;
   user-select: none;
 }
@@ -2859,7 +2709,6 @@ canvas {
   font-size: 14px;
   font-weight: 500;
   fill: var(--color-ink);
-  letter-spacing: 0.02em;
 }
 
 .chart-viz__bar {
@@ -2882,8 +2731,6 @@ canvas {
   font-size: 11px;
   fill: var(--color-text-muted);
   font-style: italic;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   pointer-events: none;
 }
 
@@ -2905,7 +2752,7 @@ canvas {
   // Axis ticks are all numeric — set them in the mono face so digits
   // align and read as data. (Mono renders a touch larger than the UI
   // face at a given px, so the sizes here run slightly smaller.)
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 13px;
   color: var(--color-text-muted);
 
@@ -3032,8 +2879,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 11px;
   fill: var(--color-text-muted);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
 }
 
 .chart-viz__zero {
@@ -3081,8 +2926,6 @@ canvas {
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 // Inline multi-series legend above line chart.
@@ -3116,7 +2959,6 @@ canvas {
   font-size: 12px;
   font-weight: 500;
   fill: var(--color-navy);
-  letter-spacing: 0.03em;
 }
 
 .chart-viz__info {
@@ -3132,7 +2974,7 @@ canvas {
 // face since their headings are place names.)
 .chart-viz__info h4,
 .chart-viz__info .detail {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-variant-numeric: lining-nums tabular-nums;
 }
 .chart-viz__info h4 {
@@ -3157,8 +2999,6 @@ canvas {
     align-items: center;
     gap: 0.6em;
     color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     font-size: var(--font-size-xs);
   }
 
@@ -3238,7 +3078,7 @@ canvas {
 }
 
 .map-popup__value {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--font-size-sm);
   color: var(--color-ink);
   font-variant-numeric: lining-nums tabular-nums;
@@ -3284,7 +3124,7 @@ canvas {
 }
 
 .map-popup__val {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   color: var(--color-ink);
   font-weight: 500;
   font-variant-numeric: lining-nums tabular-nums;
@@ -3320,8 +3160,6 @@ canvas {
 
   >span {
     color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     font-size: var(--font-size-xs);
   }
 
@@ -3364,8 +3202,6 @@ canvas {
     margin: 0 0 0.2em;
     font-size: var(--font-size-xs);
     font-family: var(--font-ui);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     color: var(--color-text-muted);
   }
 
@@ -3398,8 +3234,6 @@ canvas {
     align-items: center;
     gap: 0.5em;
     color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     font-size: var(--font-size-xs);
   }
 
@@ -3457,8 +3291,6 @@ canvas {
 .legend h4 {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
   color: var(--color-text-muted);
   margin: 0 0 0.5em;
   font-weight: 600;
@@ -3593,8 +3425,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--rust);
   margin: 0;
   justify-self: start;
@@ -3613,7 +3443,6 @@ textarea:focus-visible {
   border-left: 1px solid var(--rule);
   padding-left: 8px;
   margin-left: 4px;
-  letter-spacing: 0.08em;
 }
 .row-list__main {
   min-width: 0;
@@ -3640,7 +3469,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 9.5px;
   font-weight: 400;
-  letter-spacing: 0.04em;
   color: var(--soft);
   line-height: 1.4;
   margin: 0;
@@ -3654,8 +3482,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--ink);
   text-align: right;
   margin: 0;
@@ -3696,23 +3522,6 @@ textarea:focus-visible {
     padding: 0 var(--space-5);
   }
 }
-.document-page__eyebrow {
-  font-family: var(--font-ui);
-  font-size: 0.6875rem;            // 11px
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: var(--rust);
-  margin: var(--space-section) 0 var(--space-4);
-}
-.document-page__eyebrow a {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1.5px solid transparent;
-  transition: border-color var(--duration) var(--ease);
-  padding-bottom: 0.15em;
-  &:hover { border-bottom-color: var(--rust); }
-}
 .document-page__title {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 5.2vw, 3.6rem);
@@ -3745,8 +3554,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 0.6875rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
   color: var(--soft);
   margin-right: 0.35em;
 }
@@ -3773,8 +3580,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 0.6875rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
   color: var(--ink);
   padding: var(--space-4) 0;
   display: flex;
@@ -3785,7 +3590,7 @@ textarea:focus-visible {
 .document-apparatus > summary::-webkit-details-marker { display: none; }
 .document-apparatus > summary::after {
   content: "+";
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 1.1rem;
   font-weight: 400;
   color: var(--rust);
@@ -3848,8 +3653,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 0.6875rem;            // 11px
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
   color: var(--soft);
   padding-right: var(--space-5);
   white-space: nowrap;
@@ -3880,8 +3683,6 @@ textarea:focus-visible {
   font-size: 0.75rem;
   color: var(--soft);
   font-style: normal;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   margin-left: 0.4em;
 }
 .document-meta__altsources {
@@ -3974,7 +3775,7 @@ textarea:focus-visible {
   left: -2.25rem;
   width: 2rem;
   color: var(--soft);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 500;
   text-align: right;
@@ -4012,7 +3813,7 @@ textarea:focus-visible {
   box-shadow: inset 0 -3px 0 var(--rust);
 }
 .gloss__num {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.65em;
   color: var(--rust);
   font-weight: 700;
@@ -4075,10 +3876,9 @@ textarea:focus-visible {
   position: absolute;
   left: 0.55rem;
   top: 0.95rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
   color: var(--rust);
 }
 .document-sidenotes__body {
@@ -4133,7 +3933,7 @@ textarea:focus-visible {
 }
 .document-meta__related-year {
   color: var(--soft);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 500;
   margin-left: 0.4rem;
@@ -4149,8 +3949,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
 }
 .document-meta__editorial a {
   color: var(--soft);
@@ -4192,8 +3990,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
   color: var(--rust);
   margin-bottom: 1rem;
 }
@@ -4214,7 +4010,7 @@ textarea:focus-visible {
   left: -2.25rem;
   width: 1.85rem;
   color: var(--rust);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 700;
   text-align: right;
@@ -4232,7 +4028,7 @@ textarea:focus-visible {
 /* In-body footnote references — clickable hint */
 .footnote-ref a {
   color: var(--rust);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.78em;
   text-decoration: none;
   font-weight: 700;
@@ -4245,8 +4041,6 @@ textarea:focus-visible {
 .document-sidenotes__header {
   font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: #6b7a5a;
   margin: 0 0 0.65rem;
   padding-bottom: 0.4rem;
@@ -4268,15 +4062,6 @@ textarea:focus-visible {
   border-bottom: 1.5px solid var(--ink);
   padding-bottom: 36px;
   margin-bottom: 48px;
-}
-.writing-header__kicker {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--rust);
-  margin: 0 0 28px;
 }
 // Stacked: title above lede sitewide. The earlier side-by-side row
 // reads less editorial than the stacked rhythm.
@@ -4344,8 +4129,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
   color: var(--soft);
   margin: 0;
   min-width: 3.25rem;
@@ -4367,8 +4150,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--soft);
   cursor: pointer;
   transition: background var(--duration) var(--ease),
@@ -4390,7 +4171,6 @@ textarea:focus-visible {
   font-size: 10px;
   font-weight: 700;
   color: inherit;            // tracks the button label color (ink → paper on active)
-  letter-spacing: 0.04em;
   margin-left: 0.2em;
 }
 
@@ -4458,8 +4238,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--soft);
   margin: 0;
   display: flex;
@@ -4471,8 +4249,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--ink);
   margin: 6px 0 0;
   text-align: right;
@@ -4517,8 +4293,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--soft);
   margin: 0 0 56px;
 }
@@ -4535,15 +4309,6 @@ textarea:focus-visible {
   max-width: 56rem;     // ~910px per design spec
   margin: 0 auto 64px;
   text-align: center;
-}
-.narrative-header__kicker {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--rust);
-  margin: 0 0 24px;
 }
 .narrative-header__title {
   font-family: var(--font-display);
@@ -4571,8 +4336,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--soft);
   margin: 0;
   display: flex;
@@ -4604,7 +4367,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.04em;
   color: var(--soft);
   text-decoration: none;
   border: 1px solid var(--rule);
@@ -4739,8 +4501,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   font-style: normal;
   color: var(--soft);
 }
@@ -4775,8 +4535,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   font-style: normal;
   color: var(--soft);
 }
@@ -4829,8 +4587,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
   color: var(--rust);
   margin: 0 0 20px;
 }
@@ -4874,7 +4630,6 @@ textarea:focus-visible {
 .narrative-related__meta {
   font-family: var(--font-ui);
   font-size: 11px;
-  letter-spacing: 0.06em;
   color: var(--soft);
   margin: 0;
 }
@@ -4909,16 +4664,6 @@ textarea:focus-visible {
 .continue-card:hover {
   background: color-mix(in srgb, var(--panel) 50%, transparent);
 }
-.continue-card__kicker {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--rust);
-  margin: 0 0 10px;
-}
-.continue-card--prev .continue-card__kicker { color: var(--soft); }
 .continue-card__title {
   font-family: var(--font-display);
   font-size: 22px;
@@ -4954,15 +4699,6 @@ textarea:focus-visible {
   text-align: center;
   border-bottom: 1.5px solid var(--ink);
 }
-.about-statement__eyebrow {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--rust);
-  margin: 0 0 28px;
-}
 .about-statement__lede {
   font-family: var(--font-display);
   font-size: clamp(1.6rem, 2.8vw, 2.1rem);   // ~26–33px
@@ -4996,13 +4732,10 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--rust);
   margin: 64px 0 18px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--rule);
-  letter-spacing: 0.14em;
 }
 .about-body h3 {
   font-family: var(--font-display);
@@ -5041,8 +4774,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--ink);
   margin: 1.5em 0;
 }
@@ -5062,8 +4793,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--rust);
   margin: 0 0 16px;
 }
@@ -5086,8 +4815,6 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--soft);
   margin: 0;
 }
@@ -5103,7 +4830,6 @@ textarea:focus-visible {
   text-decoration-color: var(--rule);
   font-family: var(--font-ui);
   font-size: 13px;
-  letter-spacing: 0.04em;
 }
 .about-colophon__list dd a:hover {
   color: var(--rust);
@@ -5118,23 +4844,6 @@ textarea:focus-visible {
   max-width: 72rem;
   margin: 2rem auto 4rem;
   padding: 0 1.5rem;
-}
-.atlas-page__eyebrow {
-  font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--color-text-muted);
-  margin: 0 0 0.2em;
-
-  a {
-    color: var(--color-text-muted);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-rust);
-    }
-  }
 }
 .atlas-page__title {
   font-size: 2rem;
@@ -5501,8 +5210,6 @@ textarea:focus-visible {
   border-bottom: 2px solid #c9a978;
   font-size: 0.72rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   color: var(--color-text-muted);
 }
 .atlas-trend__members-headers-count { text-align: right; }
@@ -5679,8 +5386,6 @@ body { overflow-x: clip; }
 }
 // Eyebrow's top margin was tuned for the un-banded layout — cancel
 // it; the band's own top padding handles the breathing room.
-.document-page__header .document-page__eyebrow { margin-top: 0; }
-
 // ── Survey grid ─────────────────────────────────────────────────────
 // A section of the GLO's 1878 Centennial Map "showing the extent of
 // public surveys": western Nebraska, where the township grid runs out
@@ -5753,8 +5458,6 @@ body { overflow-x: clip; }
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--rust);
 }
 .home-intro__recent > .home-intro__head:first-child { margin-top: 0; }
@@ -5778,8 +5481,6 @@ body { overflow-x: clip; }
 .home-start__kind {
   font-family: var(--font-ui);
   font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--soft);
 }
 .home-start__name {

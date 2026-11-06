@@ -9,7 +9,6 @@
 {{- $entries := .RegularPages.ByDate -}}
 
 <header class="sightlines-page__header">
-  <p class="sightlines-page__kicker">{{ .Title }}</p>
   <div class="sightlines-page__row">
     <h1 class="sightlines-page__title">{{ with .Params.heading }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
     {{- with .Params.lede }}<p class="sightlines-page__desc">{{ . | markdownify }}</p>{{ end }}

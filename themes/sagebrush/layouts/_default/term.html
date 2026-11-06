@@ -51,7 +51,6 @@
            term itself. Optional one-liner via .Description (set on a
            per-term basis by creating content/tags/<slug>/_index.md
            if you want custom copy; falls back to a generic line). */ -}}
-    <p class="writing-header__kicker">{{ humanize $taxonomy }}</p>
     <div class="writing-header__row">
       <h1 class="writing-header__title">{{ $label }}</h1>
       {{- $desc := .Description -}}

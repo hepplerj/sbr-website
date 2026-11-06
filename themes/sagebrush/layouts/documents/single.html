@@ -6,9 +6,6 @@
 
 <article class="document-page">
   <header class="document-page__header">
-    <p class="document-page__eyebrow">
-      <a href="{{ "/documents/" | relURL }}">Documents</a>
-    </p>
     <h1 class="document-page__title">{{ .Title }}</h1>
   </header>
 
@@ -21,7 +18,7 @@
        to a pure-prose render. */ -}}
   {{- if .Params.doctype }}
 
-  {{- /* Compact strip — JetBrains Mono · separated; the orienting
+  {{- /* Compact strip — · separated; the orienting
          facts a reader needs at a glance. */ -}}
   <p class="document-strip" aria-label="Document identifier">
     {{- $bits := slice -}}

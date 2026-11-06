@@ -23,7 +23,6 @@
   </nav>
 
   <header class="narrative-header">
-    <p class="narrative-header__kicker">Essay</p>
     <h1 class="narrative-header__title">{{ .Title }}</h1>
     {{- with or .Params.lede .Description }}
       <p class="narrative-header__deck">{{ . | markdownify }}</p>
@@ -102,8 +101,7 @@
   {{- if or $prev $next }}
     <nav class="narrative-continue" aria-label="Read next">
       {{- with $next }}
-        <a class="continue-card continue-card--next" href="{{ .RelPermalink }}">
-          <p class="continue-card__kicker">Next essay</p>
+        <a class="continue-card continue-card--next" href="{{ .RelPermalink }}" aria-label="Next essay: {{ .Title }}">
           <h2 class="continue-card__title">{{ .Title }}</h2>
           {{- with or .Params.lede .Description }}
             <p class="continue-card__deck">{{ . | plainify | truncate 180 }}</p>
@@ -111,8 +109,7 @@
         </a>
       {{- end }}
       {{- with $prev }}
-        <a class="continue-card continue-card--prev" href="{{ .RelPermalink }}">
-          <p class="continue-card__kicker">Previous</p>
+        <a class="continue-card continue-card--prev" href="{{ .RelPermalink }}" aria-label="Previous essay: {{ .Title }}">
           <h2 class="continue-card__title">{{ .Title }}</h2>
           {{- with or .Params.lede .Description }}
             <p class="continue-card__deck">{{ . | plainify | truncate 180 }}</p>

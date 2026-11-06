@@ -156,7 +156,7 @@
   // Per-row vertical step (in viewBox px). Tuned to the era-label
   // font size; matches the leading you'd want between two label rows.
   const ERA_ROW_STEP = 18;
-  // Rough width-per-character for the era-label font (JetBrains Mono,
+  // Rough width-per-character for the era-label font (Source Serif 4,
   // 15px). Used to estimate label widths without measuring DOM.
   const ERA_CHAR_PX = 8.2;
   // Padding around each label box so adjacent labels keep a visual gap.
