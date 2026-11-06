@@ -58,7 +58,6 @@
       {{- range $start }}{{ with . }}
       <li>
         <a class="home-start__item" href="{{ .RelPermalink }}">
-          <span class="home-start__kind">{{ if eq .Section "narrative" }}Essay{{ else }}Timeline{{ end }}</span>
           <span class="home-start__name">{{ .Title }}</span>
         </a>
       </li>

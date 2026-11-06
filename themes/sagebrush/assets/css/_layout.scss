@@ -869,7 +869,7 @@ canvas {
 }
 .plate__cta {
   font-family: var(--font-ui);
-  font-size: 10px;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   color: var(--ink);
   text-decoration: none;
@@ -5477,11 +5477,6 @@ body { overflow-x: clip; }
   gap: 4px;
   color: inherit;
   text-decoration: none;
-}
-.home-start__kind {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  color: var(--soft);
 }
 .home-start__name {
   font-family: var(--font-display);

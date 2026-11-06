@@ -65,12 +65,12 @@
   --color-shadow:       transparent;   // shadows are out
 
   // ─── Typography ─────────────────────────────────────────────────────
-  // One family: Source Serif 4 everywhere. --font-display / --font-ui
-  // are aliases kept so existing rules resolve; --font-mono is the
-  // system monospace, used only for code.
+  // Two families from one superfamily: Source Serif 4 for reading and
+  // headings, Source Sans 3 for UI (nav, meta, labels, "See all" links).
+  // --font-display aliases the serif; --font-mono is system mono, code only.
   --font-body:    "Source Serif 4", "Source Serif Pro", Georgia, "Iowan Old Style", serif;
   --font-display: var(--font-body);
-  --font-ui:      var(--font-body);
+  --font-ui:      "Source Sans 3", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono:    ui-monospace, "SF Mono", Menlo, monospace;
 
   // Type scale (kept compatible with existing rules)
