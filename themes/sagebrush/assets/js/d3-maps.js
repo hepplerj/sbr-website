@@ -773,6 +773,10 @@
     const info = document.createElement("div");
     info.className = "info-panel d3-map__info";
     container.appendChild(info);
+    const infoText = document.createElement("div");
+    const hist = document.createElement("div");
+    hist.className = "d3-map__hist";
+    info.append(infoText, hist);
 
     const windows = cfg.windows || [0, 10, 1];
     const winLabel = (n) => n === 0 ? "All acquired to date" : n === 1 ? "Acquired that year" : `Acquired in last ${n} years`;
@@ -825,6 +829,8 @@
         canvas.style.width = w + "px"; canvas.style.height = h + "px";
         canvas.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
 
+        // Info panel sits just above the playhead strip, whatever its height.
+        info.style.bottom = `calc(${controls.offsetHeight}px + 2 * var(--space-3))`;
         const pad = Math.min(w, h) * 0.06;
         const projection = d3.geoAlbers()
           .fitExtent([[pad, pad], [w - pad, h - pad - controls.offsetHeight]], { type: "FeatureCollection", features: focus });
@@ -844,6 +850,7 @@
                      inFocus: hit.isPointInPath(focusPath, p[0], p[1]) });
         }
         pts.sort((a, b) => a.year - b.year);
+        buildHist(d3.rollup(pts.filter((p) => p.inFocus), (v) => v.length, (p) => p.year));
         layout.paths = {
           land: new Path2D(path({ type: "FeatureCollection", features: states })),
           focus: focusPath,
@@ -878,9 +885,31 @@
         ctx.globalAlpha = 1;
 
         const fmt = d3.format(",");
-        info.innerHTML = `<h4>${year}</h4><div class="detail">${winLabel(win)}: <strong>${fmt(n)}</strong> tracts,
+        layout.bars.attr("fill", (d) => d === year ? C.fresh : d <= year && d >= from ? C.old : C.rule);
+        infoText.innerHTML = `<h4>${year}</h4><div class="detail">${winLabel(win)}: <strong>${fmt(n)}</strong> tracts,
           <strong>${fmt(Math.round(acres))}</strong> acres in ${cfg.focuslabel || "the highlighted states"}.
           <span style="color:${C.fresh}">●</span> acquired in ${year}</div>`;
+      }
+
+      // Tracts acquired per year in the focus states; the current year and
+      // window light up as the playhead moves, and a click jumps the slider.
+      function buildHist(counts) {
+        const W = 220, H = 48, yrs = d3.range(start, end + 1);
+        const x = d3.scaleBand().domain(yrs).range([0, W]).padding(0.15);
+        const y = d3.scaleLinear().domain([0, d3.max(counts.values()) || 1]).range([H, 0]);
+        const svg = d3.select(hist).html("").append("svg")
+          .attr("viewBox", `0 0 ${W} ${H + 12}`).attr("width", "100%")
+          .attr("role", "img").attr("aria-label", "Tracts acquired per year in the highlighted states")
+          .on("click", (e) => {
+            const [mx] = d3.pointer(e);
+            slider.value = Math.max(start, Math.min(end, start + Math.floor(mx / W * yrs.length)));
+            stop(); draw();
+          });
+        layout.bars = svg.selectAll("rect").data(yrs).join("rect")
+          .attr("x", (d) => x(d)).attr("width", x.bandwidth())
+          .attr("y", (d) => y(counts.get(d) || 0)).attr("height", (d) => H - y(counts.get(d) || 0));
+        svg.selectAll("text").data([[0, start, "start"], [W, end, "end"]]).join("text")
+          .attr("x", (d) => d[0]).attr("y", H + 10).attr("text-anchor", (d) => d[2]).text((d) => d[1]);
       }
 
       let timer = null;

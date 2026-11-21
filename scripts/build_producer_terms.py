@@ -108,6 +108,23 @@ LEXICON = [
         ("biological-survey", "Biological Survey", r"\bbiological\s+survey\b"),
         ("poison-plants", "poisonous plants / larkspur / locoweed", r"\bpoison\w*\s+plants?\b|\blarkspur\b|\bloco\s?weed\b"),
     ]),
+    # "elk" is singular-only: plural "elks" is the fraternal lodge. "trespass"
+    # also catches livestock trespass on public range. "Ducks Unlimited"
+    # (0 hits) and "waterfowl" (22) were audited and dropped: the duck
+    # constituency is a Plains wetland story this range-cattle organ missed.
+    ("wildlife-sportsmen", "Wildlife & sportsmen", [
+        # lookbehind drops the recurring 1946-51 "Game Breeder and Sportsman" subscription ad
+        ("sportsmen", "sportsmen", r"(?<!breeder and )\bsportsm[ae]n\w*\b"),
+        ("hunters", "hunters", r"\bhunters?\b"),
+        ("game-department", "game department / commission / warden", r"\bgame\s+(?:and\s+fish\s+)?(?:departments?|commissions?|commissioners?|wardens?)\b|\bfish\s+and\s+game\b"),
+        ("wildlife", "wildlife", r"\bwild\s?life\b"),
+        ("big-game", "big game", r"\bbig\s+game\b"),
+        ("elk", "elk", r"\belk\b"),
+        ("deer", "deer", r"\bdeer\b"),
+        ("game-refuge", "game / wildlife / bird refuge", r"\b(?:game|wildlife|bird)\s+refuges?\b"),
+        ("sportsmen-orgs", "Izaak Walton League / Wildlife Federation", r"\bizaak\s+walton\b|\bwalton\s+league\b|\bwildlife\s+federation\b"),
+        ("trespass", "trespass", r"\btrespass\w*\b"),
+    ]),
     ("water", "Water", [
         ("irrigation", "irrigation", r"\birrigat\w+\b"),
         ("reclamation", "reclamation", r"\breclamation\b"),

@@ -1,7 +1,7 @@
 ---
 title: "The Producer's Vocabulary, 1919–1961"
 date: 2026-08-17
-lede: "Term frequencies from the full run of the American Cattle Producer: what the cattle industry talked about, year by year, across seven concepts."
+lede: "Term frequencies from the full run of the American Cattle Producer: what the cattle industry talked about, year by year, across eight concepts."
 weight: 3
 draft: false
 atlas:

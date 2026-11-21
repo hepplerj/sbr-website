@@ -1963,6 +1963,23 @@ canvas {
   display: block;
 }
 
+// Lower left, clear of the Dakotas where the tracts cluster; JS sets
+// `bottom` to clear the playhead strip.
+.d3-map--timeline .d3-map__info {
+  top: auto;
+  right: auto;
+  left: var(--space-3);
+}
+
+.d3-map__hist {
+  margin-top: 0.5em;
+  pointer-events: auto;   // the info panel itself ignores the pointer
+  cursor: pointer;
+
+  svg { display: block; }
+  text { font-size: 9px; fill: var(--color-text-muted); }
+}
+
 .d3-map .d3-map__timeline {   // beats .info-panel's later max-width
   position: absolute;
   left: var(--space-3);
