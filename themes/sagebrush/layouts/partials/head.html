@@ -1,5 +1,21 @@
 {{- $title := cond .IsHome .Site.Title (printf "%s · %s" .Title .Site.Title) -}}
-{{- $desc := or .Description .Summary .Params.description .Site.Params.description -}}
+{{- $desc := or .Description .Params.lede .Summary .Params.description .Site.Params.description -}}
+{{- /* Social image: sightline/atlas pages reuse their list-card thumbnail
+       (static/images/{section}/{slug}.webp, 480×320); everything else gets
+       the site-wide preview. */ -}}
+{{- $img := "images/social-preview.jpg" -}}
+{{- $imgW := 1200 -}}
+{{- $imgH := 630 -}}
+{{- $imgAlt := printf "%s — %s" .Site.Title .Site.Params.subtitle -}}
+{{- if and .File (in (slice "sightlines" "atlas") .Section) -}}
+  {{- $thumb := printf "images/%s/%s.webp" .Section .File.ContentBaseName -}}
+  {{- if fileExists (printf "static/%s" $thumb) -}}
+    {{- $img = $thumb -}}
+    {{- $imgW = 480 -}}
+    {{- $imgH = 320 -}}
+    {{- $imgAlt = .Title -}}
+  {{- end -}}
+{{- end -}}
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,16 +34,17 @@
 <meta property="og:description" content="{{ $desc | plainify | truncate 170 }}">
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:site_name" content="{{ .Site.Title }}">
-<meta property="og:image" content="{{ "images/social-preview.jpg" | absURL }}">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="{{ .Site.Title }} — {{ .Site.Params.subtitle }}">
+<meta property="og:image" content="{{ $img | absURL }}">
+<meta property="og:image:width" content="{{ $imgW }}">
+<meta property="og:image:height" content="{{ $imgH }}">
+<meta property="og:image:alt" content="{{ $imgAlt }}">
 
 {{/* Twitter Card */}}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ $title }}">
 <meta name="twitter:description" content="{{ $desc | plainify | truncate 170 }}">
-<meta name="twitter:image" content="{{ "images/social-preview.jpg" | absURL }}">
+<meta name="twitter:image" content="{{ $img | absURL }}">
+<meta name="twitter:image:alt" content="{{ $imgAlt }}">
 
 {{/* Fonts — four-family prairie stack (display / body / UI / mono):
      • Zilla Slab    — display headings (400/500/600/700)
