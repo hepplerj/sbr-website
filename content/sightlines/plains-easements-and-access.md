@@ -1,7 +1,7 @@
 ---
 title: "Easements and Access on the Plains"
 date: 2026-11-23
-lede: "Federal easements kept Plains land private and closed. State walk-in leases open some of it to the public. The two instruments, side by side."
+lede: "Federal easements keep Plains land private and closed. State walk-in leases open some of it to the public. Where the two instruments stand today."
 weight: 18
 draft: true
 viz: map
@@ -10,25 +10,28 @@ regions: [northern-plains, southern-plains, rocky-mountain]
 map:
   renderer: d3
   mode: timeline
+  snapshot: true
   src: /data/federal-interests-easements.json
   statessrc: /data/states.json
   focus: ["38", "46", "31", "20", "30", "56", "08"]   # ND, SD, NE, KS, MT, WY, CO
   focuslabel: "ND, SD, NE, KS, MT, WY, and CO"
-  start: 1930
   color: "#1f6b66"
-  infotitle: "Federal easements and state walk-in leases"
+  infotitle: "Closed and open: the present"
+  dotlabel: "Federal easements (closed to the public)"
   areas:
     src: /data/hunting-access.json
     color: "#d4a017"
-    label: "Walk-in hunting leases, 2026–27 (ND PLOTS, KS WIHA)"
+    label: "State walk-in leases, 2026–27 (open to the public; SD data not available)"
 ---
 
 <!-- EXPLORATORY DRAFT (branch explore/hunting-access). Prose is the author's.
 Editorial cues:
 - Base map is "Federal Easements on the Northern Plains" with the frame widened to NE and KS.
-- Dots = FWS easements by acquisition year (slider). Gold fill = state walk-in leases, a single
-  2026–27 snapshot; they do NOT move with the slider.
-- Only ND and KS walk-in data are loaded. SD Walk-In Areas, NE Open Fields and Waters, MT Block
-  Management, WY Walk-In Areas, CO Walk-In Access are absent — gaps in the fill are gaps in the data.
+- Present-day snapshot, no slider. Dots = every FWS easement tract to date. Gold = state walk-in
+  leases for the 2026–27 season: ND PLOTS, KS WIHA, NE Open Fields and Waters, MT Block Management,
+  WY Walk-In Areas + Hunter Management Areas, CO Walk-In Access.
+- SD Walk-In Areas are MISSING: SD GFP's layer is behind an access-controlled proxy. Request the
+  data from SD Game, Fish & Parks before publishing — SD's blank is a data gap, not an absence.
+- MT Block Management includes some enclosed state/federal land, not only private ground.
 - Easement ≠ access: the teal dots are private and closed; the gold is private and open.
 -->

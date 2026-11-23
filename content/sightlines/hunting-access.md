@@ -26,7 +26,7 @@ map:
   layers:
     - id: access
       kind: polygons
-      label: "State walk-in hunting leases (ND PLOTS, KS WIHA)"
+      label: "State walk-in hunting leases (ND, KS, NE, MT, WY, CO)"
       probelabel: "Walk-in"
       src: /data/hunting-access.json
       color: "#b5651d"

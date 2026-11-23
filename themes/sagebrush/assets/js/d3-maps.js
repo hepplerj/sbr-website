@@ -762,8 +762,10 @@
   //   start:     1930                first year on the slider
   //   color:     "#1f6b66"           older tracts; newly acquired draw in --rust
   //   windows:   [0, 10, 1]          0 = cumulative, n = acquired in last n years
+  //   snapshot:  true                 hide slider + histogram; draw all tracts
+  //   dotlabel:  "Easement tracts"    snapshot-mode label for the dots
   //   areas:     { src, color, label }  optional static GeoJSON polygons (wound
-  //              D3's way) filled under the dots; not time-filtered. If the
+  //              D3's way) filled over the dots; not time-filtered. If the
   //              file carries `totals: {KEY: {areas, acres}}` they're summed
   //              into the info panel.
   function initTimeline(container, cfg) {
@@ -795,6 +797,9 @@
         ${windows.map((n) => `<option value="${n}">${winLabel(n)}</option>`).join("")}
       </select>`;
     container.appendChild(controls);
+    // snapshot: true — everything to date, no playhead or histogram.
+    const snap = !!cfg.snapshot;
+    if (snap) { controls.style.display = "none"; hist.style.display = "none"; }
     const playBtn = controls.querySelector(".d3-map__play");
     const slider  = controls.querySelector(".d3-map__year");
     const winSel  = controls.querySelector(".d3-map__window");
@@ -825,12 +830,13 @@
       const focus  = states.filter((f) => focusIds.has(String(f.id)));
       const mesh   = topojson.mesh(topo, topo.objects.states, (a, b) => a !== b);
       const F = Object.fromEntries(data.fields.map((f, i) => [f, i]));
-      const tracts = data.tracts.filter((t) => t[F.year] != null);
-      const years  = tracts.map((t) => t[F.year]);
+      // A snapshot has no playhead to place undated tracts on, so keep them.
+      const tracts = snap ? data.tracts : data.tracts.filter((t) => t[F.year] != null);
+      const years  = tracts.map((t) => t[F.year]).filter((y) => y != null);
       const start  = cfg.start || d3.min(years);
       const end    = d3.max(years);
 
-      slider.min = start; slider.max = end; slider.value = start;
+      slider.min = start; slider.max = end; slider.value = snap ? end : start;
       let pts = [];
 
       let areasNote = "";
@@ -896,7 +902,7 @@
         for (const p of pts) {
           if (p.year > year) break;
           if (p.year < from) continue;
-          const fresh = p.year === year;
+          const fresh = !snap && p.year === year;
           ctx.globalAlpha = fresh ? 0.95 : 0.55;
           ctx.fillStyle = fresh ? C.fresh : C.old;
           ctx.beginPath(); ctx.arc(p.x, p.y, fresh ? p.r + 1 : p.r, 0, 2 * Math.PI); ctx.fill();
@@ -915,6 +921,12 @@
 
         const fmt = d3.format(",");
         layout.bars.attr("fill", (d) => d === year ? C.fresh : d <= year && d >= from ? C.old : C.rule);
+        if (snap) {
+          infoText.innerHTML = `<h4>${cfg.infotitle || "Present"}</h4><div class="detail"><span style="color:${C.old}">●</span>
+            ${cfg.dotlabel || "Easement tracts"}: <strong>${fmt(n)}</strong> tracts, <strong>${fmt(Math.round(acres))}</strong>
+            acres in ${cfg.focuslabel || "the highlighted states"}</div>${areasNote}`;
+          return;
+        }
         infoText.innerHTML = `<h4>${year}</h4><div class="detail">${winLabel(win)}: <strong>${fmt(n)}</strong> tracts,
           <strong>${fmt(Math.round(acres))}</strong> acres in ${cfg.focuslabel || "the highlighted states"}.
           <span style="color:${C.fresh}">●</span> acquired in ${year}</div>${areasNote}`;
