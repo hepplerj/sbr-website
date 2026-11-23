@@ -39,8 +39,11 @@ repeated on every polygon the agreement spans (ND ``Total_Acres``, NE
 ``ContractLandAcres``), and MT and CO carry none; summing attributes would
 double count or come up empty.
 
-Output: static/data/hunting-access.json  GeoJSON polygons, EPSG:4326, wound
-for D3 by build_federal_interests.rewind().
+Output (GeoJSON polygons, EPSG:4326, wound for D3 by
+build_federal_interests.rewind()):
+  static/data/hunting-access.json    walk-in leases
+  static/data/plains-easements.json  FWS easement tracts in the Plains frame,
+                                     as polygons, so the two draw alike
 
 Run: ``/usr/bin/python3 scripts/build_hunting_access.py``
 """
@@ -52,7 +55,7 @@ import sys
 import time
 
 from _common import DATA_DIR, write_json
-from build_federal_interests import query, rewind
+from build_federal_interests import FWS_URL, query, rewind
 
 AGOL = "https://services{}.arcgis.com/{}/ArcGIS/rest/services/{}/FeatureServer/{}/query"
 PAGE = 1000  # smallest maxRecordCount among the sources
@@ -147,11 +150,11 @@ def acres(geom: dict) -> float:
     return m2 * 111_320 ** 2 / 4046.856
 
 
-def fetch(url: str, where: str, fields: str, order: str, label: str) -> list:
+def fetch(url: str, where: str, fields: str, order: str, label: str, **extra) -> list:
     """All matching features as GeoJSON, generalized for regional display."""
     feats, offset = [], 0
     while True:
-        page = query(url, {
+        page = query(url, {**extra,
             "where": where,
             "outFields": fields,
             "returnGeometry": "true",
@@ -203,6 +206,32 @@ def build() -> dict:
     }
 
 
+# ND, SD, NE, KS, MT, WY, CO plus a margin; edge states (MN, IA, ID, UT) get
+# clipped by the map frame, and the renderer tallies only the focus states.
+PLAINS_BBOX = "-116.1,36.9,-94.5,49.1"
+
+
+def build_easements() -> dict:
+    """FWS easement tract *polygons* for the Plains frame. The national build
+    (build_federal_interests.py) ships centroids; this is the regional cut."""
+    out = []
+    for f in fetch(FWS_URL, "INTTYPE1 = 'E'", "OBJECTID,GISACRES,DOCACRES", "OBJECTID", "easements",
+                   geometry=PLAINS_BBOX, geometryType="esriGeometryEnvelope", inSR="4326",
+                   spatialRel="esriSpatialRelIntersects"):
+        if not rewind(f.get("geometry")):
+            continue
+        p = f.get("properties") or {}
+        # Same rule as the national build: GISACRES is 0 on many easements.
+        f["properties"] = {"acres": round(max(p.get("GISACRES") or 0, p.get("DOCACRES") or 0))}
+        out.append(f)
+    return {
+        "type": "FeatureCollection",
+        "source": "US Fish & Wildlife Service National Realty Tracts (INTTYPE1 = 'E')",
+        "retrieved": time.strftime("%Y-%m-%d", time.gmtime()),
+        "features": out,
+    }
+
+
 if __name__ == "__main__":
     assert ks_season("SJ") == "Sept. 1–Jan. 31"
     assert ks_season("NJASOAM") == "Nov. 1–Jan. 31 / Apr. 1–May 31 · archery only"
@@ -211,3 +240,4 @@ if __name__ == "__main__":
     sq = [[0, 45], [0, 45 + 1 / 69.05], [1 / 48.85, 45 + 1 / 69.05], [1 / 48.85, 45], [0, 45]]
     assert abs(acres({"type": "Polygon", "coordinates": [sq]}) - 640) < 5
     write_json(DATA_DIR / "hunting-access.json", build())
+    write_json(DATA_DIR / "plains-easements.json", build_easements())
