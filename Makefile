@@ -8,7 +8,7 @@ ifneq (,$(wildcard scripts/.env))
   export
 endif
 
-.PHONY: data federal-lands conus-temperature west-precipitation regions-climate bankhead-jones us-federal-lands federal-interests federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
+.PHONY: data federal-lands conus-temperature west-precipitation regions-climate bankhead-jones us-federal-lands federal-interests hunting-access federal-footprint grazing-districts usfs-allotments grazing-allotments farm-bankruptcies farm-foreclosures farm-consolidation farm-income cattle-prices fetch-legislators cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography producer-terms clean-data site site-fast serve
 
 data: federal-lands conus-temperature west-precipitation regions-climate bankhead-jones us-federal-lands grazing-districts usfs-allotments grazing-allotments farm-consolidation farm-bankruptcies farm-foreclosures farm-income cosponsorship grasslands-cosponsorship atlas-regional timeline national-monuments wildfire states-temperature legislation-textreuse bibliography
 
@@ -35,6 +35,11 @@ us-federal-lands:
 # experimental page, so run it on demand.
 federal-interests:
 	$(PY) scripts/build_federal_interests.py
+
+# Exploratory: state walk-in hunting leases (ND PLOTS, KS WIHA). Not in
+# `data`; reuses build_federal_interests' query/rewind helpers.
+hunting-access:
+	$(PY) scripts/build_hunting_access.py
 
 # "The Federal Footprint, State by State" atlas instrument — depends on
 # federal-interests' trust/easement outputs already being present. Not in

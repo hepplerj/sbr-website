@@ -605,7 +605,7 @@
 
     function probe(vx, vy) {
       const lonlat = projection.invert ? projection.invert([vx, vy]) : null;
-      const hits = { trust: null, points: [] };
+      const hits = { polys: [], points: [] };
 
       overlays.forEach((l) => {
         if (!l.visible || !l.data) return;
@@ -622,7 +622,9 @@
         // rings aren't wound for containment testing, only for stroking.
         if (l.cfg.kind === "outline") return;
 
-        if (lonlat && !hits.trust) {
+        // One hit per polygon layer, so overlapping interests (trust land
+        // and a walk-in lease, say) each get a row.
+        if (lonlat) {
           const f = (l.data.features || []).find((feat) => {
             const b = feat.__bbox;
             if (!b) return false;
@@ -630,7 +632,7 @@
             if (lonlat[1] < b[0][1] || lonlat[1] > b[1][1]) return false;
             return d3.geoContains(feat, lonlat);
           });
-          if (f) hits.trust = { layer: l, feature: f };
+          if (f) hits.polys.push({ layer: l, feature: f });
         }
       });
 
@@ -650,12 +652,12 @@
         ));
       }
 
-      const trust = probeHits && probeHits.trust;
-      if (trust) {
-        const p = trust.feature.properties || {};
-        const nf = trust.layer.cfg.namefield || "name";
-        rows.push(row(probeKey(trust.layer, "Trust"), `${p[nf] || "Trust land"}${p.kind ? ` — ${p.kind}` : ""}`, true));
-      }
+      (probeHits ? probeHits.polys : []).forEach((hit) => {
+        const p = hit.feature.properties || {};
+        const nf = hit.layer.cfg.namefield || "name";
+        const sub = p.acres ? `${fmt(p.acres)} acres` : "";
+        rows.push(row(probeKey(hit.layer, "Trust"), `${p[nf] || "Trust land"}${p.kind ? ` — ${p.kind}` : ""}`, true, sub));
+      });
 
       (probeHits ? probeHits.points : []).forEach((hit) => {
         const t = hit.tract;
@@ -760,6 +762,13 @@
   //   start:     1930                first year on the slider
   //   color:     "#1f6b66"           older tracts; newly acquired draw in --rust
   //   windows:   [0, 10, 1]          0 = cumulative, n = acquired in last n years
+  //   snapshot:  true                 hide slider + histogram; draw all tracts
+  //   dotlabel:  "Easement tracts"    snapshot-mode label for the dots
+  //   areas:     { src, color, label } or a list of them — static GeoJSON
+  //              polygons (wound D3's way) filled over the dots in order; not
+  //              time-filtered. Features whose centroid falls in the focus
+  //              states are counted, with `properties.acres` summed, in the
+  //              info panel. With `areas` set, `src` is optional (no dots).
   function initTimeline(container, cfg) {
     container.dataset.initialized = "true";
     container.classList.add("viz-embed__frame--live", "d3-map", "d3-map--timeline");
@@ -789,6 +798,9 @@
         ${windows.map((n) => `<option value="${n}">${winLabel(n)}</option>`).join("")}
       </select>`;
     container.appendChild(controls);
+    // snapshot: true — everything to date, no playhead or histogram.
+    const snap = !!cfg.snapshot;
+    if (snap) { controls.style.display = "none"; hist.style.display = "none"; }
     const playBtn = controls.querySelector(".d3-map__play");
     const slider  = controls.querySelector(".d3-map__year");
     const winSel  = controls.querySelector(".d3-map__window");
@@ -802,25 +814,34 @@
     };
     const focusIds = new Set((cfg.focus || []).map(String));
 
-    Promise.all([d3.json(cfg.statessrc || "/data/states.json"), d3.json(cfg.src)])
-      .then(([topo, data]) => setup(topo, data))
+    const areasCfg = [].concat(cfg.areas || []);
+    Promise.all([
+      d3.json(cfg.statessrc || "/data/states.json"),
+      cfg.src ? d3.json(cfg.src) : null,
+      ...areasCfg.map((a) => d3.json(a.src)),
+    ])
+      .then(([topo, data, ...areas]) => setup(topo, data, areas))
       .catch((err) => {
         container.classList.add("viz-embed__frame--error");
         container.innerHTML = `<div class="viz-embed__error">Map could not load: ${err.message}</div>`;
       });
 
-    function setup(topo, data) {
+    function setup(topo, data, areas) {
       const states = topojson.feature(topo, topo.objects.states).features;
       const focus  = states.filter((f) => focusIds.has(String(f.id)));
       const mesh   = topojson.mesh(topo, topo.objects.states, (a, b) => a !== b);
-      const F = Object.fromEntries(data.fields.map((f, i) => [f, i]));
-      const tracts = data.tracts.filter((t) => t[F.year] != null);
-      const years  = tracts.map((t) => t[F.year]);
+      const F = data ? Object.fromEntries(data.fields.map((f, i) => [f, i])) : {};
+      // A snapshot has no playhead to place undated tracts on, so keep them.
+      const tracts = !data ? [] : snap ? data.tracts : data.tracts.filter((t) => t[F.year] != null);
+      const years  = tracts.map((t) => t[F.year]).filter((y) => y != null);
       const start  = cfg.start || d3.min(years);
       const end    = d3.max(years);
 
-      slider.min = start; slider.max = end; slider.value = start;
+      slider.min = start; slider.max = end; slider.value = snap ? end : start;
       let pts = [];
+
+      const areaColor = (i) => areasCfg[i].color || "#d4a017";
+      let areasNote = "";
 
       function layout() {
         const w = container.clientWidth, h = container.clientHeight;
@@ -855,7 +876,22 @@
           land: new Path2D(path({ type: "FeatureCollection", features: states })),
           focus: focusPath,
           mesh: new Path2D(path(mesh)),
+          areas: areas.map((a) => new Path2D(path(a))),
         };
+        // Tally each area layer inside the focus states, by projected centroid.
+        const fmt = d3.format(",");
+        areasNote = areas.map((a, i) => {
+          let n = 0, ac = 0;
+          for (const f of a.features) {
+            const c = path.centroid(f);
+            if (c.every(Number.isFinite) && hit.isPointInPath(focusPath, c[0], c[1])) {
+              n++; ac += (f.properties && f.properties.acres) || 0;
+            }
+          }
+          return `<div class="detail"><span style="color:${areaColor(i)}">■</span>
+            ${areasCfg[i].label || "Areas"}: <strong>${fmt(n)}</strong> areas,
+            <strong>${fmt(Math.round(ac))}</strong> acres</div>`;
+        }).join("");
         draw();
       }
 
@@ -871,12 +907,11 @@
         ctx.fillStyle = C.focus; ctx.fill(P.focus);
         ctx.strokeStyle = C.bg; ctx.lineWidth = 1; ctx.stroke(P.mesh);
         ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2; ctx.stroke(P.focus);
-
         let n = 0, acres = 0;
         for (const p of pts) {
           if (p.year > year) break;
           if (p.year < from) continue;
-          const fresh = p.year === year;
+          const fresh = !snap && p.year === year;
           ctx.globalAlpha = fresh ? 0.95 : 0.55;
           ctx.fillStyle = fresh ? C.fresh : C.old;
           ctx.beginPath(); ctx.arc(p.x, p.y, fresh ? p.r + 1 : p.r, 0, 2 * Math.PI); ctx.fill();
@@ -884,11 +919,26 @@
         }
         ctx.globalAlpha = 1;
 
+        // Over the dots, not under: Dakota easements are dense enough to bury
+        // anything beneath them. A hairline stroke keeps quarter-section
+        // tracts visible at regional zoom, where their fill is sub-pixel.
+        P.areas.forEach((a, i) => {
+          ctx.fillStyle = ctx.strokeStyle = areaColor(i);
+          ctx.lineWidth = 0.6;
+          ctx.fill(a); ctx.stroke(a);
+        });
+
         const fmt = d3.format(",");
         layout.bars.attr("fill", (d) => d === year ? C.fresh : d <= year && d >= from ? C.old : C.rule);
+        if (snap) {
+          infoText.innerHTML = `<h4>${cfg.infotitle || "Present"}</h4>${data ? `<div class="detail"><span style="color:${C.old}">●</span>
+            ${cfg.dotlabel || "Easement tracts"}: <strong>${fmt(n)}</strong> tracts, <strong>${fmt(Math.round(acres))}</strong>
+            acres in ${cfg.focuslabel || "the highlighted states"}</div>` : ""}${areasNote}`;
+          return;
+        }
         infoText.innerHTML = `<h4>${year}</h4><div class="detail">${winLabel(win)}: <strong>${fmt(n)}</strong> tracts,
           <strong>${fmt(Math.round(acres))}</strong> acres in ${cfg.focuslabel || "the highlighted states"}.
-          <span style="color:${C.fresh}">●</span> acquired in ${year}</div>`;
+          <span style="color:${C.fresh}">●</span> acquired in ${year}</div>${areasNote}`;
       }
 
       // Tracts acquired per year in the focus states; the current year and
