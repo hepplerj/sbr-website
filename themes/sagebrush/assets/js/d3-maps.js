@@ -762,6 +762,10 @@
   //   start:     1930                first year on the slider
   //   color:     "#1f6b66"           older tracts; newly acquired draw in --rust
   //   windows:   [0, 10, 1]          0 = cumulative, n = acquired in last n years
+  //   areas:     { src, color, label }  optional static GeoJSON polygons (wound
+  //              D3's way) filled under the dots; not time-filtered. If the
+  //              file carries `totals: {KEY: {areas, acres}}` they're summed
+  //              into the info panel.
   function initTimeline(container, cfg) {
     container.dataset.initialized = "true";
     container.classList.add("viz-embed__frame--live", "d3-map", "d3-map--timeline");
@@ -804,14 +808,19 @@
     };
     const focusIds = new Set((cfg.focus || []).map(String));
 
-    Promise.all([d3.json(cfg.statessrc || "/data/states.json"), d3.json(cfg.src)])
-      .then(([topo, data]) => setup(topo, data))
+    const areasCfg = cfg.areas || null;
+    Promise.all([
+      d3.json(cfg.statessrc || "/data/states.json"),
+      d3.json(cfg.src),
+      areasCfg ? d3.json(areasCfg.src) : null,
+    ])
+      .then(([topo, data, areas]) => setup(topo, data, areas))
       .catch((err) => {
         container.classList.add("viz-embed__frame--error");
         container.innerHTML = `<div class="viz-embed__error">Map could not load: ${err.message}</div>`;
       });
 
-    function setup(topo, data) {
+    function setup(topo, data, areas) {
       const states = topojson.feature(topo, topo.objects.states).features;
       const focus  = states.filter((f) => focusIds.has(String(f.id)));
       const mesh   = topojson.mesh(topo, topo.objects.states, (a, b) => a !== b);
@@ -823,6 +832,15 @@
 
       slider.min = start; slider.max = end; slider.value = start;
       let pts = [];
+
+      let areasNote = "";
+      if (areas) {
+        const tot = Object.values(areas.totals || {});
+        const sum = (k) => d3.format(",")(Math.round(d3.sum(tot, (t) => t[k])));
+        areasNote = `<div class="detail"><span style="color:${areasCfg.color || "#d4a017"}">■</span>
+          ${areasCfg.label || "Areas"}${tot.length ? `: <strong>${sum("areas")}</strong> areas,
+          <strong>${sum("acres")}</strong> acres` : ""}</div>`;
+      }
 
       function layout() {
         const w = container.clientWidth, h = container.clientHeight;
@@ -857,6 +875,7 @@
           land: new Path2D(path({ type: "FeatureCollection", features: states })),
           focus: focusPath,
           mesh: new Path2D(path(mesh)),
+          areas: areas ? new Path2D(path(areas)) : null,
         };
         draw();
       }
@@ -873,7 +892,6 @@
         ctx.fillStyle = C.focus; ctx.fill(P.focus);
         ctx.strokeStyle = C.bg; ctx.lineWidth = 1; ctx.stroke(P.mesh);
         ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2; ctx.stroke(P.focus);
-
         let n = 0, acres = 0;
         for (const p of pts) {
           if (p.year > year) break;
@@ -886,11 +904,20 @@
         }
         ctx.globalAlpha = 1;
 
+        // Over the dots, not under: Dakota easements are dense enough to bury
+        // anything beneath them. A hairline stroke keeps quarter-section
+        // tracts visible at regional zoom, where their fill is sub-pixel.
+        if (P.areas) {
+          ctx.fillStyle = ctx.strokeStyle = areasCfg.color || "#d4a017";
+          ctx.lineWidth = 0.6;
+          ctx.fill(P.areas); ctx.stroke(P.areas);
+        }
+
         const fmt = d3.format(",");
         layout.bars.attr("fill", (d) => d === year ? C.fresh : d <= year && d >= from ? C.old : C.rule);
         infoText.innerHTML = `<h4>${year}</h4><div class="detail">${winLabel(win)}: <strong>${fmt(n)}</strong> tracts,
           <strong>${fmt(Math.round(acres))}</strong> acres in ${cfg.focuslabel || "the highlighted states"}.
-          <span style="color:${C.fresh}">●</span> acquired in ${year}</div>`;
+          <span style="color:${C.fresh}">●</span> acquired in ${year}</div>${areasNote}`;
       }
 
       // Tracts acquired per year in the focus states; the current year and
