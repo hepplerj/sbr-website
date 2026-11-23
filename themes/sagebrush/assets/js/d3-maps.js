@@ -605,7 +605,7 @@
 
     function probe(vx, vy) {
       const lonlat = projection.invert ? projection.invert([vx, vy]) : null;
-      const hits = { trust: null, points: [] };
+      const hits = { polys: [], points: [] };
 
       overlays.forEach((l) => {
         if (!l.visible || !l.data) return;
@@ -622,7 +622,9 @@
         // rings aren't wound for containment testing, only for stroking.
         if (l.cfg.kind === "outline") return;
 
-        if (lonlat && !hits.trust) {
+        // One hit per polygon layer, so overlapping interests (trust land
+        // and a walk-in lease, say) each get a row.
+        if (lonlat) {
           const f = (l.data.features || []).find((feat) => {
             const b = feat.__bbox;
             if (!b) return false;
@@ -630,7 +632,7 @@
             if (lonlat[1] < b[0][1] || lonlat[1] > b[1][1]) return false;
             return d3.geoContains(feat, lonlat);
           });
-          if (f) hits.trust = { layer: l, feature: f };
+          if (f) hits.polys.push({ layer: l, feature: f });
         }
       });
 
@@ -650,12 +652,12 @@
         ));
       }
 
-      const trust = probeHits && probeHits.trust;
-      if (trust) {
-        const p = trust.feature.properties || {};
-        const nf = trust.layer.cfg.namefield || "name";
-        rows.push(row(probeKey(trust.layer, "Trust"), `${p[nf] || "Trust land"}${p.kind ? ` — ${p.kind}` : ""}`, true));
-      }
+      (probeHits ? probeHits.polys : []).forEach((hit) => {
+        const p = hit.feature.properties || {};
+        const nf = hit.layer.cfg.namefield || "name";
+        const sub = p.acres ? `${fmt(p.acres)} acres` : "";
+        rows.push(row(probeKey(hit.layer, "Trust"), `${p[nf] || "Trust land"}${p.kind ? ` — ${p.kind}` : ""}`, true, sub));
+      });
 
       (probeHits ? probeHits.points : []).forEach((hit) => {
         const t = hit.tract;
